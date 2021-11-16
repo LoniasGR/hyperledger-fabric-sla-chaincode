@@ -1,7 +1,6 @@
 package chaincode
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
