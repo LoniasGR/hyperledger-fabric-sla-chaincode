@@ -26,26 +26,26 @@ type SLA struct {
 
 // InitLedger adds a base set of assets to the ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	assets := []SLA{
-		{ID: "asset1", Customer: "blue", Metric: "Downtime", Provider: "Tomoko", Value: 300, Status: 1},
-		{ID: "asset2", Customer: "red", Metric: "Downtime", Provider: "Brad", Value: 400, Status: 1},
-		{ID: "asset3", Customer: "green", Metric: "Downtime", Provider: "Jin Soo", Value: 500, Status: 1},
-		{ID: "asset4", Customer: "yellow", Metric: "Downtime", Provider: "Max", Value: 600, Status: 1},
-		{ID: "asset5", Customer: "black", Metric: "Downtime", Provider: "Adriana", Value: 700, Status: 1},
-		{ID: "asset6", Customer: "white", Metric: "Downtime", Provider: "Michel", Value: 800, Status: 1},
-	}
+	// assets := []SLA{
+	// 	{ID: "asset1", Customer: "blue", Metric: "Downtime", Provider: "Tomoko", Value: 300, Status: 1},
+	// 	{ID: "asset2", Customer: "red", Metric: "Downtime", Provider: "Brad", Value: 400, Status: 1},
+	// 	{ID: "asset3", Customer: "green", Metric: "Downtime", Provider: "Jin Soo", Value: 500, Status: 1},
+	// 	{ID: "asset4", Customer: "yellow", Metric: "Downtime", Provider: "Max", Value: 600, Status: 1},
+	// 	{ID: "asset5", Customer: "black", Metric: "Downtime", Provider: "Adriana", Value: 700, Status: 1},
+	// 	{ID: "asset6", Customer: "white", Metric: "Downtime", Provider: "Michel", Value: 800, Status: 1},
+	// }
 
-	for _, asset := range assets {
-		assetJSON, err := json.Marshal(asset)
-		if err != nil {
-			return err
-		}
+	// for _, asset := range assets {
+	// 	assetJSON, err := json.Marshal(asset)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		err = ctx.GetStub().PutState(asset.ID, assetJSON)
-		if err != nil {
-			return fmt.Errorf("failed to put to world state. %v", err)
-		}
-	}
+	// 	err = ctx.GetStub().PutState(asset.ID, assetJSON)
+	// 	if err != nil {
+	// 		return fmt.Errorf("failed to put to world state. %v", err)
+	// 	}
+	// }
 
 	return nil
 }
