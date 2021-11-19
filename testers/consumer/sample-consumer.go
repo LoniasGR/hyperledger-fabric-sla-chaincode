@@ -14,7 +14,7 @@ import (
 
 type SLA struct {
 	Customer string `json:"Customer"`
-	ID       string `json:"String"`
+	ID       string `json:"ID"`
 	Metric   string `json:"Metric"`
 	Provider string `json:"Provider"`
 	Status   int    `json:"Status"`

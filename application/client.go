@@ -23,7 +23,7 @@ import (
 
 type SLA struct {
 	Customer string `json:"Customer"`
-	ID       string `json:"String"`
+	ID       string `json:"ID"`
 	Metric   string `json:"Metric"`
 	Provider string `json:"Provider"`
 	Status   int    `json:"Status"`
@@ -106,12 +106,14 @@ func main() {
 		if err != nil {
 			break
 		}
+		log.Println(string(m.Value))
 
 		var s SLA
 		err = json.Unmarshal(m.Value, &s)
 		if err != nil {
 			panic(err.Error())
 		}
+		log.Println(s)
 		log.Println("--> Submit Transaction: CreateContract, creates new contract with ID, customer, metric, provider, value, and status arguments")
 		result, err := contract.SubmitTransaction("CreateContract", s.ID, s.Customer, s.Metric, s.Provider, fmt.Sprint(s.Value), fmt.Sprint(s.Status))
 		if err != nil {

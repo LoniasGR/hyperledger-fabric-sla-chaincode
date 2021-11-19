@@ -18,7 +18,7 @@ type SmartContract struct {
 // golang keeps the order when marshal to json but doesn't order automatically
 type SLA struct {
 	Customer string `json:"Customer"`
-	ID       string `json:"String"`
+	ID       string `json:"ID"`
 	Metric   string `json:"Metric"`
 	Provider string `json:"Provider"`
 	Status   int    `json:"Status"`

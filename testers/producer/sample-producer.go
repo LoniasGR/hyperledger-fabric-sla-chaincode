@@ -11,18 +11,25 @@ import (
 
 type SLA struct {
 	Customer string `json:"Customer"`
-	ID       string `json:"String"`
+	ID       string `json:"ID"`
 	Metric   string `json:"Metric"`
 	Provider string `json:"Provider"`
 	Status   int    `json:"Status"`
 	Value    int    `json:"Value"`
 }
 
+type Violation struct {
+	ID         string `json:"ID"`
+	ContractID string `json:"ContractID"`
+	Status     int    `json:"Status"`
+}
+
 func main() {
 	// to create topics when auto.create.topics.enable='true'
-	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "SLA", 0)
-	if err != nil {
-		panic(err.Error())
+	w := &kafka.Writer{
+		Addr: kafka.TCP("localhost:9092"),
+		// NOTE: When Topic is not defined here, each Message must define it instead.
+		Balancer: &kafka.LeastBytes{},
 	}
 
 	assets := []SLA{
@@ -36,14 +43,16 @@ func main() {
 
 	// Set timeout for writing
 	for _, asset := range assets {
-		conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 		assetJSON, err := json.Marshal(asset)
 		if err != nil {
 			panic(err.Error())
 		}
-		log.Println(assetJSON)
-		_, err = conn.WriteMessages(
-			kafka.Message{Value: []byte(assetJSON)},
+		log.Println(asset)
+		err = w.WriteMessages(context.Background(),
+			kafka.Message{
+				Topic: "SLA",
+				Key:   []byte(asset.ID),
+				Value: []byte(assetJSON)},
 		)
 		if err != nil {
 			log.Fatal("failed to write messages:", err)
@@ -51,7 +60,30 @@ func main() {
 		time.Sleep(10 * time.Second)
 	}
 
-	if err := conn.Close(); err != nil {
+	violations := []Violation{
+		{ID: "violation1", ContractID: "contract1", Status: 2},
+		{ID: "violation2", ContractID: "contract3", Status: 2},
+		{ID: "violation3", ContractID: "contract5", Status: 2},
+	}
+
+	for _, violation := range violations {
+		violationJSON, err := json.Marshal(violation)
+		if err != nil {
+			panic(err.Error())
+		}
+		log.Println(violation)
+		err = w.WriteMessages(context.Background(),
+			kafka.Message{
+				Topic: "SLAViolations",
+				Value: []byte(violationJSON)},
+		)
+		if err != nil {
+			log.Fatal("failed to write messages:", err)
+		}
+		time.Sleep(10 * time.Second)
+	}
+
+	if err := w.Close(); err != nil {
 		log.Fatal("failed to close writer:", err)
 	}
 }
