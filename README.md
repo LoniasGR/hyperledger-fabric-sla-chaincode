@@ -2,6 +2,7 @@
 
 ## Setup
 
+* Clone project into fabric-samples folder
 * Install Kafka
 
 ```bash
@@ -21,12 +22,10 @@ cd kafka_2.13-3.0.0
 bin/kafka-server-start.sh config/server.properties
 ```
 
-* [Basic example that uses SDK to query and execute transaction](https://github.com/hyperledger/fabric-sdk-go/blob/main/test/integration/e2e/end_to_end.go)
-  
 ## TODO
 
-1) `client.go` integrate Kafka consumer
-2) `client.go` Wallet management (provider wallet, customer wallet)
-3) `smartcontract.go` function SLAViolation Compensation scheme
-4) Violation Kafka topic: `sla_violation`
-5) SLA Smart Contract Bridge (Kafka topic:)
+- [x] `client.go` integrate Kafka consumer
+- [] `client.go` Wallet management (provider wallet, customer wallet)
+- [] `smartcontract.go` function SLAViolation Compensation scheme
+- [] Violation Kafka topic: `sla_violation`
+- [] SLA Smart Contract Bridge (Kafka topic:)
