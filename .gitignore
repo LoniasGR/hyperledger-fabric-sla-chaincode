@@ -16,3 +16,7 @@ vendor/
 
 # VSCode files
 .vscode
+
+# Hyperledger identities
+wallet/
+keystore/
