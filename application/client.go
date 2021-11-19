@@ -9,7 +9,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -32,7 +31,12 @@ type SLA struct {
 }
 
 func main() {
-	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
+	log.Println("============ application-golang starts ============")
+
+	err := os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
+	if err != nil {
+		log.Fatalf("Error setting DISCOVERY_AS_LOCALHOST environment variable: %v", err)
+	}
 
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{"localhost:9092"},
@@ -42,17 +46,25 @@ func main() {
 		MaxBytes:  10e6, // 10MB
 	})
 
+	// Cleanup for when the service terminates
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		cleanup(r)
+		log.Println("============ application-golang ends ============")
+		os.Exit(0)
+	}()
+
 	wallet, err := gateway.NewFileSystemWallet("wallet")
 	if err != nil {
-		fmt.Printf("Failed to create wallet: %s\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to create wallet: %v", err)
 	}
 
 	if !wallet.Exists("appUser") {
 		err = populateWallet(wallet)
 		if err != nil {
-			fmt.Printf("Failed to populate wallet contents: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Failed to populate wallet contents: %v", err)
 		}
 	}
 
@@ -71,31 +83,25 @@ func main() {
 		gateway.WithIdentity(wallet, "appUser"),
 	)
 	if err != nil {
-		fmt.Printf("Failed to connect to gateway: %s\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to connect to gateway: %v", err)
 	}
 	defer gw.Close()
 
 	network, err := gw.GetNetwork("mychannel")
 	if err != nil {
-		fmt.Printf("Failed to get network: %s\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to get network: %v", err)
 	}
 
 	contract := network.GetContract("SLA")
 
-	// Cleanup for when the service terminates
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		<-c
-		cleanup(r)
-		os.Exit(0)
-	}()
+	log.Println("--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger")
+	result, err := contract.SubmitTransaction("InitLedger")
+	if err != nil {
+		log.Fatalf("Failed to Submit transaction: %v", err)
+	}
+	log.Println(string(result))
 
-	// Poll for new messages
 	for {
-
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {
 			break
@@ -106,17 +112,17 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-
+		log.Println("--> Submit Transaction: CreateContract, creates new contract with ID, customer, metric, provider, value, and status arguments")
 		result, err := contract.SubmitTransaction("CreateContract", s.ID, s.Customer, s.Metric, s.Provider, fmt.Sprint(s.Value), fmt.Sprint(s.Status))
 		if err != nil {
-			fmt.Printf("Failed to submit transaction: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Failed to submit transaction: %s\n", err)
 		}
 		fmt.Println(string(result))
 	}
 }
 
 func populateWallet(wallet *gateway.Wallet) error {
+	log.Println("============ Populating wallet ============")
 	credPath := filepath.Join(
 		"..",
 		"..",
@@ -143,7 +149,7 @@ func populateWallet(wallet *gateway.Wallet) error {
 		return err
 	}
 	if len(files) != 1 {
-		return errors.New("keystore folder should have contain one file")
+		return fmt.Errorf("keystore folder should have contain one file")
 	}
 	keyPath := filepath.Join(keyDir, files[0].Name())
 	key, err := ioutil.ReadFile(filepath.Clean(keyPath))
@@ -151,14 +157,9 @@ func populateWallet(wallet *gateway.Wallet) error {
 		return err
 	}
 
-	identity := gateway.NewX509Identity("Org1MSP", fmt.Sprint(cert), fmt.Sprint(key))
+	identity := gateway.NewX509Identity("Org1MSP", string(cert), string(key))
 
-	err = wallet.Put("appUser", identity)
-	if err != nil {
-		return err
-	}
-	return nil
-
+	return wallet.Put("appUser", identity)
 }
 
 func cleanup(r *kafka.Reader) {
