@@ -25,7 +25,7 @@ bin/kafka-server-start.sh config/server.properties
 ## TODO
 
 - [x] `client.go` integrate Kafka consumer
-- [] `client.go` Wallet management (provider wallet, customer wallet)
-- [] `smartcontract.go` function SLAViolation Compensation scheme
-- [] Violation Kafka topic: `sla_violation`
-- [] SLA Smart Contract Bridge (Kafka topic:)
+- [ ] `client.go` Wallet management (provider wallet, customer wallet)
+- [ ] `smartcontract.go` function SLAViolation Compensation scheme
+- [ ] Violation Kafka topic: `sla_violation`
+- [x] SLA Smart Contract Bridge (Kafka topic:)
