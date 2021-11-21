@@ -57,7 +57,7 @@ func main() {
 		}
 		err = w.WriteMessages(context.Background(),
 			kafka.Message{
-				Topic: "SLA",
+				Topic: topics[0],
 				Key:   []byte(asset.ID),
 				Value: []byte(assetJSON)},
 		)
@@ -82,7 +82,7 @@ func main() {
 		log.Println(violation)
 		err = w.WriteMessages(context.Background(),
 			kafka.Message{
-				Topic: "SLAViolations",
+				Topic: topics[1],
 				Value: []byte(violationJSON)},
 		)
 		if err != nil {
