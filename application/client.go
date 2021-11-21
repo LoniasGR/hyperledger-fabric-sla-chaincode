@@ -9,12 +9,15 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
@@ -30,6 +33,12 @@ type SLA struct {
 	Value    int    `json:"Value"`
 }
 
+type Violation struct {
+	ID         string `json:"ID"`
+	ContractID string `json:"ContractID"`
+	Status     int    `json:"Status"`
+}
+
 func main() {
 	log.Println("============ application-golang starts ============")
 
@@ -38,9 +47,17 @@ func main() {
 		log.Fatalf("Error setting DISCOVERY_AS_LOCALHOST environment variable: %v", err)
 	}
 
-	r := kafka.NewReader(kafka.ReaderConfig{
+	r_SLA := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{"localhost:9092"},
-		Topic:     "SLA",
+		Topic:     "sla",
+		Partition: 0,
+		MinBytes:  10e3, // 10KB
+		MaxBytes:  10e6, // 10MB
+	})
+
+	r_Violation := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:   []string{"localhost:9092"},
+		Topic:     "sla_violation",
 		Partition: 0,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
@@ -51,7 +68,7 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		<-c
-		cleanup(r)
+		cleanup(r_SLA, r_Violation)
 		log.Println("============ application-golang ends ============")
 		os.Exit(0)
 	}()
@@ -102,24 +119,70 @@ func main() {
 	log.Println(string(result))
 
 	for {
-		m, err := r.ReadMessage(context.Background())
-		if err != nil {
-			break
-		}
-		log.Println(string(m.Value))
+		deadlineError := errors.New("context deadline exceeded")
 
-		var s SLA
-		err = json.Unmarshal(m.Value, &s)
-		if err != nil {
-			panic(err.Error())
+		waitTime := time.Now().Add(1 * time.Second)
+		ctx, cancel := context.WithDeadline(context.Background(), waitTime)
+		m, err := r_SLA.ReadMessage(ctx)
+		cancel()
+
+		if err == nil {
+			log.Println(string(m.Value))
+			var s SLA
+			err = json.Unmarshal(m.Value, &s)
+			if err != nil {
+				panic(err.Error())
+			}
+			log.Println(s)
+			log.Println("--> Submit Transaction: CreateContract, creates new contract with ID, customer, metric, provider, value, and status arguments")
+			result, err := contract.SubmitTransaction("CreateContract", s.ID, s.Customer, s.Metric, s.Provider, fmt.Sprint(s.Value), fmt.Sprint(s.Status))
+			if err != nil {
+				log.Fatalf("Failed to submit transaction: %s\n", err)
+			}
+			fmt.Println(string(result))
+		} else if err != nil {
+			if err.Error() != deadlineError.Error() {
+				log.Fatalf("Reading message failed: %s\n", err)
+			}
 		}
-		log.Println(s)
-		log.Println("--> Submit Transaction: CreateContract, creates new contract with ID, customer, metric, provider, value, and status arguments")
-		result, err := contract.SubmitTransaction("CreateContract", s.ID, s.Customer, s.Metric, s.Provider, fmt.Sprint(s.Value), fmt.Sprint(s.Status))
-		if err != nil {
-			log.Fatalf("Failed to submit transaction: %s\n", err)
+
+		waitTime = time.Now().Add(1 * time.Second)
+		ctx, cancel = context.WithDeadline(context.Background(), waitTime)
+		m, err = r_Violation.ReadMessage(ctx)
+		cancel()
+		if err == nil {
+			log.Println(string(m.Value))
+
+			var v Violation
+			err = json.Unmarshal(m.Value, &v)
+			if err != nil {
+				panic(err.Error())
+			}
+			log.Println(v)
+			log.Println("--> Evaluate Transaction: ContractExists, finds existing contract with ID")
+			result, err = contract.EvaluateTransaction("ContractExists", v.ContractID)
+			if err != nil {
+				log.Fatalf("Failed to evaluate transaction: %s\n", err)
+			}
+			exists, err := strconv.ParseBool(string(result))
+			if err != nil {
+				log.Fatalf("Failed to convert result to boolean: %s\n", err)
+			}
+			if !exists {
+				log.Fatalf("Contract with ID: %s does not exist!\n", v.ContractID)
+			}
+
+			log.Println("--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus")
+			result, err = contract.SubmitTransaction("SLAViolated", v.ContractID, fmt.Sprint(v.Status))
+			if err != nil {
+				log.Fatalf("Failed to submit transaction: %s\n", err)
+			}
+			log.Println(string(result))
+		} else if err != nil {
+			if err.Error() != deadlineError.Error() {
+				log.Fatalf("Reading message failed: %s\n", err)
+			}
 		}
-		fmt.Println(string(result))
 	}
 }
 
@@ -164,8 +227,11 @@ func populateWallet(wallet *gateway.Wallet) error {
 	return wallet.Put("appUser", identity)
 }
 
-func cleanup(r *kafka.Reader) {
-	if err := r.Close(); err != nil {
+func cleanup(r_SLA *kafka.Reader, r_Violation *kafka.Reader) {
+	if err := r_SLA.Close(); err != nil {
+		log.Fatal("failed to close writer:", err)
+	}
+	if err := r_Violation.Close(); err != nil {
 		log.Fatal("failed to close writer:", err)
 	}
 }
