@@ -30,5 +30,5 @@ Start by changing into the "application" directory:
   cd application
 
 Then, install dependencies and run the test using:
-  go run client.go
+  bash runclient.sh
 EOF
