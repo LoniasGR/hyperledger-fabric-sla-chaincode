@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"net"
+	"strconv"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -25,7 +27,13 @@ type Violation struct {
 }
 
 func main() {
-	// to create topics when auto.create.topics.enable='true'
+
+	// Create the topics that will be used
+	topics := make([]string, 2)
+	topics[0] = "sla"
+	topics[1] = "sla_violation"
+	createTopic(topics)
+
 	w := &kafka.Writer{
 		Addr: kafka.TCP("localhost:9092"),
 		// NOTE: When Topic is not defined here, each Message must define it instead.
@@ -47,7 +55,6 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		log.Println(asset)
 		err = w.WriteMessages(context.Background(),
 			kafka.Message{
 				Topic: "SLA",
@@ -55,8 +62,9 @@ func main() {
 				Value: []byte(assetJSON)},
 		)
 		if err != nil {
-			log.Fatal("failed to write messages:", err)
+			log.Fatal("failed to write messages: ", err)
 		}
+		log.Println(asset)
 		time.Sleep(10 * time.Second)
 	}
 
@@ -86,4 +94,38 @@ func main() {
 	if err := w.Close(); err != nil {
 		log.Fatal("failed to close writer:", err)
 	}
+}
+
+func createTopic(topics []string) {
+
+	conn, err := kafka.Dial("tcp", "localhost:9092")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer conn.Close()
+
+	controller, err := conn.Controller()
+	if err != nil {
+		panic(err.Error())
+	}
+	var controllerConn *kafka.Conn
+	controllerConn, err = kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+	if err != nil {
+		panic(err.Error())
+	}
+	defer controllerConn.Close()
+
+	topicConfigs := []kafka.TopicConfig{}
+	for _, topic := range topics {
+		topicConfigs = append(topicConfigs, kafka.TopicConfig{
+			Topic:             topic,
+			NumPartitions:     1,
+			ReplicationFactor: 1,
+		})
+	}
+	err = controllerConn.CreateTopics(topicConfigs...)
+	if err != nil {
+		panic(err.Error())
+	}
+
 }
