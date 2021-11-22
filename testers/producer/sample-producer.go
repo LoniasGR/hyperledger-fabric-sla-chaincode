@@ -23,7 +23,6 @@ type SLA struct {
 type Violation struct {
 	ID         string `json:"ID"`
 	ContractID string `json:"ContractID"`
-	Status     int    `json:"Status"`
 }
 
 func main() {
@@ -69,9 +68,9 @@ func main() {
 	}
 
 	violations := []Violation{
-		{ID: "violation1", ContractID: "contract1", Status: 2},
-		{ID: "violation2", ContractID: "contract3", Status: 2},
-		{ID: "violation3", ContractID: "contract5", Status: 2},
+		{ID: "violation1", ContractID: "contract1"},
+		{ID: "violation2", ContractID: "contract3"},
+		{ID: "violation3", ContractID: "contract5"},
 	}
 
 	for _, violation := range violations {

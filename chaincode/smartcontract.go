@@ -16,37 +16,23 @@ type SmartContract struct {
 // Contract describes basic details of what makes up a simple Contract
 //Insert struct field in alphabetic order => to achieve determinism accross languages
 // golang keeps the order when marshal to json but doesn't order automatically
+// Violation statuses:
+//     1 - Not Violated
+//     2 - Violated
+//     3 - Completed
 type SLA struct {
 	Customer string `json:"Customer"`
 	ID       string `json:"ID"`
 	Metric   string `json:"Metric"`
+	Owner    string `json:"Owner"`
 	Provider string `json:"Provider"`
 	Status   int    `json:"Status"`
 	Value    int    `json:"Value"`
 }
 
-// InitLedger adds a base set of Contracts to the ledger
+// InitLedger is just a template for now.
+// Used to test the connection and verify that applications can connect to the chaincode.
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	// Contracts := []SLA{
-	// 	{ID: "Contract1", Customer: "blue", Metric: "Downtime", Provider: "Tomoko", Value: 300, Status: 1},
-	// 	{ID: "Contract2", Customer: "red", Metric: "Downtime", Provider: "Brad", Value: 400, Status: 1},
-	// 	{ID: "Contract3", Customer: "green", Metric: "Downtime", Provider: "Jin Soo", Value: 500, Status: 1},
-	// 	{ID: "Contract4", Customer: "yellow", Metric: "Downtime", Provider: "Max", Value: 600, Status: 1},
-	// 	{ID: "Contract5", Customer: "black", Metric: "Downtime", Provider: "Adriana", Value: 700, Status: 1},
-	// 	{ID: "Contract6", Customer: "white", Metric: "Downtime", Provider: "Michel", Value: 800, Status: 1},
-	// }
-
-	// for _, Contract := range Contracts {
-	// 	ContractJSON, err := json.Marshal(Contract)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	err = ctx.GetStub().PutState(Contract.ID, ContractJSON)
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to put to world state. %v", err)
-	// 	}
-	// }
 
 	return nil
 }
@@ -65,6 +51,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		ID:       id,
 		Customer: customer,
 		Metric:   metric,
+		Owner:    provider,
 		Provider: provider,
 		Value:    value,
 		Status:   status,
@@ -146,14 +133,15 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 	return ContractJSON != nil, nil
 }
 
-// SLAViolated transfers the Contracts from the provider to the customer.
-func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface, id string, newStatus int) error {
+// SLAViolated changes the status and transfers the Contracts from the provider to the customer.
+func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface, id string) error {
 	Contract, err := s.ReadContract(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	Contract.Status = newStatus
+	Contract.Status = 2
+	Contract.Owner = Contract.Customer
 	ContractJSON, err := json.Marshal(Contract)
 	if err != nil {
 		return err

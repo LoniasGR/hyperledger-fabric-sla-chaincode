@@ -36,7 +36,6 @@ type SLA struct {
 type Violation struct {
 	ID         string `json:"ID"`
 	ContractID string `json:"ContractID"`
-	Status     int    `json:"Status"`
 }
 
 func main() {
@@ -126,6 +125,7 @@ func main() {
 		m, err := r_SLA.ReadMessage(ctx)
 		cancel()
 
+		// Kinda ugly, maybe replace with a switch?
 		if err == nil {
 			log.Println(string(m.Value))
 			var s SLA
@@ -173,7 +173,7 @@ func main() {
 			}
 
 			log.Println("--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus")
-			result, err = contract.SubmitTransaction("SLAViolated", v.ContractID, fmt.Sprint(v.Status))
+			result, err = contract.SubmitTransaction("SLAViolated", v.ContractID)
 			if err != nil {
 				log.Fatalf("Failed to submit transaction: %s\n", err)
 			}
