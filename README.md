@@ -22,6 +22,26 @@ cd kafka_2.13-3.0.0
 bin/kafka-server-start.sh config/server.properties
 ```
 
+* Start Fabric Network
+
+```bash
+bash startFabric.sh
+```
+
+* Run kafka producer
+
+```bash
+cd testers/producer
+go run producer
+```
+
+* Run fabric application
+
+```bash
+cd ../../application
+bash runclient.st
+```
+
 ## TODO
 
 - [x] `client.go` integrate Kafka consumer
