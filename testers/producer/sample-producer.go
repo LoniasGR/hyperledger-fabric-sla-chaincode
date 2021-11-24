@@ -71,6 +71,8 @@ func main() {
 		{ID: "violation1", ContractID: "contract1"},
 		{ID: "violation2", ContractID: "contract3"},
 		{ID: "violation3", ContractID: "contract5"},
+		{ID: "violation4", ContractID: "contract5"},
+
 	}
 
 	for _, violation := range violations {
