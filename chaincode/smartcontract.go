@@ -18,16 +18,15 @@ type SmartContract struct {
 // golang keeps the order when marshal to json but doesn't order automatically
 // Violation statuses:
 //     1 - Not Violated
-//     2 - Violated
-//     3 - Completed
+//     2 - Completed
 type SLA struct {
-	Customer string `json:"Customer"`
-	ID       string `json:"ID"`
-	Metric   string `json:"Metric"`
-	Owner    string `json:"Owner"`
-	Provider string `json:"Provider"`
-	Status   int    `json:"Status"`
-	Value    int    `json:"Value"`
+	Customer   string `json:"Customer"`
+	ID         string `json:"ID"`
+	Metric     string `json:"Metric"`
+	Provider   string `json:"Provider"`
+	Status     int    `json:"Status"`
+	Value      int    `json:"Value"`
+	Violations int    `json:"Violations"`
 }
 
 // InitLedger is just a template for now.
@@ -48,13 +47,13 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 	}
 
 	Contract := SLA{
-		ID:       id,
-		Customer: customer,
-		Metric:   metric,
-		Owner:    provider,
-		Provider: provider,
-		Value:    value,
-		Status:   status,
+		ID:         id,
+		Customer:   customer,
+		Metric:     metric,
+		Provider:   provider,
+		Value:      value,
+		Violations: 0,
+		Status:     status,
 	}
 	ContractJSON, err := json.Marshal(Contract)
 	if err != nil {
@@ -133,15 +132,17 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 	return ContractJSON != nil, nil
 }
 
-// SLAViolated changes the status and transfers the Contracts from the provider to the customer.
+// SLAViolated changes the number of violations that have happened.
 func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface, id string) error {
 	Contract, err := s.ReadContract(ctx, id)
 	if err != nil {
 		return err
 	}
+	if Contract.Status == 2 {
+		return fmt.Errorf("the contract %s is completed, no violations can happen", id)
+	}
 
-	Contract.Status = 2
-	Contract.Owner = Contract.Customer
+	Contract.Violations += 1
 	ContractJSON, err := json.Marshal(Contract)
 	if err != nil {
 		return err
