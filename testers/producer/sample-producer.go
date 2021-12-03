@@ -64,7 +64,7 @@ func main() {
 			log.Fatal("failed to write messages: ", err)
 		}
 		log.Println(asset)
-		time.Sleep(10 * time.Second)
+		time.Sleep(3 * time.Second)
 	}
 
 	violations := []Violation{
@@ -89,7 +89,7 @@ func main() {
 		if err != nil {
 			log.Fatal("failed to write messages:", err)
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(3 * time.Second)
 	}
 
 	if err := w.Close(); err != nil {
