@@ -41,7 +41,7 @@ bash startFabric.sh
 
 ```bash
 cd ../../application
-bash runclient.st
+bash runclient.sh
 ```
 
 * Run kafka producer on a third terminal
@@ -61,3 +61,9 @@ go run sample-producer.go
 - [ ] ERC20 fabric-sample
 - [ ] `client.go` Wallet management (provider wallet, customer wallet)
 - [ ] `smartcontract.go` function SLAViolation Compensation scheme
+- [ ] When a violation happens there will be a transfer of tokens (ERC-20 style)
+- [ ] App that when given a user certificates connects to Hyperledger
+- [ ] Connect wallets, violation function and ERC-20
+- [ ] Slides ~30 Etherium - Deadline: Start of January
+- [ ] Slides ~30 Hyperledger - Deadline: Start of January
+- [ ] Intergrate whisper protocols in Fabric
