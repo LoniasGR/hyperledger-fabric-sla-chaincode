@@ -123,7 +123,7 @@ func main() {
 	result, err := contract.SubmitTransaction("InitLedger")
 	if err != nil {
 		cleanup(r_SLA, r_Violation)
-		log.Fatalf("Failed to Submit transaction: %v", err)
+		log.Fatalf("failed to Submit transaction: %v", err)
 	}
 	log.Println(string(result))
 
@@ -136,34 +136,40 @@ func main() {
 		cancel()
 
 		// Kinda ugly, maybe replace with a switch?
-		if err == nil {
+		if err != nil {
+			if err.Error() != deadlineError.Error() {
+				cleanup(r_SLA, r_Violation)
+				log.Fatalf("reading message failed: %s\n", err)
+			}
+		} else {
 			log.Println(string(m.Value))
 			var s SLA
 			err = json.Unmarshal(m.Value, &s)
 			if err != nil {
 				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Failed to unmarshal: %s\n", err)
+				log.Fatalf("failed to unmarshal: %s\n", err)
 			}
 			log.Println(s)
 			log.Println("--> Submit Transaction: CreateContract, creates new contract with ID, customer, metric, provider, value, and status arguments")
 			result, err := contract.SubmitTransaction("CreateContract", s.ID, s.Customer, s.Metric, s.Provider, fmt.Sprint(s.Value), fmt.Sprint(s.Status))
 			if err != nil {
 				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Failed to submit transaction: %s\n", err)
+				log.Fatalf("failed to submit transaction: %s\n", err)
 			}
 			fmt.Println(string(result))
-		} else if err != nil {
-			if err.Error() != deadlineError.Error() {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Reading message failed: %s\n", err)
-			}
 		}
 
 		waitTime = time.Now().Add(500 * time.Millisecond)
 		ctx, cancel = context.WithDeadline(context.Background(), waitTime)
 		m, err = r_Violation.ReadMessage(ctx)
 		cancel()
-		if err == nil {
+
+		if err != nil {
+			if err.Error() != deadlineError.Error() {
+				cleanup(r_SLA, r_Violation)
+				log.Fatalf("reading message failed: %s\n", err)
+			}
+		} else {
 			log.Println(string(m.Value))
 
 			var v Violation
@@ -177,30 +183,25 @@ func main() {
 			result, err = contract.EvaluateTransaction("ContractExists", v.ContractID)
 			if err != nil {
 				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Failed to evaluate transaction: %s\n", err)
+				log.Fatalf("failed to evaluate transaction: %s\n", err)
 			}
 			exists, err := strconv.ParseBool(string(result))
 			if err != nil {
 				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Failed to convert result to boolean: %s\n", err)
+				log.Fatalf("failed to convert result to boolean: %s\n", err)
 			}
 			if !exists {
 				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Contract with ID: %s does not exist!\n", v.ContractID)
+				log.Fatalf("contract with ID: %s does not exist!\n", v.ContractID)
 			}
 
 			log.Println("--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus")
 			result, err = contract.SubmitTransaction("SLAViolated", v.ContractID)
 			if err != nil {
 				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Failed to submit transaction: %s\n", err)
+				log.Fatalf("failed to submit transaction: %s\n", err)
 			}
 			log.Println(string(result))
-		} else if err != nil {
-			if err.Error() != deadlineError.Error() {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Reading message failed: %s\n", err)
-			}
 		}
 	}
 }
