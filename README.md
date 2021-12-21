@@ -53,17 +53,15 @@ go run sample-producer.go
 
 ## TODO
 
-- [x] `client.go` integrate Kafka consumer
-- [x] Violation Kafka topic: `sla_violation`
-- [x] SLA Smart Contract Bridge (Kafka topic:`sla`)
-- [x] Keep track how many times an SLA is violated.
-- [x] Have the work so far to be demonstrable - alpha version.
-- [ ] ERC20 fabric-sample
-- [ ] `client.go` Wallet management (provider wallet, customer wallet)
-- [ ] `smartcontract.go` function SLAViolation Compensation scheme
+- [ ] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" },
+- [ ] Rename mychannel to SLA
+- [ ] Rename `sla` chaincode to `sla_contracts` and `sla_violation` to `sla_violation`
 - [ ] When a violation happens there will be a transfer of tokens (ERC-20 style)
+- [ ] `smartcontract.go` function SLAViolation Compensation scheme
+- [ ] `client.go` Wallet management (provider wallet, customer wallet)
 - [ ] App that when given a user certificates connects to Hyperledger
 - [ ] Connect wallets, violation function and ERC-20
+- [ ] Move to Kubernetes
 - [ ] Slides ~30 Etherium - Deadline: Start of January
 - [ ] Slides ~30 Hyperledger - Deadline: Start of January
 - [ ] Intergrate whisper protocols in Fabric
