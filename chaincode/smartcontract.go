@@ -1,4 +1,4 @@
-package chaincode
+package main
 
 import (
 	"encoding/json"
@@ -80,7 +80,7 @@ func (s *SmartContract) Mint(ctx contractapi.TransactionContextInterface, user s
 	}
 	currentBalance, err := s.UserBalance(ctx, user)
 	if err != nil {
-		return "", fmt.Errorf("failed to read minter account %s from world state: %v", minter, err)
+		return "", fmt.Errorf("failed to read minter account %s from world state: %v", user, err)
 	}
 
 	updatedBalance := currentBalance + amount
@@ -95,20 +95,20 @@ func (s *SmartContract) Mint(ctx contractapi.TransactionContextInterface, user s
 
 func (s *SmartContract) TransferTokens(ctx contractapi.TransactionContextInterface, from string, to string, amount int) error {
 	if from == to {
-		return fmt.Errorf("Cannot transfer from and to the same account")
+		return fmt.Errorf("cannot transfer from and to the same account")
 	}
 
 	fromBalance, err := s.UserBalance(ctx, from)
 	if err != nil {
-		return fmt.Errorf("Could not get balance of transferer during token transfer: %v", err)
+		return fmt.Errorf("could not get balance of transferer during token transfer: %v", err)
 	}
 	if fromBalance < amount {
-		return fmt.Errorf("Transferer does not have enough tokens to complete transfer")
+		return fmt.Errorf("transferer does not have enough tokens to complete transfer")
 	}
 
 	toBalance, err := s.UserBalance(ctx, to)
 	if err != nil {
-		return fmt.Errorf("Could not get balance of transferee during token transfer: %v", err)
+		return fmt.Errorf("could not get balance of transferee during token transfer: %v", err)
 	}
 
 	updatedFromBalance := fromBalance - amount
@@ -116,12 +116,12 @@ func (s *SmartContract) TransferTokens(ctx contractapi.TransactionContextInterfa
 
 	err = ctx.GetStub().PutState(from, []byte(strconv.Itoa(updatedFromBalance)))
 	if err != nil {
-		fmt.Errorf("failed to update sender's balance: %v", err)
+		return fmt.Errorf("failed to update sender's balance: %v", err)
 	}
 
 	err = ctx.GetStub().PutState(from, []byte(strconv.Itoa(updatedToBalance)))
 	if err != nil {
-		fmt.Errorf("failed to update receiver's balance: %v", err)
+		return fmt.Errorf("failed to update receiver's balance: %v", err)
 	}
 	return nil
 }
@@ -142,7 +142,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 	}
 
 	if providerBalance == 0 {
-		_, err = s.Mint(ctx, provider, 100)
+		_, err = s.Mint(ctx, provider, 1000)
 		if err != nil {
 			return fmt.Errorf("failed to mint tokens for provider %s: %v", provider, err)
 		}
