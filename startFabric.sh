@@ -13,12 +13,30 @@ starttime=$(date +%s)
 CC_SRC_LANGUAGE="go"
 CC_SRC_PATH="${PWD}/chaincode"
 
+
+if [ -d "../explorer-local" ]
+then
+    echo "Cleaning up explorer containers"
+    pushd ../explorer-local
+    docker-compose down -v
+    popd
+fi
+
 # launch network; create channel and join peer to channel
 pushd ../test-network
 ./network.sh down
 ./network.sh up createChannel -c sla -ca -s couchdb
-./network.sh deployCC -ccn sla_contract -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
+./network.sh deployCC -c sla -ccn sla_contract -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
 popd
+
+if [ -d "../explorer-local" ]
+then
+    pushd ../explorer-local
+    bash ./restart-explorer.sh
+    popd
+else
+    echo "Explorer does not exist! Skipping!"
+fi
 
 cat <<EOF
 
