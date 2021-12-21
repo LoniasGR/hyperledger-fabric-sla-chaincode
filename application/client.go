@@ -48,13 +48,24 @@ func main() {
 		log.Fatalf("Error setting DISCOVERY_AS_LOCALHOST environment variable: %v", err)
 	}
 
+	var orgID int = 1
+	var walletLocation = fmt.Sprintf("org%d/wallet", orgID)
+
+	var userID int = 1
+
+	var channelName string = "sla"
+	var contractName string = "sla_contract"
+
+	var r_SLA *kafka.Reader
+	var r_Violation *kafka.Reader
+
 	// Create the topics that will be used (if they don't exist)
 	topics := make([]string, 2)
-	topics[0] = "sla"
-	topics[1] = "sla_violation"
+	topics[0] = "sla_contracts"
+	topics[1] = "sla_violations"
 	createTopic(topics)
 
-	r_SLA := kafka.NewReader(kafka.ReaderConfig{
+	r_SLA = kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{"localhost:9092"},
 		Topic:     topics[0],
 		Partition: 0,
@@ -62,7 +73,7 @@ func main() {
 		MaxBytes:  10e6, // 10MB
 	})
 
-	r_Violation := kafka.NewReader(kafka.ReaderConfig{
+	r_Violation = kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{"localhost:9092"},
 		Topic:     topics[1],
 		Partition: 0,
@@ -70,13 +81,13 @@ func main() {
 		MaxBytes:  10e6, // 10MB
 	})
 
-	wallet, err := gateway.NewFileSystemWallet("wallet")
+	wallet, err := gateway.NewFileSystemWallet(walletLocation)
 	if err != nil {
 		log.Fatalf("Failed to create wallet: %v", err)
 	}
 
-	if !wallet.Exists("appUser") {
-		err = populateWallet(wallet)
+	if !wallet.Exists(fmt.Sprintf("appUser%d", userID)) {
+		err = populateWallet(wallet, orgID, userID)
 		if err != nil {
 			log.Fatalf("Failed to populate wallet contents: %v", err)
 		}
@@ -88,8 +99,8 @@ func main() {
 		"test-network",
 		"organizations",
 		"peerOrganizations",
-		"org1.example.com",
-		"connection-org1.yaml",
+		fmt.Sprintf("org%d.example.com", orgID),
+		fmt.Sprintf("connection-org%d.yaml", orgID),
 	)
 
 	gw, err := gateway.Connect(
@@ -101,12 +112,12 @@ func main() {
 	}
 	defer gw.Close()
 
-	network, err := gw.GetNetwork("mychannel")
+	network, err := gw.GetNetwork(channelName)
 	if err != nil {
 		log.Fatalf("Failed to get network: %v", err)
 	}
 
-	contract := network.GetContract("SLA")
+	contract := network.GetContract(contractName)
 
 	// Cleanup for when the service terminates
 	c := make(chan os.Signal, 1)
@@ -124,6 +135,14 @@ func main() {
 	if err != nil {
 		cleanup(r_SLA, r_Violation)
 		log.Fatalf("failed to Submit transaction: %v", err)
+	}
+	log.Println(string(result))
+
+	log.Println("--> Submit Transaction: Mint, function to create tokens")
+	result, err = contract.SubmitTransaction("Mint", "100")
+	if err != nil {
+		cleanup(r_SLA, r_Violation)
+		log.Fatalf("failed to submit transaction: %v", err)
 	}
 	log.Println(string(result))
 
@@ -206,7 +225,8 @@ func main() {
 	}
 }
 
-func populateWallet(wallet *gateway.Wallet) error {
+// A wallet can hold multiple identities.
+func populateWallet(wallet *gateway.Wallet, orgID int, userID int) error {
 	log.Println("============ Populating wallet ============")
 	credPath := filepath.Join(
 		"..",
@@ -214,9 +234,9 @@ func populateWallet(wallet *gateway.Wallet) error {
 		"test-network",
 		"organizations",
 		"peerOrganizations",
-		"org1.example.com",
+		fmt.Sprintf("org%d.example.com", orgID),
 		"users",
-		"User1@org1.example.com",
+		fmt.Sprintf("User%d@org%d.example.com", userID, orgID),
 		"msp",
 	)
 
@@ -242,9 +262,9 @@ func populateWallet(wallet *gateway.Wallet) error {
 		return err
 	}
 
-	identity := gateway.NewX509Identity("Org1MSP", string(cert), string(key))
+	identity := gateway.NewX509Identity(fmt.Sprintf("Org%dMSP", orgNr), string(cert), string(key))
 
-	return wallet.Put("appUser", identity)
+	return wallet.Put(fmt.Sprintf("appUser%d", userID), identity)
 }
 
 func showTransactions(contract *gateway.Contract) {
@@ -256,6 +276,7 @@ func showTransactions(contract *gateway.Contract) {
 
 	log.Println(string(result))
 }
+
 func cleanup(r_SLA *kafka.Reader, r_Violation *kafka.Reader) {
 	err := r_SLA.Close()
 	if err != nil {

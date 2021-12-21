@@ -16,8 +16,8 @@ CC_SRC_PATH="${PWD}/chaincode"
 # launch network; create channel and join peer to channel
 pushd ../test-network
 ./network.sh down
-./network.sh up createChannel -c mychannel -ca -s couchdb
-./network.sh deployCC -ccn SLA -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
+./network.sh up createChannel -c sla -ca -s couchdb
+./network.sh deployCC -ccn sla_contract -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
 popd
 
 cat <<EOF

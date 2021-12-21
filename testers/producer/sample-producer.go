@@ -16,7 +16,6 @@ type SLA struct {
 	ID       string `json:"ID"`
 	Metric   string `json:"Metric"`
 	Provider string `json:"Provider"`
-	Status   int    `json:"Status"`
 	Value    int    `json:"Value"`
 }
 
@@ -29,8 +28,8 @@ func main() {
 
 	// Create the topics that will be used
 	topics := make([]string, 2)
-	topics[0] = "sla"
-	topics[1] = "sla_violation"
+	topics[0] = "sla_contracts"
+	topics[1] = "sla_violations"
 	createTopic(topics)
 
 	w := &kafka.Writer{
@@ -40,12 +39,12 @@ func main() {
 	}
 
 	assets := []SLA{
-		{ID: "contract1", Customer: "blue", Metric: "Downtime", Provider: "Tomoko", Value: 300, Status: 1},
-		{ID: "contract2", Customer: "red", Metric: "Downtime", Provider: "Brad", Value: 400, Status: 1},
-		{ID: "contract3", Customer: "green", Metric: "Downtime", Provider: "Jin Soo", Value: 500, Status: 1},
-		{ID: "contract4", Customer: "yellow", Metric: "Downtime", Provider: "Max", Value: 600, Status: 1},
-		{ID: "contract5", Customer: "black", Metric: "Downtime", Provider: "Adriana", Value: 700, Status: 1},
-		{ID: "contract6", Customer: "white", Metric: "Downtime", Provider: "Michel", Value: 800, Status: 1},
+		{ID: "contract1", Customer: "blue", Metric: "Downtime", Provider: "provider1", Value: 300},
+		{ID: "contract2", Customer: "red", Metric: "Downtime", Provider: "Brad", Value: 400},
+		{ID: "contract3", Customer: "green", Metric: "Downtime", Provider: "Jin Soo", Value: 500},
+		{ID: "contract4", Customer: "yellow", Metric: "Downtime", Provider: "provider1", Value: 600},
+		{ID: "contract5", Customer: "black", Metric: "Downtime", Provider: "provider1", Value: 700},
+		{ID: "contract6", Customer: "white", Metric: "Downtime", Provider: "Tomoko", Value: 800},
 	}
 
 	// Set timeout for writing
@@ -72,7 +71,6 @@ func main() {
 		{ID: "violation2", ContractID: "contract3"},
 		{ID: "violation3", ContractID: "contract5"},
 		{ID: "violation4", ContractID: "contract5"},
-
 	}
 
 	for _, violation := range violations {
