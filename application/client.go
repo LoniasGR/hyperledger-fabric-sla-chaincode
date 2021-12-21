@@ -49,11 +49,11 @@ func main() {
 	}
 
 	var orgID int = 1
-	var walletLocation = fmt.Sprintf("org%d/wallet", orgID)
+	var walletLocation = "wallet"
 
 	var userID int = 1
 
-	var channelName string = "sla"
+	// var channelName string = "sla"
 	var contractName string = "sla_contract"
 
 	var r_SLA *kafka.Reader
@@ -86,7 +86,7 @@ func main() {
 		log.Fatalf("Failed to create wallet: %v", err)
 	}
 
-	if !wallet.Exists(fmt.Sprintf("appUser%d", userID)) {
+	if !wallet.Exists("appUser") {
 		err = populateWallet(wallet, orgID, userID)
 		if err != nil {
 			log.Fatalf("Failed to populate wallet contents: %v", err)
@@ -112,10 +112,11 @@ func main() {
 	}
 	defer gw.Close()
 
-	network, err := gw.GetNetwork(channelName)
+	network, err := gw.GetNetwork("sla")
 	if err != nil {
 		log.Fatalf("Failed to get network: %v", err)
 	}
+	log.Println("Channel Connected")
 
 	contract := network.GetContract(contractName)
 
@@ -135,14 +136,6 @@ func main() {
 	if err != nil {
 		cleanup(r_SLA, r_Violation)
 		log.Fatalf("failed to Submit transaction: %v", err)
-	}
-	log.Println(string(result))
-
-	log.Println("--> Submit Transaction: Mint, function to create tokens")
-	result, err = contract.SubmitTransaction("Mint", "100")
-	if err != nil {
-		cleanup(r_SLA, r_Violation)
-		log.Fatalf("failed to submit transaction: %v", err)
 	}
 	log.Println(string(result))
 
@@ -262,9 +255,9 @@ func populateWallet(wallet *gateway.Wallet, orgID int, userID int) error {
 		return err
 	}
 
-	identity := gateway.NewX509Identity(fmt.Sprintf("Org%dMSP", orgNr), string(cert), string(key))
+	identity := gateway.NewX509Identity(fmt.Sprintf("Org%dMSP", orgID), string(cert), string(key))
 
-	return wallet.Put(fmt.Sprintf("appUser%d", userID), identity)
+	return wallet.Put("appUser", identity)
 }
 
 func showTransactions(contract *gateway.Contract) {
