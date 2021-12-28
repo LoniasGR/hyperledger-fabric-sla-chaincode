@@ -4,6 +4,8 @@ go 1.17
 
 require github.com/hyperledger/fabric-contract-api-go v1.1.1
 
+require github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20211228102459-108370f23975
+
 require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
