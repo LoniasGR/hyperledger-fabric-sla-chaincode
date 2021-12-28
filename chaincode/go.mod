@@ -1,4 +1,4 @@
-module github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/chaincode
+module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/chaincode
 
 go 1.17
 
