@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
 
+	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
@@ -14,21 +16,10 @@ type SmartContract struct {
 	contractapi.Contract
 }
 
-// Contract describes basic details of what makes up a simple Contract
-//Insert struct field in alphabetic order => to achieve determinism accross languages
-// golang keeps the order when marshal to json but doesn't order automatically
-// Violation statuses:
-//     0 - Created
-//	   1 - Violated
-//     2 - Completed
-type SLA struct {
-	Customer   string `json:"Customer"`
-	ID         string `json:"ID"`
-	Metric     string `json:"Metric"`
-	Provider   string `json:"Provider"`
-	Status     int    `json:"Status"`
-	Value      int    `json:"Value"`
-	Violations int    `json:"Violations"`
+type sla_contract struct {
+	lib.SLA
+	Value      int `json:"Value"`
+	Violations int `json:"Violations"`
 }
 
 // InitLedger is just a template for now.
@@ -127,46 +118,48 @@ func (s *SmartContract) TransferTokens(ctx contractapi.TransactionContextInterfa
 }
 
 // CreateContract issues a new Contract to the world state with given details.
-func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterface, id string, customer string, metric string, provider string, value int) error {
-	exists, err := s.ContractExists(ctx, id)
+func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterface, contractJSON string) error {
+	var sla lib.SLA
+	err := json.Unmarshal([]byte(contractJSON), &sla)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal json: %v", err)
+	}
+
+	exists, err := s.ContractExists(ctx, sla.ID)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf("the Contract %s already exists", id)
+		return fmt.Errorf("the Contract %s already exists", sla.ID)
 	}
 
-	providerBalance, err := s.UserBalance(ctx, provider)
+	providerBalance, err := s.UserBalance(ctx, sla.Details.Provider.ID)
 	if err != nil {
-		return fmt.Errorf("failed to read provider account %s from world state: %v", provider, err)
+		return fmt.Errorf("failed to read provider account %s from world state: %v", sla.Details.Provider.ID, err)
 	}
 
 	if providerBalance == 0 {
-		_, err = s.Mint(ctx, provider, 1000)
+		_, err = s.Mint(ctx, sla.Details.Provider.ID, rand.Intn(500)+500)
 		if err != nil {
-			return fmt.Errorf("failed to mint tokens for provider %s: %v", provider, err)
+			return fmt.Errorf("failed to mint tokens for provider %s: %v", sla.Details.Provider.ID, err)
 		}
 	}
 
-	Contract := SLA{
-		ID:         id,
-		Customer:   customer,
-		Metric:     metric,
-		Provider:   provider,
-		Value:      value,
+	contract := sla_contract{
+		SLA:        sla,
+		Value:      rand.Intn(20) + 10,
 		Violations: 0,
-		Status:     0,
 	}
-	ContractJSON, err := json.Marshal(Contract)
+	slaContractJSON, err := json.Marshal(contract)
 	if err != nil {
 		return err
 	}
 
-	return ctx.GetStub().PutState(id, ContractJSON)
+	return ctx.GetStub().PutState(contract.SLA.ID, slaContractJSON)
 }
 
 // ReadContract returns the Contract stored in the world state with given id.
-func (s *SmartContract) ReadContract(ctx contractapi.TransactionContextInterface, id string) (*SLA, error) {
+func (s *SmartContract) ReadContract(ctx contractapi.TransactionContextInterface, id string) (*sla_contract, error) {
 	ContractJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
@@ -175,40 +168,13 @@ func (s *SmartContract) ReadContract(ctx contractapi.TransactionContextInterface
 		return nil, fmt.Errorf("the Contract %s does not exist", id)
 	}
 
-	var Contract SLA
-	err = json.Unmarshal(ContractJSON, &Contract)
+	var contract sla_contract
+	err = json.Unmarshal(ContractJSON, &contract)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Contract, nil
-}
-
-// UpdateContract updates an existing Contract in the world state with provided parameters.
-func (s *SmartContract) UpdateContract(ctx contractapi.TransactionContextInterface, id string, customer string, metric string, provider string, value int, status int) error {
-	exists, err := s.ContractExists(ctx, id)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return fmt.Errorf("the Contract %s does not exist", id)
-	}
-
-	// overwriting original Contract with new Contract
-	Contract := SLA{
-		ID:       id,
-		Customer: customer,
-		Metric:   metric,
-		Provider: provider,
-		Value:    value,
-		Status:   status,
-	}
-	ContractJSON, err := json.Marshal(Contract)
-	if err != nil {
-		return err
-	}
-
-	return ctx.GetStub().PutState(id, ContractJSON)
+	return &contract, nil
 }
 
 // DeleteContract deletes an given Contract from the world state.
@@ -236,21 +202,21 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 
 // SLAViolated changes the number of violations that have happened.
 func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface, id string) error {
-	Contract, err := s.ReadContract(ctx, id)
+	contract, err := s.ReadContract(ctx, id)
 	if err != nil {
 		return err
 	}
-	if Contract.Status == 2 {
+	if contract.SLA.State == "stopped" {
 		return fmt.Errorf("the contract %s is completed, no violations can happen", id)
 	}
 
-	Contract.Violations += 1
-	ContractJSON, err := json.Marshal(Contract)
+	contract.Violations += 1
+	ContractJSON, err := json.Marshal(contract)
 	if err != nil {
 		return err
 	}
 
-	err = s.TransferTokens(ctx, Contract.Provider, Contract.Customer, Contract.Value)
+	err = s.TransferTokens(ctx, contract.SLA.Details.Provider.ID, contract.SLA.Details.Client.ID, contract.Value)
 	if err != nil {
 		return fmt.Errorf("could not transfer tokens from violation: %v", err)
 	}
@@ -259,7 +225,7 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 }
 
 // GetAllContracts returns all Contracts found in world state
-func (s *SmartContract) GetAllContracts(ctx contractapi.TransactionContextInterface) ([]*SLA, error) {
+func (s *SmartContract) GetAllContracts(ctx contractapi.TransactionContextInterface) ([]*sla_contract, error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all Contracts in the chaincode namespace.
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
@@ -268,14 +234,14 @@ func (s *SmartContract) GetAllContracts(ctx contractapi.TransactionContextInterf
 	}
 	defer resultsIterator.Close()
 
-	var Contracts []*SLA
+	var Contracts []*sla_contract
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return nil, err
 		}
 
-		var Contract SLA
+		var Contract sla_contract
 		err = json.Unmarshal(queryResponse.Value, &Contract)
 		if err != nil {
 			return nil, err

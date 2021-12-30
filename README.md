@@ -53,8 +53,8 @@ go run sample-producer.go
 
 ## TODO
 
-- [ ] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" },
-- [x] Rename mychannel to SLA
+- [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" },
+- [x] Rename `mychannel` to `SLA`
 - [x] Rename `sla` chaincode to `sla_contracts` and `sla_violation` to `sla_violation`
 - [x] When a violation happens there will be a transfer of tokens (ERC-20 style)
 - [x] `smartcontract.go` function SLAViolation Compensation scheme

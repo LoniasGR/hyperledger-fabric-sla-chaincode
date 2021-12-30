@@ -7,79 +7,81 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"syscall"
 	"time"
 
+	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
-	"github.com/segmentio/kafka-go"
 )
-
-type SLA struct {
-	Customer   string `json:"Customer"`
-	ID         string `json:"ID"`
-	Metric     string `json:"Metric"`
-	Provider   string `json:"Provider"`
-	Status     int    `json:"Status"`
-	Value      int    `json:"Value"`
-	Violations int    `json:"Violations"`
-}
-
-type Violation struct {
-	ID         string `json:"ID"`
-	ContractID string `json:"ContractID"`
-}
 
 func main() {
 	log.Println("============ application-golang starts ============")
-
-	err := os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
+	err := setDiscoveryAsLocalhost(true)
 	if err != nil {
-		log.Fatalf("Error setting DISCOVERY_AS_LOCALHOST environment variable: %v", err)
+		log.Fatalf("%v", err)
 	}
 
 	var orgID int = 1
-	var walletLocation = "wallet"
-
 	var userID int = 1
+
+	var walletLocation = "wallet"
 
 	// var channelName string = "sla"
 	var contractName string = "sla_contract"
 
-	var r_SLA *kafka.Reader
-	var r_Violation *kafka.Reader
+	ccpPath := filepath.Join(
+		"..",
+		"..",
+		"test-network",
+		"organizations",
+		"peerOrganizations",
+		fmt.Sprintf("org%d.example.com", orgID),
+		fmt.Sprintf("connection-org%d.yaml", orgID),
+	)
 
-	// Create the topics that will be used (if they don't exist)
+	// The topics that will be used
 	topics := make([]string, 2)
 	topics[0] = "sla_contracts"
-	topics[1] = "sla_violations"
-	createTopic(topics)
+	topics[1] = "sla_violation"
 
-	r_SLA = kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"localhost:9092"},
-		Topic:     topics[0],
-		Partition: 0,
-		MinBytes:  10e3, // 10KB
-		MaxBytes:  10e6, // 10MB
-	})
+	configFile := lib.ParseArgs()
+	conf, err := lib.ReadConfig(*configFile)
+	if err != nil {
+		log.Fatalf("failed to read config: %v", err)
+	}
 
-	r_Violation = kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"localhost:9092"},
-		Topic:     topics[1],
-		Partition: 0,
-		MinBytes:  10e3, // 10KB
-		MaxBytes:  10e6, // 10MB
+	c_sla, err := kafka.NewConsumer(&kafka.ConfigMap{
+		"bootstrap.servers":       conf["bootstrap.servers"],
+		"security.protocol":       conf["security.protocol"],
+		"ssl.keystore.location":   conf["ssl.keystore.location"],
+		"ssl.keystore.password":   conf["ssl.keystore.password"],
+		"ssl.truststore.location": conf["ssl.truststore.location"],
+		"ssl.truststore.password": conf["ssl.truststore.password"],
+		"ssl.key.password":        conf["ssl.key.password"],
 	})
+	if err != nil {
+		log.Fatalf("failed to create consumer: %v", err)
+	}
+
+	// Subscribe to topic
+	err = c_sla.SubscribeTopics(topics, nil)
+	if err != nil {
+		log.Fatalf("failed to connect to topics: %v", err)
+	}
+
+	// Cleanup for when the service terminates
+	sigchan := make(chan os.Signal, 1)
+	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
 	wallet, err := gateway.NewFileSystemWallet(walletLocation)
 	if err != nil {
@@ -93,128 +95,88 @@ func main() {
 		}
 	}
 
-	ccpPath := filepath.Join(
-		"..",
-		"..",
-		"test-network",
-		"organizations",
-		"peerOrganizations",
-		fmt.Sprintf("org%d.example.com", orgID),
-		fmt.Sprintf("connection-org%d.yaml", orgID),
-	)
-
 	gw, err := gateway.Connect(
 		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
 		gateway.WithIdentity(wallet, "appUser"),
 	)
 	if err != nil {
-		log.Fatalf("Failed to connect to gateway: %v", err)
+		log.Fatalf("failed to connect to gateway: %v", err)
 	}
 	defer gw.Close()
 
 	network, err := gw.GetNetwork("sla")
 	if err != nil {
-		log.Fatalf("Failed to get network: %v", err)
+		log.Fatalf("failed to get network: %v", err)
 	}
-	log.Println("Channel Connected")
+	log.Println("Channel connected")
 
 	contract := network.GetContract(contractName)
-
-	// Cleanup for when the service terminates
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		<-c
-		log.Println("============ application-golang ends ============")
-		showTransactions(contract)
-		cleanup(r_SLA, r_Violation)
-		os.Exit(0)
-	}()
 
 	log.Println("--> Submit Transaction: InitLedger, function the connection with the ledger")
 	result, err := contract.SubmitTransaction("InitLedger")
 	if err != nil {
-		cleanup(r_SLA, r_Violation)
-		log.Fatalf("failed to Submit transaction: %v", err)
+		// cleanup(r_SLA, r_Violation)
+		log.Fatalf("failed to submit transaction: %v", err)
 	}
 	log.Println(string(result))
 
-	for {
-		deadlineError := errors.New("context deadline exceeded")
+	var run bool = true
+	for run == true {
+		select {
+		case <-sigchan:
+			run = false
 
-		waitTime := time.Now().Add(500 * time.Millisecond)
-		ctx, cancel := context.WithDeadline(context.Background(), waitTime)
-		m, err := r_SLA.ReadMessage(ctx)
-		cancel()
+		default:
+			msg, err := c_sla.ReadMessage(100 * time.Millisecond)
+			if err != nil {
+				if err.(kafka.Error).Code() == kafka.ErrTimedOut {
+					continue
+				}
+				log.Fatalf("consumer failed to read: %v", err)
+			}
 
-		// Kinda ugly, maybe replace with a switch?
-		if err != nil {
-			if err.Error() != deadlineError.Error() {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("reading message failed: %s\n", err)
+			if msg.TopicPartition.Topic == &topics[0] {
+				log.Println(string(msg.Value))
+				var sla lib.SLA
+				err = json.Unmarshal(msg.Value, &sla)
+				if err != nil {
+					log.Fatalf("failed to unmarshal: %s", err)
+				}
+				log.Println(sla)
+				log.Println(`--> Submit Transaction: 
+				CreateContract, creates new contract with ID, 
+				customer, metric, provider, value, and status arguments`)
+
+				result, err := contract.SubmitTransaction("CreateContract",
+					string(msg.Value),
+				)
+				if err != nil {
+					log.Fatalf("failed to submit transaction: %s\n", err)
+				}
+				fmt.Println(string(result))
+				continue
 			}
-		} else {
-			log.Println(string(m.Value))
-			var s SLA
-			err = json.Unmarshal(m.Value, &s)
-			if err != nil {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("failed to unmarshal: %s\n", err)
+			if msg.TopicPartition.Topic == &topics[1] {
+				var v lib.Violation
+				err = json.Unmarshal(msg.Value, &v)
+				if err != nil {
+					log.Fatalf("Unmarshal failed: %s\n", err)
+				}
+				log.Println(v)
+
+				log.Println("--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus")
+				result, err = contract.SubmitTransaction("SLAViolated", v.ContractID)
+				if err != nil {
+					log.Fatalf("failed to submit transaction: %s\n", err)
+				}
+				log.Println(string(result))
+				continue
 			}
-			log.Println(s)
-			log.Println("--> Submit Transaction: CreateContract, creates new contract with ID, customer, metric, provider, value, and status arguments")
-			result, err := contract.SubmitTransaction("CreateContract", s.ID, s.Customer, s.Metric, s.Provider, fmt.Sprint(s.Value), fmt.Sprint(s.Status))
-			if err != nil {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("failed to submit transaction: %s\n", err)
-			}
-			fmt.Println(string(result))
+			log.Fatalf("unknown topic %s", *msg.TopicPartition.Topic)
 		}
-
-		waitTime = time.Now().Add(500 * time.Millisecond)
-		ctx, cancel = context.WithDeadline(context.Background(), waitTime)
-		m, err = r_Violation.ReadMessage(ctx)
-		cancel()
-
-		if err != nil {
-			if err.Error() != deadlineError.Error() {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("reading message failed: %s\n", err)
-			}
-		} else {
-			log.Println(string(m.Value))
-
-			var v Violation
-			err = json.Unmarshal(m.Value, &v)
-			if err != nil {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("Unmarshal failed: %s\n", err)
-			}
-			log.Println(v)
-			log.Println("--> Evaluate Transaction: ContractExists, finds existing contract with ID")
-			result, err = contract.EvaluateTransaction("ContractExists", v.ContractID)
-			if err != nil {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("failed to evaluate transaction: %s\n", err)
-			}
-			exists, err := strconv.ParseBool(string(result))
-			if err != nil {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("failed to convert result to boolean: %s\n", err)
-			}
-			if !exists {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("contract with ID: %s does not exist!\n", v.ContractID)
-			}
-
-			log.Println("--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus")
-			result, err = contract.SubmitTransaction("SLAViolated", v.ContractID)
-			if err != nil {
-				cleanup(r_SLA, r_Violation)
-				log.Fatalf("failed to submit transaction: %s\n", err)
-			}
-			log.Println(string(result))
-		}
+		log.Println("============ application-golang ends ============")
+		showTransactions(contract)
+		c_sla.Close()
 	}
 }
 
@@ -270,47 +232,11 @@ func showTransactions(contract *gateway.Contract) {
 	log.Println(string(result))
 }
 
-func cleanup(r_SLA *kafka.Reader, r_Violation *kafka.Reader) {
-	err := r_SLA.Close()
+// setDiscoveryAsLocalhost sets the environmental variable DISCOVERY_AS_LOCALHOST
+func setDiscoveryAsLocalhost(value bool) error {
+	err := os.Setenv("DISCOVERY_AS_LOCALHOST", strconv.FormatBool(value))
 	if err != nil {
-		log.Fatal("failed to close reader:", err)
+		return fmt.Errorf("failed to set DISCOVERY_AS_LOCALHOST environment variable: %v", err)
 	}
-	err = r_Violation.Close()
-	if err != nil {
-		log.Fatal("failed to close reader:", err)
-	}
-}
-
-func createTopic(topics []string) {
-
-	conn, err := kafka.Dial("tcp", "localhost:9092")
-	if err != nil {
-		panic(err.Error())
-	}
-	defer conn.Close()
-
-	controller, err := conn.Controller()
-	if err != nil {
-		panic(err.Error())
-	}
-	var controllerConn *kafka.Conn
-	controllerConn, err = kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
-	if err != nil {
-		panic(err.Error())
-	}
-	defer controllerConn.Close()
-
-	topicConfigs := []kafka.TopicConfig{}
-	for _, topic := range topics {
-		topicConfigs = append(topicConfigs, kafka.TopicConfig{
-			Topic:             topic,
-			NumPartitions:     1,
-			ReplicationFactor: 1,
-		})
-	}
-	err = controllerConn.CreateTopics(topicConfigs...)
-	if err != nil {
-		panic(err.Error())
-	}
-
+	return nil
 }
