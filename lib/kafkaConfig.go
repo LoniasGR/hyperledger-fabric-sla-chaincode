@@ -11,7 +11,8 @@ import (
 // ParseArgs parses the command line arguments and
 // returns the config file on success, or exits on error
 func ParseArgs() *string {
-	configFile := flag.String("f", "", "Path to Kafka configuration file")
+	var configFile = flag.String("f", "", "Path to Kafka configuration file")
+	flag.Parse()
 	if *configFile == "" {
 		flag.Usage()
 		os.Exit(2) // the same exit code flag.Parse uses
