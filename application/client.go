@@ -68,6 +68,8 @@ func main() {
 		"ssl.truststore.location": conf["ssl.truststore.location"],
 		"ssl.truststore.password": conf["ssl.truststore.password"],
 		"ssl.key.password":        conf["ssl.key.password"],
+		"group.id":                "sla",
+		"auto.offset.reset":       "earliest",
 	})
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
