@@ -31,6 +31,12 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
+	configFile := lib.ParseArgs()
+	conf, err := lib.ReadConfig(*configFile)
+	if err != nil {
+		log.Fatalf("failed to read config: %v", err)
+	}
+
 	var orgID int = 1
 	var userID int = 1
 
@@ -53,12 +59,6 @@ func main() {
 	topics := make([]string, 2)
 	topics[0] = "sla_contracts"
 	topics[1] = "sla_violation"
-
-	configFile := lib.ParseArgs()
-	conf, err := lib.ReadConfig(*configFile)
-	if err != nil {
-		log.Fatalf("failed to read config: %v", err)
-	}
 
 	c_sla, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":       conf["bootstrap.servers"],
