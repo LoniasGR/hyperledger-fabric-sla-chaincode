@@ -66,7 +66,6 @@ func main() {
 		"ssl.keystore.location":   conf["ssl.keystore.location"],
 		"ssl.keystore.password":   conf["ssl.keystore.password"],
 		"ssl.truststore.location": conf["ssl.truststore.location"],
-		"ssl.truststore.password": conf["ssl.truststore.password"],
 		"ssl.key.password":        conf["ssl.key.password"],
 		"group.id":                "sla",
 		"auto.offset.reset":       "earliest",
