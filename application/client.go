@@ -15,6 +15,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -60,13 +61,16 @@ func main() {
 	topics[0] = "sla_contracts"
 	topics[1] = "sla_violation"
 
+	truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
+	ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
+
 	c_sla, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":       conf["bootstrap.servers"],
 		"security.protocol":       conf["security.protocol"],
 		"ssl.keystore.location":   conf["ssl.keystore.location"],
 		"ssl.keystore.password":   conf["ssl.keystore.password"],
-		"ssl.truststore.location": conf["ssl.truststore.location"],
 		"ssl.key.password":        conf["ssl.key.password"],
+		"ssl.ca.certificate":      filepath.Join(ca_cert, "server.cer.pem"),
 		"group.id":                "sla",
 		"auto.offset.reset":       "earliest",
 	})

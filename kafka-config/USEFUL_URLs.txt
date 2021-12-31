@@ -1,0 +1,15 @@
+Useful URLs
+1.	Apache Kafka 2.0 Documentation
+https://kafka.apache.org/20/documentation.html
+
+2.	Confluent Hub (Connectors and documentation)
+https://www.confluent.io/hub/
+
+3.	Writing a Kafka Consumer
+https://dzone.com/articles/writing-a-kafka-consumer-in-java
+
+4.	Python Kafka Libraries and examples
+https://pypi.org/project/kafka-python/
+
+5.	Examples in various programming languages
+https://github.com/confluentinc/examples/tree/5.1.2-post/clients/cloud?mkt_tok=eyJpIjoiWm1ZeU9EazJPRE5tTURBeCIsInQiOiJiNGtub254ZHpKVVZmR21BVFwvamg5c2FSNXV3KzVrclJrSThLTUI2eGU3RlcyRjdVQ1diVnlIQmNsblBhYTdMazZkSGc5SjJ2NGlmZGF5ODhZMldRZzdLZSt5SmlncENDN0tKRjJFZVl5Y1haU2NzQXE5RDRlbjVJQnNGVDh6YjAifQ%3D%3D
