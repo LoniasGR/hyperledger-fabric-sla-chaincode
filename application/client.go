@@ -70,7 +70,7 @@ func main() {
 		"ssl.keystore.location":   conf["ssl.keystore.location"],
 		"ssl.keystore.password":   conf["ssl.keystore.password"],
 		"ssl.key.password":        conf["ssl.key.password"],
-		"ssl.ca.certificate":      filepath.Join(ca_cert, "server.cer.pem"),
+		"ssl.ca.pem":      filepath.Join(ca_cert, "server.cer.pem"),
 		"group.id":                "sla",
 		"auto.offset.reset":       "earliest",
 	})
