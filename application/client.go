@@ -64,15 +64,17 @@ func main() {
 	truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
 	ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
 
+	log.Println(filepath.Join(ca_cert, "server.cer.pem"))
+
 	c_sla, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":       conf["bootstrap.servers"],
-		"security.protocol":       conf["security.protocol"],
-		"ssl.keystore.location":   conf["ssl.keystore.location"],
-		"ssl.keystore.password":   conf["ssl.keystore.password"],
-		"ssl.key.password":        conf["ssl.key.password"],
-		"ssl.ca.pem":      filepath.Join(ca_cert, "server.cer.pem"),
-		"group.id":                "sla",
-		"auto.offset.reset":       "earliest",
+		"bootstrap.servers":     conf["bootstrap.servers"],
+		"security.protocol":     conf["security.protocol"],
+		"ssl.keystore.location": conf["ssl.keystore.location"],
+		"ssl.keystore.password": conf["ssl.keystore.password"],
+		"ssl.key.password":      conf["ssl.key.password"],
+		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
+		"group.id":              "sla",
+		"auto.offset.reset":     "earliest",
 	})
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
