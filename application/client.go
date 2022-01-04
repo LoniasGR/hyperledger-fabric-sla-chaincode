@@ -48,7 +48,6 @@ func main() {
 
 	ccpPath := filepath.Join(
 		"..",
-		"..",
 		"test-network",
 		"organizations",
 		"peerOrganizations",
@@ -63,8 +62,6 @@ func main() {
 
 	truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
 	ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
-
-	log.Println(filepath.Join(ca_cert, "server.cer.pem"))
 
 	c_sla, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":     conf["bootstrap.servers"],
