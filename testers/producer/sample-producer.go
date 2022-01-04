@@ -1,72 +1,68 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"flag"
+	"fmt"
 	"log"
-	"net"
-	"strconv"
+	"math/rand"
+	"path/filepath"
+	"strings"
 	"time"
 
-	"github.com/segmentio/kafka-go"
+	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
-
-type SLA struct {
-	Customer string `json:"Customer"`
-	ID       string `json:"ID"`
-	Metric   string `json:"Metric"`
-	Provider string `json:"Provider"`
-	Value    int    `json:"Value"`
-}
-
-type Violation struct {
-	ID         string `json:"ID"`
-	ContractID string `json:"ContractID"`
-}
 
 func main() {
 
 	// Create the topics that will be used
 	topics := make([]string, 2)
 	topics[0] = "sla_contracts"
-	topics[1] = "sla_violations"
-	createTopic(topics)
+	topics[1] = "sla_violation"
 
-	w := &kafka.Writer{
-		Addr: kafka.TCP("localhost:9092"),
-		// NOTE: When Topic is not defined here, each Message must define it instead.
-		Balancer: &kafka.LeastBytes{},
+	nAssets := flag.Int("c", 5, "Specify how many random assets to produce")
+
+	configFile := lib.ParseArgs()
+	conf, err := lib.ReadConfig(*configFile)
+	if err != nil {
+		log.Fatalf("failed to read config: %v", err)
 	}
 
-	assets := []SLA{
-		{ID: "contract1", Customer: "blue", Metric: "Downtime", Provider: "provider1", Value: 300},
-		{ID: "contract2", Customer: "red", Metric: "Downtime", Provider: "Brad", Value: 400},
-		{ID: "contract3", Customer: "green", Metric: "Downtime", Provider: "Jin Soo", Value: 500},
-		{ID: "contract4", Customer: "yellow", Metric: "Downtime", Provider: "provider1", Value: 600},
-		{ID: "contract5", Customer: "black", Metric: "Downtime", Provider: "provider1", Value: 700},
-		{ID: "contract6", Customer: "white", Metric: "Downtime", Provider: "Tomoko", Value: 800},
-	}
+	truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
+	ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
 
+	c_sla, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers":     conf["bootstrap.servers"],
+		"security.protocol":     conf["security.protocol"],
+		"ssl.keystore.location": conf["ssl.keystore.location"],
+		"ssl.keystore.password": conf["ssl.keystore.password"],
+		"ssl.key.password":      conf["ssl.key.password"],
+		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
+		"group.id":              "sla",
+		"auto.offset.reset":     "earliest",
+	})
+
+	assets := createAssets(*nAssets)
 	// Set timeout for writing
 	for _, asset := range assets {
 		assetJSON, err := json.Marshal(asset)
 		if err != nil {
 			panic(err.Error())
 		}
-		err = w.WriteMessages(context.Background(),
-			kafka.Message{
-				Topic: topics[0],
-				Key:   []byte(asset.ID),
-				Value: []byte(assetJSON)},
-		)
+		err = c_sla.Produce(&kafka.Message{
+			TopicPartition: kafka.TopicPartition{Topic: &topics[0], Partition: kafka.PartitionAny},
+			Value:          assetJSON,
+		}, nil)
+
 		if err != nil {
 			log.Fatal("failed to write messages: ", err)
 		}
 		log.Println(asset)
-		time.Sleep(3 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 
-	violations := []Violation{
+	violations := []lib.Violation{
 		{ID: "violation1", ContractID: "contract1"},
 		{ID: "violation2", ContractID: "contract3"},
 		{ID: "violation3", ContractID: "contract5"},
@@ -79,52 +75,52 @@ func main() {
 			panic(err.Error())
 		}
 		log.Println(violation)
-		err = w.WriteMessages(context.Background(),
-			kafka.Message{
-				Topic: topics[1],
-				Value: []byte(violationJSON)},
-		)
+		err = c_sla.Produce(&kafka.Message{
+			TopicPartition: kafka.TopicPartition{Topic: &topics[1], Partition: kafka.PartitionAny},
+			Value:          violationJSON,
+		}, nil)
 		if err != nil {
 			log.Fatal("failed to write messages:", err)
 		}
-		time.Sleep(3 * time.Second)
-	}
-
-	if err := w.Close(); err != nil {
-		log.Fatal("failed to close writer:", err)
+		time.Sleep(1 * time.Second)
 	}
 }
 
-func createTopic(topics []string) {
+func createAssets(nAssets int) []lib.SLA {
+	states := []string{"ongoing", "stopped", "deleted"}
+	types := []string{"agreement"}
+	entities := []lib.Entity{
+		{ID: "pledger", Name: "pledger platform"},
+		{ID: "leonidas", Name: "Leonidas Avdelas"},
+		{ID: "nikos", Name: "Nikos Kapsoulis"},
+		{ID: "test", Name: "Test Test"},
+		{ID: "hi", Name: "hello"}}
 
-	conn, err := kafka.Dial("tcp", "localhost:9092")
-	if err != nil {
-		panic(err.Error())
-	}
-	defer conn.Close()
-
-	controller, err := conn.Controller()
-	if err != nil {
-		panic(err.Error())
-	}
-	var controllerConn *kafka.Conn
-	controllerConn, err = kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
-	if err != nil {
-		panic(err.Error())
-	}
-	defer controllerConn.Close()
-
-	topicConfigs := []kafka.TopicConfig{}
-	for _, topic := range topics {
-		topicConfigs = append(topicConfigs, kafka.TopicConfig{
-			Topic:             topic,
-			NumPartitions:     1,
-			ReplicationFactor: 1,
-		})
-	}
-	err = controllerConn.CreateTopics(topicConfigs...)
-	if err != nil {
-		panic(err.Error())
+	nProvider := rand.Intn(len(entities))
+	nClient := rand.Intn(len(entities))
+	for nProvider == nClient {
+		nClient = rand.Intn(len(entities))
 	}
 
+	assets := make([]lib.SLA, nAssets)
+	for i := 0; i < nAssets; i++ {
+		id := fmt.Sprintf("a%d", i)
+		name := fmt.Sprintf("Agreement %d", i)
+		asset := lib.SLA{ID: id, Name: name, State: states[rand.Intn(len(states))],
+			Details: lib.Detail{
+				ID:       id,
+				Type:     types[rand.Intn(len(types))],
+				Name:     name,
+				Provider: entities[nProvider],
+				Client:   entities[nClient],
+				Creation: time.Now().Format(time.RFC3339),
+				Guarantees: []lib.Guarantee{{Name: "TestGuarantee", Constraint: "[test_value] < 0.7"},
+					{Name: "TestGuarantee2", Constraint: "[test_value] < 0.2"},
+				},
+			},
+		}
+
+		assets[i] = asset
+	}
+	return assets
 }
