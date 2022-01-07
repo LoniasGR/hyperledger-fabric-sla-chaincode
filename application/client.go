@@ -48,6 +48,7 @@ func main() {
 
 	ccpPath := filepath.Join(
 		"..",
+		"..",
 		"test-network",
 		"organizations",
 		"peerOrganizations",
