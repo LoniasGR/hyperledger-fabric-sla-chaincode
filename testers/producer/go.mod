@@ -1,4 +1,4 @@
-module github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/testers/producer
+module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/testers/producer
 
 go 1.17
 

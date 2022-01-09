@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/lib"
+	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
