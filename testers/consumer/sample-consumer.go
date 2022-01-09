@@ -33,7 +33,7 @@ func main() {
 		"ssl.keystore.password": conf["ssl.keystore.password"],
 		"ssl.key.password":      conf["ssl.key.password"],
 		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
-		"group.id":              "sla",
+		"group.id":              "sla-contracts-violations-consumer-group",
 		"auto.offset.reset":     "earliest",
 	})
 	if err != nil {

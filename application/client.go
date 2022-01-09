@@ -71,8 +71,8 @@ func main() {
 		"ssl.keystore.password": conf["ssl.keystore.password"],
 		"ssl.key.password":      conf["ssl.key.password"],
 		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
-		"group.id":              "sla",
-		"auto.offset.reset":     "earliest",
+		"group.id":              "sla-contracts-violations-consumer-group",
+		"auto.offset.reset":     "beginning",
 	})
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
@@ -120,13 +120,12 @@ func main() {
 	log.Println("--> Submit Transaction: InitLedger, function the connection with the ledger")
 	result, err := contract.SubmitTransaction("InitLedger")
 	if err != nil {
-		// cleanup(r_SLA, r_Violation)
 		log.Fatalf("failed to submit transaction: %v", err)
 	}
 	log.Println(string(result))
 
 	var run bool = true
-	for run == true {
+	for run {
 		select {
 		case <-sigchan:
 			run = false
