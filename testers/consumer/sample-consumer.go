@@ -34,7 +34,7 @@ func main() {
 		"ssl.key.password":      conf["ssl.key.password"],
 		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
 		"group.id":              "sla",
-		"auto.offset.reset":     "beginning",
+		"auto.offset.reset":     "earliest",
 	})
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)

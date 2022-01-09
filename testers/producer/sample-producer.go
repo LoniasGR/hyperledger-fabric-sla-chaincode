@@ -43,6 +43,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create producer: %v", err)
 	}
+	defer p_sla.Close()
 
 	// Delivery report handler for produced messages
 	go func() {
