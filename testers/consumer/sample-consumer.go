@@ -1,65 +1,51 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"time"
+	"path/filepath"
+	"strings"
 
-	"github.com/segmentio/kafka-go"
+	"github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/lib"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
-type SLA struct {
-	Customer string `json:"Customer"`
-	ID       string `json:"ID"`
-	Metric   string `json:"Metric"`
-	Provider string `json:"Provider"`
-	Status   int    `json:"Status"`
-	Value    int    `json:"Value"`
-}
-
 func main() {
-	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"localhost:9092"},
-		Topic:     "sla",
-		Partition: 0,
-		MinBytes:  10e3, // 10KB
-		MaxBytes:  10e6, // 10MB
+
+	// Create the topics that will be used
+	topics := make([]string, 2)
+	topics[0] = "sla_contracts"
+	topics[1] = "sla_violation"
+
+	configFile := lib.ParseArgs()
+	conf, err := lib.ReadConfig(*configFile)
+	if err != nil {
+		log.Fatalf("failed to read config: %v", err)
+	}
+
+	truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
+	ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
+
+	c_sla, err := kafka.NewConsumer(&kafka.ConfigMap{
+		"bootstrap.servers":     conf["bootstrap.servers"],
+		"security.protocol":     conf["security.protocol"],
+		"ssl.keystore.location": conf["ssl.keystore.location"],
+		"ssl.keystore.password": conf["ssl.keystore.password"],
+		"ssl.key.password":      conf["ssl.key.password"],
+		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
 	})
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		<-c
-		cleanup(r)
-		os.Exit(0)
-	}()
+	c_sla.SubscribeTopics(topics, nil)
 
 	for {
-		m, err := r.ReadMessage(context.Background())
-		if err != nil {
-			break
+		msg, err := c_sla.ReadMessage(-1)
+		if err == nil {
+			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+		} else {
+			// The client will automatically try to recover from all errors.
+			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
 		}
-
-		var s SLA
-		err = json.Unmarshal(m.Value, &s)
-		if err != nil {
-			panic(err.Error())
-		}
-
-		fmt.Printf("message at offset %d: %s", m.Offset, string(m.Key))
-		fmt.Println(s)
-
 	}
-	time.Sleep(time.Second)
 
-}
-
-func cleanup(r *kafka.Reader) {
-	if err := r.Close(); err != nil {
-		log.Fatal("failed to close writer:", err)
-	}
+	c_sla.Close()
 }
