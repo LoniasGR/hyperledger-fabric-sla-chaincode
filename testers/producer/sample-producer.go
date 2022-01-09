@@ -32,7 +32,7 @@ func main() {
 	truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
 	ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
 
-	c_sla, err := kafka.NewProducer(&kafka.ConfigMap{
+	p_sla, err := kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers":     conf["bootstrap.servers"],
 		"security.protocol":     conf["security.protocol"],
 		"ssl.keystore.location": conf["ssl.keystore.location"],
@@ -46,6 +46,20 @@ func main() {
 		log.Fatalf("failed to create producer: %v", err)
 	}
 
+	// Delivery report handler for produced messages
+	go func() {
+		for e := range p_sla.Events() {
+			switch ev := e.(type) {
+			case *kafka.Message:
+				if ev.TopicPartition.Error != nil {
+					fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
+				} else {
+					fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
+				}
+			}
+		}
+	}()
+
 	assets := createAssets(*nAssets)
 	// Set timeout for writing
 	for _, asset := range assets {
@@ -53,7 +67,7 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		err = c_sla.Produce(&kafka.Message{
+		err = p_sla.Produce(&kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topics[0], Partition: kafka.PartitionAny},
 			Value:          assetJSON,
 		}, nil)
@@ -78,7 +92,7 @@ func main() {
 			panic(err.Error())
 		}
 		log.Println(violation)
-		err = c_sla.Produce(&kafka.Message{
+		err = p_sla.Produce(&kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topics[1], Partition: kafka.PartitionAny},
 			Value:          violationJSON,
 		}, nil)
