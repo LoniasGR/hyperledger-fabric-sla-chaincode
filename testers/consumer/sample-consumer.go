@@ -34,8 +34,11 @@ func main() {
 		"ssl.key.password":      conf["ssl.key.password"],
 		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
 	})
+	if err != nil {
+		log.Fatalf("failed to create consumer: %v", err)
+	}
 
-	c_sla.SubscribeTopics(topics, nil)
+	c_sla.SubscribeTopics([]string{"sla_contracts", "sla_violation"}, nil)
 
 	for {
 		msg, err := c_sla.ReadMessage(-1)
