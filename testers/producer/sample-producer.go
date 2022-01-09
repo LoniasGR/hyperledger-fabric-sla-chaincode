@@ -42,6 +42,9 @@ func main() {
 		"group.id":              "sla",
 		"auto.offset.reset":     "earliest",
 	})
+	if err != nil {
+		log.Fatalf("failed to create producer: %v", err)
+	}
 
 	assets := createAssets(*nAssets)
 	// Set timeout for writing
