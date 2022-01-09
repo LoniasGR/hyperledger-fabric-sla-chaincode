@@ -139,7 +139,7 @@ func main() {
 				log.Fatalf("consumer failed to read: %v", err)
 			}
 
-			if msg.TopicPartition.Topic == &topics[0] {
+			if *msg.TopicPartition.Topic == topics[0] {
 				log.Println(string(msg.Value))
 				var sla lib.SLA
 				err = json.Unmarshal(msg.Value, &sla)
@@ -160,7 +160,7 @@ func main() {
 				fmt.Println(string(result))
 				continue
 			}
-			if msg.TopicPartition.Topic == &topics[1] {
+			if *msg.TopicPartition.Topic == topics[1] {
 				var v lib.Violation
 				err = json.Unmarshal(msg.Value, &v)
 				if err != nil {
