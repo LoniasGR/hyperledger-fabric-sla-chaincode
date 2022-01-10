@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 
 	// Create the topics that will be used
 	topics := make([]string, 2)
