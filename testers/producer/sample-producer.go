@@ -21,8 +21,8 @@ func main() {
 	topics[0] = "sla_contracts"
 	topics[1] = "sla_violation"
 
-	nAssets := flag.Int("assets", 5, "Specify how many random assets to produce")
-	nViolations := flag.Int("violations", 3, "Specify how many random violations to produce")
+	nAssets := flag.Int("a", 5, "Specify how many random assets to produce")
+	nViolations := flag.Int("v", 3, "Specify how many random violations to produce")
 
 	configFile := lib.ParseArgs()
 	conf, err := lib.ReadConfig(*configFile)
@@ -137,6 +137,9 @@ func createAssets(nAssets int) []lib.SLA {
 }
 
 func createViolations(nViolations, nAssets int) []lib.Violation {
+	if nAssets == 0 {
+		nAssets = 5
+	}
 	violations := make([]lib.Violation, nViolations)
 	for i := 0; i < nViolations; i++ {
 		violation := lib.Violation{
