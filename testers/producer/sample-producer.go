@@ -79,10 +79,10 @@ func main() {
 	}
 
 	violations := []lib.Violation{
-		{ID: "violation1", ContractID: "contract1"},
-		{ID: "violation2", ContractID: "contract3"},
-		{ID: "violation3", ContractID: "contract5"},
-		{ID: "violation4", ContractID: "contract5"},
+		{ID: "violation1", ContractID: "a0"},
+		{ID: "violation2", ContractID: "a2"},
+		{ID: "violation3", ContractID: "a4"},
+		{ID: "violation4", ContractID: "a4"},
 	}
 
 	for _, violation := range violations {
@@ -107,8 +107,8 @@ func createAssets(nAssets int) []lib.SLA {
 	types := []string{"agreement"}
 	entities := []lib.Entity{
 		{ID: "pledger", Name: "pledger platform"},
-		{ID: "leonidas", Name: "Leonidas Avdelas"},
-		{ID: "nikos", Name: "Nikos Kapsoulis"},
+		{ID: "test1", Name: "test tester"},
+		{ID: "test2", Name: "tester test"},
 		{ID: "test", Name: "Test Test"},
 		{ID: "hi", Name: "hello"}}
 
