@@ -26,7 +26,7 @@ fi
 pushd ../test-network
 ./network.sh down
 ./network.sh up createChannel -c sla -ca -s couchdb
-./network.sh deployCC -c sla -ccn sla_contract -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
+./network.sh deployCC -c sla -ccn slasc_bridge -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
 popd
 
 if [ -d "../explorer-local" ]

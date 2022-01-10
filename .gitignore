@@ -2,6 +2,7 @@
 *.jks
 *.pem
 *.p12
+*.properties
 
 # Binaries for programs and plugins
 *.exe

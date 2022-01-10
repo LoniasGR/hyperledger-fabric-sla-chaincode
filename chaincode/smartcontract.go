@@ -18,7 +18,7 @@ type SmartContract struct {
 
 type sla_contract struct {
 	lib.SLA
-	Value      int `json:"Value"`
+	Value      int `json:"Value"` // compensation amount
 	Violations int `json:"Violations"`
 }
 

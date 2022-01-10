@@ -43,8 +43,8 @@ func main() {
 
 	var walletLocation = "wallet"
 
-	// var channelName string = "sla"
-	var contractName string = "sla_contract"
+	var channelName string = "sla"
+	var contractName string = "slasc_bridge"
 
 	ccpPath := filepath.Join(
 		"..",
@@ -109,7 +109,7 @@ func main() {
 	}
 	defer gw.Close()
 
-	network, err := gw.GetNetwork("sla")
+	network, err := gw.GetNetwork(channelName)
 	if err != nil {
 		log.Fatalf("failed to get network: %v", err)
 	}

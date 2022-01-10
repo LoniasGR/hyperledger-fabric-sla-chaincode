@@ -13,4 +13,4 @@ echo "DISCOVERY_AS_LOCALHOST="$DISCOVERY_AS_LOCALHOST
 echo "run client..."
 
 rm -rf ./wallet ./keystore
-go run client.go
+go run client.go -f ../kafka-config/consumer.properties
