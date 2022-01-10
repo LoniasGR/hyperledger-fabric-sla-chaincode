@@ -72,7 +72,7 @@ func main() {
 		"ssl.key.password":      conf["ssl.key.password"],
 		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
 		"group.id":              "sla-contracts-violations-consumer-group",
-		"auto.offset.reset":     "beginning",
+		"auto.offset.reset":     "latest",
 	})
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
