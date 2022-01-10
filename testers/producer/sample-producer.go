@@ -21,7 +21,8 @@ func main() {
 	topics[0] = "sla_contracts"
 	topics[1] = "sla_violation"
 
-	nAssets := flag.Int("c", 5, "Specify how many random assets to produce")
+	nAssets := flag.Int("assets", 5, "Specify how many random assets to produce")
+	nViolations := flag.Int("violations", 3, "Specify how many random violations to produce")
 
 	configFile := lib.ParseArgs()
 	conf, err := lib.ReadConfig(*configFile)
@@ -77,13 +78,7 @@ func main() {
 		log.Println(asset)
 		time.Sleep(1 * time.Second)
 	}
-
-	violations := []lib.Violation{
-		{ID: "violation1", ContractID: "a0"},
-		{ID: "violation2", ContractID: "a2"},
-		{ID: "violation3", ContractID: "a4"},
-		{ID: "violation4", ContractID: "a4"},
-	}
+	violations := createViolations(*nViolations, *nAssets)
 
 	for _, violation := range violations {
 		violationJSON, err := json.Marshal(violation)
@@ -139,4 +134,17 @@ func createAssets(nAssets int) []lib.SLA {
 		assets[i] = asset
 	}
 	return assets
+}
+
+func createViolations(nViolations, nAssets int) []lib.Violation {
+	violations := make([]lib.Violation, nViolations)
+	for i := 0; i < nViolations; i++ {
+		violation := lib.Violation{
+			ID:         fmt.Sprintf("v%d", i),
+			ContractID: fmt.Sprintf("a%d", rand.Intn(nAssets)),
+		}
+		violations[i] = violation
+	}
+
+	return violations
 }
