@@ -110,7 +110,7 @@ func (s *SmartContract) TransferTokens(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("failed to update sender's balance: %v", err)
 	}
 
-	err = ctx.GetStub().PutState(from, []byte(strconv.Itoa(updatedToBalance)))
+	err = ctx.GetStub().PutState(to, []byte(strconv.Itoa(updatedToBalance)))
 	if err != nil {
 		return fmt.Errorf("failed to update receiver's balance: %v", err)
 	}
