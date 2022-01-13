@@ -101,18 +101,23 @@ func main() {
 func createAssets(nAssets int) []lib.SLA {
 	states := []string{"ongoing", "stopped", "deleted"}
 	types := []string{"agreement"}
-	entities := []lib.Entity{
-		{ID: "pledger", Name: "pledger platform"},
-		{ID: "test1", Name: "test tester"},
-		{ID: "test2", Name: "tester test"},
-		{ID: "test", Name: "Test Test"},
-		{ID: "hi", Name: "hello"}}
-
-	nProvider := rand.Intn(len(entities))
-	nClient := rand.Intn(len(entities))
-	for nProvider == nClient {
-		nClient = rand.Intn(len(entities))
+	providers := []lib.Entity{
+		{ID: "providerX", Name: "pledger platform"},
+		{ID: "providerY", Name: "test tester"},
+		{ID: "providerZ", Name: "tester test"}}
+	
+	clients:= []lib.Entity{
+		{ID: "clientX", Name: "client1"},
+		{ID: "clientY", Name: "client2"},
+		{ID: "clientZ", Name: "client3"},
 	}
+
+
+	nProvider := rand.Intn(len(providers))
+	nClient := rand.Intn(len(clients))
+	// for nProvider == nClient {
+	// 	nClient = rand.Intn(len(clients))
+	// }
 
 	assets := make([]lib.SLA, nAssets)
 	for i := 0; i < nAssets; i++ {
@@ -123,8 +128,8 @@ func createAssets(nAssets int) []lib.SLA {
 				ID:       id,
 				Type:     types[rand.Intn(len(types))],
 				Name:     name,
-				Provider: entities[nProvider],
-				Client:   entities[nClient],
+				Provider: providers[nProvider],
+				Client:   clients[nClient],
 				Creation: time.Now().Format(time.RFC3339),
 				Guarantees: []lib.Guarantee{{Name: "TestGuarantee", Constraint: "[test_value] < 0.7"},
 					{Name: "TestGuarantee2", Constraint: "[test_value] < 0.2"},
