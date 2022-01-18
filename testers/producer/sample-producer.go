@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -99,7 +100,7 @@ func main() {
 }
 
 func createAssets(nAssets int) []lib.SLA {
-	states := []string{"started", "ongoing", "stopped", "deleted"}
+	states := []string{"started", "ongoing"} // , "stopped", "deleted"}
 	types := []string{"agreement"}
 	providers := []lib.Entity{
 		{ID: "providerX", Name: "pledger platform"},
@@ -167,7 +168,7 @@ func createViolations(nViolations, nAssets int) []lib.Violation {
 		violation := lib.Violation{
 			ID:             fmt.Sprintf("v%d", i),
 			SLAID:          fmt.Sprintf("a%d", rand.Intn(nAssets)),
-			GuaranteeID:    string(rand.Intn(100)),
+			GuaranteeID:    strconv.Itoa(rand.Intn(100)),
 			Datetime:       time.Now().Format(time.RFC3339),
 			Constraint:     "[sum(container_memory_usage_bytes%7Bnamespace='core'%7D)] < 30",
 			Values:         values,
