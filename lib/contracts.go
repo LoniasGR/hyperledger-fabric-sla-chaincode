@@ -1,9 +1,5 @@
 package lib
 
-import (
-	"time"
-)
-
 type SLA struct {
 	ID         string     `json:"id"`
 	Name       string     `json:"name"`
@@ -18,14 +14,14 @@ type Detail struct {
 	Name       string      `json:"Name"`
 	Provider   Entity      `json:"provider"`
 	Client     Entity      `json:"client"`
-	Creation   time.Time   `json:"creation"`
+	Creation   string      `json:"creation"`
 	Guarantees []Guarantee `json:"guarantees"`
 	Service    string      `json:"service"`
 }
 
 type Assessment struct {
-	FirstExecution time.Time `json:"first_execution"`
-	LastExecution  time.Time `json:"last_execution"`
+	FirstExecution string `json:"first_execution"`
+	LastExecution  string `json:"last_execution"`
 }
 
 type Entity struct {
@@ -56,7 +52,7 @@ type Violation struct {
 }
 
 type Value struct {
-	Key      string    `json:"key"`
-	Value    int64     `json:"value"`
-	Datetime time.Time `json:"datetime"`
+	Key      string `json:"key"`
+	Value    int64  `json:"value"`
+	Datetime string `json:"datetime"`
 }
