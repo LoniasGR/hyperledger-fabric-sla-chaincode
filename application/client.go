@@ -169,7 +169,7 @@ func main() {
 				log.Println(v)
 
 				log.Println("--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus")
-				result, err = contract.SubmitTransaction("SLAViolated", v.ContractID)
+				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
 				if err != nil {
 					log.Fatalf("failed to submit transaction: %s\n", err)
 				}

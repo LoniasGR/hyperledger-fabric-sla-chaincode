@@ -1,8 +1,8 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/DATA-DOG/go-txdb v0.1.3/go.mod h1:DhAhxMXZpUJVGnT+p9IbzJoRKvlArO2pkHjnGX7o0n0=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20211228102459-108370f23975 h1:n61DQTvpr6+0qExjMbmMi8hCF3UDOXPQzlsRRrXLSBU=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20211228102459-108370f23975/go.mod h1:0ztjNdxiGLuhbZ518t/CluXIHYKkE5jpB4vWHFIKomw=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220118115453-bb3a8f6194cc h1:pY9mXXWiGlBDMNuHBlp1lMom1h69ikKt3Cp1s7gDhS0=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220118115453-bb3a8f6194cc/go.mod h1:0ztjNdxiGLuhbZ518t/CluXIHYKkE5jpB4vWHFIKomw=
 github.com/PuerkitoBio/purell v1.1.1 h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tNFfI=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV/sSk/8dngufqelfh6jnri85riMAaF/M=
