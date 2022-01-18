@@ -99,19 +99,18 @@ func main() {
 }
 
 func createAssets(nAssets int) []lib.SLA {
-	states := []string{"ongoing", "stopped", "deleted"}
+	states := []string{"started", "ongoing", "stopped", "deleted"}
 	types := []string{"agreement"}
 	providers := []lib.Entity{
 		{ID: "providerX", Name: "pledger platform"},
 		{ID: "providerY", Name: "test tester"},
 		{ID: "providerZ", Name: "tester test"}}
-	
-	clients:= []lib.Entity{
+
+	clients := []lib.Entity{
 		{ID: "clientX", Name: "client1"},
 		{ID: "clientY", Name: "client2"},
 		{ID: "clientZ", Name: "client3"},
 	}
-
 
 	nProvider := rand.Intn(len(providers))
 	nClient := rand.Intn(len(clients))
@@ -123,7 +122,17 @@ func createAssets(nAssets int) []lib.SLA {
 	for i := 0; i < nAssets; i++ {
 		id := fmt.Sprintf("a%d", i)
 		name := fmt.Sprintf("Agreement %d", i)
-		asset := lib.SLA{ID: id, Name: name, State: states[rand.Intn(len(states))],
+		importance := []lib.Importance{
+			{Name: "Warning", Constraint: "> 30"},
+			{Name: "Mild", Constraint: "> 30"},
+			{Name: "Serious", Constraint: "> 30"},
+			{Name: "Sever", Constraint: "> 70"},
+			{Name: "Catastrophic", Constraint: "> 70"},
+		}
+		asset := lib.SLA{
+			ID: id, Name: name, State: states[rand.Intn(len(states))],
+			Assessment: lib.Assessment{FirstExecution: time.Now().Add(-1000 * time.Hour).Format(time.RFC3339),
+				LastExecution: time.Now().Format(time.RFC3339)},
 			Details: lib.Detail{
 				ID:       id,
 				Type:     types[rand.Intn(len(types))],
@@ -131,12 +140,11 @@ func createAssets(nAssets int) []lib.SLA {
 				Provider: providers[nProvider],
 				Client:   clients[nClient],
 				Creation: time.Now().Format(time.RFC3339),
-				Guarantees: []lib.Guarantee{{Name: "TestGuarantee", Constraint: "[test_value] < 0.7"},
-					{Name: "TestGuarantee2", Constraint: "[test_value] < 0.2"},
-				},
+				Guarantees: []lib.Guarantee{{Name: "TestGuarantee", Constraint: "[test_value] < 0.7", Importance: []lib.Importance{}},
+					{Name: "TestGuarantee2", Constraint: "[test_value] < 0.2", Importance: importance}},
+				Service: "8",
 			},
 		}
-
 		assets[i] = asset
 	}
 	return assets
@@ -146,11 +154,24 @@ func createViolations(nViolations, nAssets int) []lib.Violation {
 	if nAssets == 0 {
 		nAssets = 5
 	}
+	values := []lib.Value{
+		{
+			Key:      "sum(container_memory_usage_bytes%7Bnamespace='core'%7D){}",
+			Value:    rand.Int63n(15270965248),
+			Datetime: time.Now().Format(time.RFC3339),
+		},
+	}
+
 	violations := make([]lib.Violation, nViolations)
 	for i := 0; i < nViolations; i++ {
 		violation := lib.Violation{
-			ID:         fmt.Sprintf("v%d", i),
-			ContractID: fmt.Sprintf("a%d", rand.Intn(nAssets)),
+			ID:             fmt.Sprintf("v%d", i),
+			SLAID:          fmt.Sprintf("a%d", rand.Intn(nAssets)),
+			GuaranteeID:    string(rand.Intn(100)),
+			Datetime:       time.Now().Format(time.RFC3339),
+			Constraint:     "[sum(container_memory_usage_bytes%7Bnamespace='core'%7D)] < 30",
+			Values:         values,
+			ImportanceName: "Catastrophic",
 		}
 		violations[i] = violation
 	}
