@@ -228,7 +228,7 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 func (s *SmartContract) GetAllContracts(ctx contractapi.TransactionContextInterface) ([]*sla_contract, error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all Contracts in the chaincode namespace.
-	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
+	resultsIterator, err := ctx.GetStub().GetStateByRange("a0", "")
 	if err != nil {
 		return nil, err
 	}
