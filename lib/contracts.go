@@ -44,6 +44,7 @@ type Violation struct {
 	ID             string  `json:"id"`
 	SLAID          string  `json:"sla_id"`
 	GuaranteeID    string  `json:"guarantee_id"`
+	Datetime       string  `json:"datetime"`
 	Constraint     string  `json:"constraint"`
 	Values         []Value `json:"values"`
 	ImportanceName string  `json:"importanceName"`
