@@ -26,6 +26,10 @@ import (
 )
 
 func main() {
+
+	colorReset := "\033[0m"
+	colorRed := "\033[31m"
+
 	log.Println("============ application-golang starts ============")
 	err := setDiscoveryAsLocalhost(true)
 	if err != nil {
@@ -155,7 +159,7 @@ func main() {
 					string(msg.Value),
 				)
 				if err != nil {
-					log.Fatalf("failed to submit transaction: %s\n", err)
+					log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
 				}
 				fmt.Println(string(result))
 				continue
@@ -171,7 +175,7 @@ func main() {
 				log.Println("--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus")
 				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
 				if err != nil {
-					log.Fatalf("failed to submit transaction: %s\n", err)
+					log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
 				}
 				log.Println(string(result))
 				continue
