@@ -29,6 +29,7 @@ func main() {
 
 	colorReset := "\033[0m"
 	colorRed := "\033[31m"
+	colorGreen := "\033[32m"
 
 	log.Println("============ application-golang starts ============")
 	err := setDiscoveryAsLocalhost(true)
@@ -76,7 +77,7 @@ func main() {
 		"ssl.key.password":      conf["ssl.key.password"],
 		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
 		"group.id":              "sla-contracts-violations-consumer-group",
-		"auto.offset.reset":     "latest",
+		"auto.offset.reset":     "beginning",
 	})
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
@@ -121,7 +122,7 @@ func main() {
 
 	contract := network.GetContract(contractName)
 
-	log.Println("--> Submit Transaction: InitLedger, function the connection with the ledger")
+	log.Println(string(colorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(colorReset))
 	result, err := contract.SubmitTransaction("InitLedger")
 	if err != nil {
 		log.Fatalf("failed to submit transaction: %v", err)
@@ -151,15 +152,16 @@ func main() {
 					log.Fatalf("failed to unmarshal: %s", err)
 				}
 				log.Println(sla)
-				log.Println(`--> Submit Transaction: 
+				log.Println(string(colorGreen), `--> Submit Transaction: 
 				CreateContract, creates new contract with ID, 
-				customer, metric, provider, value, and status arguments`)
+				customer, metric, provider, value, and status arguments`, string(colorReset))
 
 				result, err := contract.SubmitTransaction("CreateContract",
 					string(msg.Value),
 				)
 				if err != nil {
 					log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+					continue
 				}
 				fmt.Println(string(result))
 				continue
@@ -172,10 +174,11 @@ func main() {
 				}
 				log.Println(v)
 
-				log.Println("--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus")
+				log.Println(string(colorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(colorReset))
 				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
 				if err != nil {
 					log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+					continue
 				}
 				log.Println(string(result))
 				continue
