@@ -58,10 +58,11 @@ go run sample-producer.go
 - [x] Rename `sla` chaincode to `sla_contracts` and `sla_violation` to `sla_violation`
 - [x] When a violation happens there will be a transfer of tokens (ERC-20 style)
 - [x] `smartcontract.go` function SLAViolation Compensation scheme
+- [x] Slides ~30 Hyperledger - Deadline: Start of January
+- [x] Slides ~30 Etherium - Deadline: Start of January
 - [ ] `client.go` Wallet management (provider wallet, customer wallet)
 - [ ] App that when given a user certificates connects to Hyperledger
 - [ ] Connect wallets, violation function and ERC-20
 - [ ] Move to Kubernetes
-- [ ] Slides ~30 Etherium - Deadline: Start of January
-- [ ] Slides ~30 Hyperledger - Deadline: Start of January
+- [ ] Containerize the client
 - [ ] Intergrate whisper protocols in Fabric
