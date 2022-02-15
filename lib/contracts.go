@@ -53,7 +53,7 @@ type Violation struct {
 }
 
 type Value struct {
-	Key      string `json:"key"`
-	Value    int64  `json:"value"`
-	Datetime string `json:"datetime"`
+	Key      string  `json:"key"`
+	Value    float32 `json:"value"`
+	Datetime string  `json:"datetime"`
 }
