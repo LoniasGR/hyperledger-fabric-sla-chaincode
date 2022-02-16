@@ -152,8 +152,8 @@ func main() {
 					log.Fatalf("failed to unmarshal: %s", err)
 				}
 				log.Println(sla)
-				log.Println(string(colorGreen), `--> Submit Transaction: 
-				CreateContract, creates new contract with ID, 
+				log.Println(string(colorGreen), `--> Submit Transaction:
+				CreateContract, creates new contract with ID,
 				customer, metric, provider, value, and status arguments`, string(colorReset))
 
 				result, err := contract.SubmitTransaction("CreateContract",
@@ -167,6 +167,7 @@ func main() {
 				continue
 			}
 			if *msg.TopicPartition.Topic == topics[1] {
+				log.Println(string(msg.Value))
 				var v lib.Violation
 				err = json.Unmarshal(msg.Value, &v)
 				if err != nil {
