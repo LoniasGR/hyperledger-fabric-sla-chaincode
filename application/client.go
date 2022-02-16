@@ -187,7 +187,6 @@ func main() {
 			log.Fatalf("unknown topic %s", *msg.TopicPartition.Topic)
 		}
 		log.Println("============ application-golang ends ============")
-		showTransactions(contract)
 		c_sla.Close()
 	}
 }
@@ -232,16 +231,6 @@ func populateWallet(wallet *gateway.Wallet, orgID int, userID int) error {
 	identity := gateway.NewX509Identity(fmt.Sprintf("Org%dMSP", orgID), string(cert), string(key))
 
 	return wallet.Put("appUser", identity)
-}
-
-func showTransactions(contract *gateway.Contract) {
-	log.Println("--> Evaluate Transaction: GetAllContracts, finds existing contract with ID")
-	result, err := contract.EvaluateTransaction("GetAllContracts")
-	if err != nil {
-		log.Fatalf("Failed to evaluate transaction: %s\n", err)
-	}
-
-	log.Println(string(result))
 }
 
 // setDiscoveryAsLocalhost sets the environmental variable DISCOVERY_AS_LOCALHOST
