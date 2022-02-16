@@ -133,13 +133,13 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("the Contract %s already exists", sla.ID)
 	}
 
-	providerBalance, err := s.UserBalance(ctx, sla.Details.Provider.ID)
+	providerBalance, err := s.UserBalance(ctx, sla.Details.Provider.Name)
 	if err != nil {
 		return fmt.Errorf("failed to read provider account %s from world state: %v", sla.Details.Provider.ID, err)
 	}
 
 	if providerBalance == 0 {
-		_, err = s.Mint(ctx, sla.Details.Provider.ID, rand.Intn(500)+500)
+		_, err = s.Mint(ctx, sla.Details.Provider.Name, rand.Intn(500)+500)
 		if err != nil {
 			return fmt.Errorf("failed to mint tokens for provider %s: %v", sla.Details.Provider.ID, err)
 		}
@@ -216,7 +216,7 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 		return err
 	}
 
-	err = s.TransferTokens(ctx, contract.SLA.Details.Provider.ID, contract.SLA.Details.Client.ID, contract.Value)
+	err = s.TransferTokens(ctx, contract.SLA.Details.Provider.Name, contract.SLA.Details.Client.Name, contract.Value)
 	if err != nil {
 		return fmt.Errorf("could not transfer tokens from violation: %v", err)
 	}
