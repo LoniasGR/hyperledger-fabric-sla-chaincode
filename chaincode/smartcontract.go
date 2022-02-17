@@ -184,12 +184,12 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return err
 	}
 
-	return ctx.GetStub().PutState(contract.SLA.ID, slaContractJSON)
+	return ctx.GetStub().PutState(fmt.Sprintf("contract_%v", contract.SLA.ID), slaContractJSON)
 }
 
 // ReadContract returns the Contract stored in the world state with given id.
 func (s *SmartContract) ReadContract(ctx contractapi.TransactionContextInterface, id string) (*sla_contract, error) {
-	ContractJSON, err := ctx.GetStub().GetState(id)
+	ContractJSON, err := ctx.GetStub().GetState(fmt.Sprintf("contract_%v", id))
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
 	}
@@ -212,7 +212,7 @@ func (s *SmartContract) ReadUser(ctx contractapi.TransactionContextInterface, id
 		return User{}, fmt.Errorf("user with id %v could not be read from world state: %v", id, err)
 	}
 	var user User
-	err = json.Unmarshal(userBytes, user)
+	err = json.Unmarshal(userBytes, &user)
 	if err != nil {
 		return User{}, fmt.Errorf("failed to unmarshal file: %v", err)
 	}
@@ -250,7 +250,7 @@ func (s *SmartContract) DeleteContract(ctx contractapi.TransactionContextInterfa
 
 // ContractExists returns true when Contract with given ID exists in world state
 func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	ContractJSON, err := ctx.GetStub().GetState(id)
+	ContractJSON, err := ctx.GetStub().GetState(fmt.Sprintf("contract_%v", id))
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %v", err)
 	}
@@ -297,7 +297,7 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 func (s *SmartContract) GetAllContracts(ctx contractapi.TransactionContextInterface) ([]*sla_contract, error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all Contracts in the chaincode namespace.
-	resultsIterator, err := ctx.GetStub().GetStateByRange("a0", "")
+	resultsIterator, err := ctx.GetStub().GetStateByRange("contract_0", "")
 	if err != nil {
 		return nil, err
 	}
