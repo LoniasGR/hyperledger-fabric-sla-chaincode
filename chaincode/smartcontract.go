@@ -23,10 +23,10 @@ type sla_contract struct {
 }
 
 type User struct {
-	ID      string `json:id`
-	Name    string `json:name`
-	PubKey  string `json:pubkey`
-	Balance string `json:balance`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	PubKey  string `json:"pubkey"`
+	Balance string `json:"balance"`
 }
 
 // InitLedger is just a template for now.
