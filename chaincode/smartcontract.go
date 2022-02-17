@@ -11,7 +11,6 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-
 // SmartContract provides functions for managing a Contract
 type SmartContract struct {
 	contractapi.Contract
@@ -23,8 +22,12 @@ type sla_contract struct {
 	Violations int `json:"Violations"`
 }
 
-// Index to construct composite queries
-const index = "name~id"
+type User struct {
+	ID      string `json:id`
+	Name    string `json:name`
+	PubKey  string `json:pubkey`
+	Balance string `json:balance`
+}
 
 // InitLedger is just a template for now.
 // Used to test the connection and verify that applications can connect to the chaincode.
@@ -33,67 +36,65 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	return nil
 }
 
-
 // Returns the users balance.
-func (s *SmartContract) UserBalance(ctx contractapi.TransactionContextInterface, identifier string) (int, error) {
-	_, userData, err := s.ReadUser(ctx, identifier)
+func (s *SmartContract) UserBalance(ctx contractapi.TransactionContextInterface, id string) (int, error) {
+	user, err := s.ReadUser(ctx, id)
 	if err != nil {
 		return 0, fmt.Errorf("could not read user: %v", err)
 	}
 
 	var currentBalance int
 
-	// Error handling not needed since Itoa() was used when setting the account balance,
-	// guaranteeing it was an integer.
-	currentBalance, _ = strconv.Atoi(string(userData))
+	currentBalance, err = strconv.Atoi(string(user.Balance))
+	if err != nil {
+		return 0, fmt.Errorf("could not convert balance: %v", err)
+	}
 
 	return currentBalance, nil
 }
 
 func (s *SmartContract) CreateUser(ctx contractapi.TransactionContextInterface,
-	user string, id string, initialBalance int) error {
+	name, id, pubkey string, initialBalance int) error {
 
 	if initialBalance < 0 {
 		return fmt.Errorf("initial amount must be zero or positive")
 	}
 
-	nameExists, err := s.UserExists(ctx, user)
+	exists, err := s.UserExists(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to get user info")
 	}
-	if nameExists {
+	if exists {
 		return fmt.Errorf("user already exists")
 	}
+	// TODO: Add check if public key exists
 
-	idExists, err := s.UserExists(ctx, id)
+	user := User{
+		ID:      id,
+		Name:    name,
+		PubKey:  pubkey,
+		Balance: strconv.Itoa(initialBalance),
+	}
+	userBytes, err := json.Marshal(user)
 	if err != nil {
-		return fmt.Errorf("failed to get user info")
+		return fmt.Errorf("unable to marshal json: %v", err)
 	}
-	if idExists {
-		return fmt.Errorf("public key already exists")
-	}
-
-	userIndex, err := ctx.GetStub().CreateCompositeKey(index, []string{user, id})
-	if err != nil {
-		return fmt.Errorf("could not create composite key:  %v", err)
-	}
-
-	return ctx.GetStub().PutState(userIndex, []byte(strconv.Itoa(initialBalance)))
+	return ctx.GetStub().PutState(fmt.Sprintf("user_%v", id), userBytes)
 }
 
 // Mint creates new tokens and adds them to minter's account balance
-func (s *SmartContract) Mint(ctx contractapi.TransactionContextInterface, user string, amount int) (string, error) {
+func (s *SmartContract) Mint(ctx contractapi.TransactionContextInterface, id string, amount int) (string, error) {
 	if amount <= 0 {
 		return "", fmt.Errorf("mint amount must be a positive integer")
 	}
-	currentBalance, err := s.UserBalance(ctx, user)
+	currentBalance, err := s.UserBalance(ctx, id)
 	if err != nil {
-		return "", fmt.Errorf("failed to read minter account %s from world state: %v", user, err)
+		return "", fmt.Errorf("failed to read minter account %s from world state: %v", id, err)
 	}
 
 	updatedBalance := currentBalance + amount
 
-	err = s.UpdateUserBalance(ctx, user, updatedBalance)
+	err = s.UpdateUserBalance(ctx, id, updatedBalance)
 	if err != nil {
 		return "", fmt.Errorf("could not update user balance: %v", err)
 	}
@@ -102,7 +103,7 @@ func (s *SmartContract) Mint(ctx contractapi.TransactionContextInterface, user s
 }
 
 func (s *SmartContract) TransferTokens(ctx contractapi.TransactionContextInterface,
-	from string, to string, amount int) error {
+	from, to string, amount int) error {
 	if from == to {
 		return fmt.Errorf("cannot transfer from and to the same account")
 	}
@@ -156,7 +157,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("provider account %s could not be read: %v", sla.Details.Provider.ID, err)
 	}
 	if !exists {
-		err = s.CreateUser(ctx, sla.Details.Provider.Name, sla.Details.Provider.ID, 500)
+		err = s.CreateUser(ctx, sla.Details.Provider.Name, sla.Details.Provider.ID, "", 500)
 		if err != nil {
 			return fmt.Errorf("could not create provider: %v", err)
 		}
@@ -167,7 +168,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("client account %s could not be read: %v", sla.Details.Client.ID, err)
 	}
 	if !exists {
-		err = s.CreateUser(ctx, sla.Details.Client.Name, sla.Details.Client.ID, 500)
+		err = s.CreateUser(ctx, sla.Details.Client.Name, sla.Details.Client.ID, "", 500)
 		if err != nil {
 			return fmt.Errorf("could not create client: %v", err)
 		}
@@ -205,30 +206,33 @@ func (s *SmartContract) ReadContract(ctx contractapi.TransactionContextInterface
 }
 
 // ReadUser returns the User stored in the world state with given name or public key.
-func (s *SmartContract) ReadUser(ctx contractapi.TransactionContextInterface, identifier string) (string, []byte, error) {
-	UserJSONIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(index, []string{identifier})
+func (s *SmartContract) ReadUser(ctx contractapi.TransactionContextInterface, id string) (User, error) {
+	userBytes, err := ctx.GetStub().GetState(fmt.Sprintf("user_%v", id))
 	if err != nil {
-		return "", []byte{}, fmt.Errorf("failed to read from world state: %v", err)
+		return User{}, fmt.Errorf("user with id %v could not be read from world state: %v", id, err)
 	}
-	if !UserJSONIterator.HasNext() {
-		return "", []byte{}, fmt.Errorf("user does not exist")
-	}
-
-	userKeyValue, err := UserJSONIterator.Next()
+	var user User
+	err = json.Unmarshal(userBytes, user)
 	if err != nil {
-		return "", []byte{}, fmt.Errorf("failed to get user key value pair: %v", err)
+		return User{}, fmt.Errorf("failed to unmarshal file: %v", err)
 	}
-	return userKeyValue.Key, userKeyValue.Value, nil
+	return user, nil
 }
 
 func (s *SmartContract) UpdateUserBalance(ctx contractapi.TransactionContextInterface,
-	identifier string, newBalance int) error {
+	id string, newBalance int) error {
 
-	userKey, _, err := s.ReadUser(ctx, identifier)
+	user, err := s.ReadUser(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to read user %v", err)
 	}
-	return ctx.GetStub().PutState(userKey, []byte(strconv.Itoa(newBalance)))
+	user.Balance = strconv.Itoa(newBalance)
+
+	userBytes, err := json.Marshal(user)
+	if err != nil {
+		return fmt.Errorf("failed to marshall user: %v", err)
+	}
+	return ctx.GetStub().PutState(fmt.Sprintf("user_%v", id), userBytes)
 }
 
 // DeleteContract deletes an given Contract from the world state.
@@ -255,14 +259,13 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 }
 
 // UserExists returns true when a User with given name or public key exists in world state
-func (s *SmartContract) UserExists(ctx contractapi.TransactionContextInterface, identifier string) (bool, error) {
-	UserJSONIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(index, []string{identifier})
+func (s *SmartContract) UserExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+	UserJSON, err := ctx.GetStub().GetState(fmt.Sprintf("user_%v", id))
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %v", err)
 	}
-	defer UserJSONIterator.Close()
 
-	return UserJSONIterator.HasNext(), nil
+	return UserJSON != nil, nil
 }
 
 // SLAViolated changes the number of violations that have happened.
@@ -289,6 +292,7 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 	return ctx.GetStub().PutState(id, ContractJSON)
 }
 
+// TODO: Needs to be redone!
 // GetAllContracts returns all Contracts found in world state
 func (s *SmartContract) GetAllContracts(ctx contractapi.TransactionContextInterface) ([]*sla_contract, error) {
 	// range query with empty string for startKey and endKey does an
@@ -320,10 +324,10 @@ func (s *SmartContract) GetAllContracts(ctx contractapi.TransactionContextInterf
 func main() {
 	assetChaincode, err := contractapi.NewChaincode(new(SmartContract))
 	if err != nil {
-		log.Panicf("Error creating asset-transfer-basic chaincode: %v", err)
+		log.Panicf("Error creating slasc_bridge chaincode: %v", err)
 	}
 
 	if err := assetChaincode.Start(); err != nil {
-		log.Panicf("Error starting asset-transfer-basic chaincode: %v", err)
+		log.Panicf("Error starting slasc_bridge chaincode: %v", err)
 	}
 }
