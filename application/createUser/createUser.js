@@ -59,7 +59,7 @@ async function main () {
       type: 'X.509'
     }
     await wallet.put(username, x509Identity)
-    console.log(`Successfully registered and enrolled admin user ${username} and imported it into the wallet`)
+    console.log(`Successfully registered and enrolled client user ${username} and imported it into the wallet`)
     console.log(`User public key:\n ${enrollment.certificate}`)
   } catch (error) {
     console.error(`Failed to enroll user ${username}: ${error}`)

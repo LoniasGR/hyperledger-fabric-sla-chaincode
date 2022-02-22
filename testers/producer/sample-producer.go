@@ -115,9 +115,6 @@ func createAssets(nAssets int) []lib.SLA {
 
 	nProvider := rand.Intn(len(providers))
 	nClient := rand.Intn(len(clients))
-	// for nProvider == nClient {
-	// 	nClient = rand.Intn(len(clients))
-	// }
 
 	assets := make([]lib.SLA, nAssets)
 	for i := 0; i < nAssets; i++ {

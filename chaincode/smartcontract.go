@@ -219,6 +219,32 @@ func (s *SmartContract) ReadUser(ctx contractapi.TransactionContextInterface, id
 	return user, nil
 }
 
+func (s *SmartContract) QueryUsersByPublicKey(ctx contractapi.TransactionContextInterface,
+	publicKey string) (*User, error) {
+	queryString := fmt.Sprintf(`{"selector:{"user": "pubkey", "%s"}}`, publicKey)
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf("query failed: %v", err)
+	}
+	if !resultsIterator.HasNext() {
+		return nil, fmt.Errorf("user not found: %v", err)
+	}
+
+	queryResult, err := resultsIterator.Next()
+	if err != nil {
+		return nil, fmt.Errorf("taking result from iterator failed: %v", err)
+	}
+
+	var user User
+	err = json.Unmarshal(queryResult.Value, &user)
+	if err != nil {
+		return nil, fmt.Errorf("could not unmarshall user: %v", err)
+	}
+
+	return &user, nil
+
+}
+
 func (s *SmartContract) UpdateUserBalance(ctx contractapi.TransactionContextInterface,
 	id string, newBalance int) error {
 

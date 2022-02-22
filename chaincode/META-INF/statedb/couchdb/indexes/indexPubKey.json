@@ -1,7 +1,7 @@
 {
     "index": {
         "fields": [
-            "pubkey"
+            "docType", "pubkey"
         ]
     },
     "ddoc": "indexPubKeyDoc",
