@@ -43,7 +43,7 @@ bash runclient.sh
 
 ```bash
 cd testers/producer
-go run sample-producer.go
+go run sample-producer.go  -f ../../kafka-config/producer.properties.dev
 ```
 
 ## TODO
