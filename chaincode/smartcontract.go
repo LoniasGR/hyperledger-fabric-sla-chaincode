@@ -221,7 +221,7 @@ func (s *SmartContract) ReadUser(ctx contractapi.TransactionContextInterface, id
 
 func (s *SmartContract) QueryUsersByPublicKey(ctx contractapi.TransactionContextInterface,
 	publicKey string) (*User, error) {
-	queryString := fmt.Sprintf(`{"selector:{"user": "pubkey", "%s"}}`, publicKey)
+	queryString := fmt.Sprintf(`{"selector":{"docType": "user", "pubkey": "%s"}}`, publicKey)
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
 	if err != nil {
 		return nil, fmt.Errorf("query failed: %v", err)
