@@ -10,30 +10,25 @@ cd $HOME/go/src/github.com/<your_github_userid>
 curl -sSL https://bit.ly/2ysbOFE | bash -s
 ```
 
-* Install Kafka on the home folder
-
-```bash
-cd $HOME
-wget https://dlcdn.apache.org/kafka/3.0.0/kafka_2.13-3.0.0.tgz
-tar -xzf kafka_2.13-3.0.0.tgz
-```
-
 * Clone project into fabric-samples folder
 
 ```bash
-cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples 
+cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples
 git clone https://github.com/LoniasGR/hyperledger-fabric-sla-chaincode.git
 ```
 
-* Run Kafka and Zookeeper on one terminal
+* Spin up the Kafka container
 
 ```bash
-bash startKafka.sh
+cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples/hyperledger-fabric-sla-chaincode/docker
+docker-compose up -d
 ```
 
-* Open another terminal and start Fabric Network
+
+* Start Fabric Network
 
 ```bash
+cd ..
 bash startFabric.sh
 ```
 
@@ -44,7 +39,7 @@ cd ../../application
 bash runclient.sh
 ```
 
-* Run kafka producer on a third terminal
+* Run kafka producer on another terminal
 
 ```bash
 cd testers/producer
