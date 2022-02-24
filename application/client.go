@@ -66,19 +66,24 @@ func main() {
 	topics[0] = "sla_contracts"
 	topics[1] = "sla_violation"
 
-	truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
-	ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
+	var kafkaConfig = kafka.ConfigMap{
+		"bootstrap.servers": conf["bootstrap.servers"],
+		"group.id":          "sla-contracts-violations-consumer-group",
+		"auto.offset.reset": "beginning",
+	}
 
-	c_sla, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":     conf["bootstrap.servers"],
-		"security.protocol":     conf["security.protocol"],
-		"ssl.keystore.location": conf["ssl.keystore.location"],
-		"ssl.keystore.password": conf["ssl.keystore.password"],
-		"ssl.key.password":      conf["ssl.key.password"],
-		"ssl.ca.location":       filepath.Join(ca_cert, "server.cer.pem"),
-		"group.id":              "sla-contracts-violations-consumer-group",
-		"auto.offset.reset":     "beginning",
-	})
+	if conf["security.protocol"] != "" {
+		truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
+		ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
+
+		kafkaConfig.SetKey("ssl.keystore.location", conf["ssl.keystore.location"])
+		kafkaConfig.SetKey("security.protocol", conf["security.protocol"])
+		kafkaConfig.SetKey("ssl.keystore.password", conf["ssl.keystore.password"])
+		kafkaConfig.SetKey("ssl.key.password", conf["ssl.key.password"])
+		kafkaConfig.SetKey("ssl.ca.location", filepath.Join(ca_cert, "server.cer.pem"))
+	}
+
+	c_sla, err := kafka.NewConsumer(&kafkaConfig)
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
