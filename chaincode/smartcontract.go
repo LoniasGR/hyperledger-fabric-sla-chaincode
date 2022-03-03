@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"strconv"
+	"strings"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -67,7 +68,14 @@ func (s *SmartContract) CreateUser(ctx contractapi.TransactionContextInterface,
 	if exists {
 		return fmt.Errorf("user already exists")
 	}
-	// TODO: Add check if public key exists
+
+	userPtr, err := s.QueryUsersByPublicKey(ctx, pubkey)
+	if err != nil {
+		return fmt.Errorf("querying for public key failed: %v", err)
+	}
+	if userPtr != nil {
+		return fmt.Errorf("public key already exists")
+	}
 
 	user := User{
 		ID:      id,
@@ -157,10 +165,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("provider account %s could not be read: %v", sla.Details.Provider.ID, err)
 	}
 	if !exists {
-		err = s.CreateUser(ctx, sla.Details.Provider.Name, sla.Details.Provider.ID, "", 500)
-		if err != nil {
-			return fmt.Errorf("could not create provider: %v", err)
-		}
+		return fmt.Errorf("provider does not exist")
 	}
 
 	exists, err = s.UserExists(ctx, sla.Details.Client.ID)
@@ -168,10 +173,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("client account %s could not be read: %v", sla.Details.Client.ID, err)
 	}
 	if !exists {
-		err = s.CreateUser(ctx, sla.Details.Client.Name, sla.Details.Client.ID, "", 500)
-		if err != nil {
-			return fmt.Errorf("could not create client: %v", err)
-		}
+		return fmt.Errorf("client does not exist")
 	}
 
 	contract := sla_contract{
@@ -221,13 +223,14 @@ func (s *SmartContract) ReadUser(ctx contractapi.TransactionContextInterface, id
 
 func (s *SmartContract) QueryUsersByPublicKey(ctx contractapi.TransactionContextInterface,
 	publicKey string) (*User, error) {
+	publicKey = strings.ReplaceAll(publicKey, "\n", "")
 	queryString := fmt.Sprintf(`{"selector":{"docType": "user", "pubkey": "%s"}}`, publicKey)
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
 	if err != nil {
 		return nil, fmt.Errorf("query failed: %v", err)
 	}
 	if !resultsIterator.HasNext() {
-		return nil, fmt.Errorf("user not found: %v", err)
+		return nil, nil
 	}
 
 	queryResult, err := resultsIterator.Next()

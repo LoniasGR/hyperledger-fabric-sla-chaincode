@@ -1,16 +1,12 @@
-/*
-Copyright 2020 IBM All Rights Reserved.
-
-SPDX-License-Identifier: Apache-2.0
-*/
-
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -25,12 +21,22 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
 
+const createUserUrl = "http://localhost:3000"
+
+const colorReset = "\033[0m"
+const colorBlue = "\033[34m"
+const colorRed = "\033[31m"
+const colorGreen = "\033[32m"
+const colorCyan = "\033[36m"
+
+const keysFolder = "./keys/"
+
+type userKeys struct {
+	PublicKey  string `json:"publicKey"`
+	PrivateKey string `json:"privateKey"`
+}
+
 func main() {
-
-	colorReset := "\033[0m"
-	colorRed := "\033[31m"
-	colorGreen := "\033[32m"
-
 	log.Println("============ application-golang starts ============")
 	err := setDiscoveryAsLocalhost(true)
 	if err != nil {
@@ -157,11 +163,46 @@ func main() {
 					log.Fatalf("failed to unmarshal: %s", err)
 				}
 				log.Println(sla)
+
+				exists, providerPubKey, err := userExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID)
+				if err != nil {
+					log.Printf("%v", err)
+					continue
+				}
+				if !exists {
+					log.Printf("Provider's public key:\n%v", providerPubKey)
+					log.Println(string(colorGreen), `--> Submit Transaction:
+					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(colorReset))
+					_, err := contract.SubmitTransaction("CreateUser",
+						sla.Details.Provider.Name, sla.Details.Provider.ID, providerPubKey, "500")
+					if err != nil {
+						log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+						continue
+					}
+				}
+
+				exists, clientPubKey, err := userExistsOrCreate(contract, sla.Details.Client.Name, sla.Details.Client.ID)
+				if err != nil {
+					log.Printf("%v", err)
+					continue
+				}
+				if !exists {
+					log.Printf("Client's public key:\n%v", clientPubKey)
+					log.Println(string(colorGreen), `--> Submit Transaction:
+					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(colorReset))
+					_, err := contract.SubmitTransaction("CreateUser",
+						sla.Details.Client.Name, sla.Details.Client.ID, clientPubKey, "500")
+					if err != nil {
+						log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+						continue
+					}
+				}
+
 				log.Println(string(colorGreen), `--> Submit Transaction:
 				CreateContract, creates new contract with ID,
 				customer, metric, provider, value, and status arguments`, string(colorReset))
 
-				result, err := contract.SubmitTransaction("CreateContract",
+				result, err = contract.SubmitTransaction("CreateContract",
 					string(msg.Value),
 				)
 				if err != nil {
@@ -243,6 +284,91 @@ func setDiscoveryAsLocalhost(value bool) error {
 	err := os.Setenv("DISCOVERY_AS_LOCALHOST", strconv.FormatBool(value))
 	if err != nil {
 		return fmt.Errorf("failed to set DISCOVERY_AS_LOCALHOST environment variable: %v", err)
+	}
+	return nil
+}
+
+func userExistsOrCreate(contract *gateway.Contract, name, id string) (bool, string, error) {
+	result, err := contract.EvaluateTransaction("UserExists", id)
+	if err != nil {
+		err = fmt.Errorf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+		return false, "", err
+	}
+	result_bool, err := strconv.ParseBool(string(result))
+	if err != nil {
+		err = fmt.Errorf(string(colorRed)+"failed to parse boolean: %s\n"+string(colorReset), err)
+		return false, "", err
+	}
+	if !result_bool {
+		postBody, err := json.Marshal(map[string]string{
+			"username": id,
+		})
+		if err != nil {
+			err = fmt.Errorf(string(colorRed)+"failed to marshall post request: %s\n"+string(colorReset), err)
+			return false, "", err
+		}
+		responseBody := bytes.NewBuffer(postBody)
+		resp, err := http.Post(createUserUrl, "application/json", responseBody)
+		if err != nil {
+			err = fmt.Errorf(string(colorRed)+"failed to send post request: %s\n"+string(colorReset), err)
+			return false, "", err
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			err = fmt.Errorf(string(colorRed)+"failed to get response body: %s\n"+string(colorReset), err)
+			return false, "", err
+		}
+
+		// We use interface{} since we don't know the contents of the JSON beforehand
+		var responseBodyJSON map[string]interface{}
+		err = json.Unmarshal(body, &responseBodyJSON)
+		if err != nil {
+			err = fmt.Errorf(string(colorRed)+"failed to unmarshall response body: %s\n"+string(colorReset), err)
+			return false, "", err
+		}
+		if responseBodyJSON["success"] == true {
+			// get the data of the internal JSON
+			data, ok := responseBodyJSON["data"].(map[string]interface{})
+			if !ok {
+				err = fmt.Errorf(string(colorRed) + "failed to convert interface to struct\n" + string(colorReset))
+				return false, "", err
+			}
+			// convert interface{} to string
+			privateKey := fmt.Sprintf("%v", data["privateKey"])
+			publicKey := fmt.Sprintf("%v", data["publicKey"])
+
+			publicKeyStripped := splitCertificate(publicKey)
+			privateKeyStripped := splitCertificate(privateKey)
+
+			err = saveCertificates(name, privateKeyStripped, publicKeyStripped)
+			if err != nil {
+				err = fmt.Errorf(string(colorRed)+"failed to save certificates: %s"+string(colorReset), err)
+				return false, "", err
+			}
+			return false, publicKeyStripped, nil
+		} else if responseBodyJSON["success"] == false && responseBodyJSON["error"] == "User already exists" {
+			return true, "", nil
+		} else {
+			return false, "", fmt.Errorf(string(colorRed)+"response failure: %v"+string(colorReset), responseBodyJSON["error"])
+		}
+	}
+	return true, "", nil
+}
+
+func splitCertificate(certificate string) string {
+	certificateSplit := strings.Split(certificate, "-----")
+	return strings.Trim(certificateSplit[2], "\n")
+}
+
+func saveCertificates(name, privateKey, publicKey string) error {
+	data := fmt.Sprintf("PRIVATE KEY:\n---------\n%v\nPUBLIC KEY:\n---------\n%v",
+		privateKey, publicKey)
+	filename := fmt.Sprintf(keysFolder+"%v.keys", name)
+	err := os.WriteFile(filename, []byte(data), 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write keys: %v", err)
 	}
 	return nil
 }
