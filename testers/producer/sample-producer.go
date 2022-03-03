@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -15,8 +16,21 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
+var names []string
+
+var providers []lib.Entity
+var clients []lib.Entity
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
+	data, err := os.ReadFile("./first-names.json")
+	if err != nil {
+		log.Fatalf("faied to read names file: %v", err)
+	}
+	err = json.Unmarshal(data, &names)
+	if err != nil {
+		log.Fatalf("failed to unmarshall files: %v", err)
+	}
 
 	// Create the topics that will be used
 	topics := make([]string, 2)
@@ -66,6 +80,9 @@ func main() {
 		}
 	}()
 
+	providers, _ = createUsers(0, len(names))
+	clients, _ = createUsers(0, len(names))
+
 	assets := createAssets(*nAssets)
 	// Set timeout for writing
 	for _, asset := range assets {
@@ -106,22 +123,12 @@ func main() {
 func createAssets(nAssets int) []lib.SLA {
 	states := []string{"started", "ongoing"} // , "stopped", "deleted"}
 	types := []string{"agreement"}
-	providers := []lib.Entity{
-		{ID: "providerX", Name: "pledger platform"},
-		{ID: "providerY", Name: "test tester"},
-		{ID: "providerZ", Name: "tester test"}}
-
-	clients := []lib.Entity{
-		{ID: "clientX", Name: "client1"},
-		{ID: "clientY", Name: "client2"},
-		{ID: "clientZ", Name: "client3"},
-	}
-
-	nProvider := rand.Intn(len(providers))
-	nClient := rand.Intn(len(clients))
 
 	assets := make([]lib.SLA, nAssets)
 	for i := 0; i < nAssets; i++ {
+		nProvider := rand.Intn(len(providers))
+		nClient := rand.Intn(len(clients))
+
 		id := fmt.Sprintf("a%d", i)
 		name := fmt.Sprintf("Agreement %d", i)
 		importance := []lib.Importance{
@@ -179,4 +186,13 @@ func createViolations(nViolations, nAssets int) []lib.Violation {
 	}
 
 	return violations
+}
+
+func createUsers(startID, nUsers int) ([]lib.Entity, int) {
+	var users []lib.Entity
+	var id int
+	for id = startID; id <= startID+nUsers-1; id++ {
+		users = append(users, lib.Entity{ID: strconv.Itoa(id), Name: names[id]})
+	}
+	return users, id
 }
