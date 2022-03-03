@@ -26,3 +26,4 @@ vendor/
 # Hyperledger identities
 wallet/
 keystore/
+keys/
