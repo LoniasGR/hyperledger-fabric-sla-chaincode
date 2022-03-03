@@ -6,7 +6,13 @@ then
     export DISCOVERY_AS_LOCALHOST=true
 fi
 
-echo "run client..."
+if [ "$1" = "dev" ]; then
+KAFKA_CONFIG="../kafka-config/consumer.properties.dev"
+else
+KAFKA_CONFIG="../kafka-config/consumer.properties"
+fi
 
+echo "run client..."
+echo "Kafka config: ${KAFKA_CONFIG}"
 rm -rf ./wallet ./keystore
-go run client.go -f ../kafka-config/consumer.properties
+go run client.go -f ${KAFKA_CONFIG}
