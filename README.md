@@ -46,6 +46,12 @@ cd testers/producer
 go run sample-producer.go  -f ../../kafka-config/producer.properties.dev
 ```
 
+## CouchDB
+
+Default credentials:
+URL: http://localhost:5984/_utils/
+Username: admin
+Password: adminpw
 ## TODO
 
 - [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" },
@@ -58,6 +64,9 @@ go run sample-producer.go  -f ../../kafka-config/producer.properties.dev
 - [ ] `client.go` Wallet management (provider wallet, customer wallet)
 - [ ] App that when given a user certificates connects to Hyperledger
 - [ ] Connect wallets, violation function and ERC-20
+- [ ] Chrome Extension
 - [ ] Move to Kubernetes
 - [ ] Containerize the client
-- [ ] Intergrate whisper protocols in Fabric
+- [ ] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
+- [ ] Usecase 2: We got the data - think how to do it.
+- [ ] Trusted Execution Environment module (new git branch).
