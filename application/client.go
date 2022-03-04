@@ -347,7 +347,7 @@ func userExistsOrCreate(contract *gateway.Contract, name, id string) (bool, stri
 				err = fmt.Errorf(string(colorRed)+"failed to save certificates: %s"+string(colorReset), err)
 				return false, "", err
 			}
-			return false, publicKeyStripped, nil
+			return false, strings.ReplaceAll(publicKeyStripped, "\n", ""), nil
 		} else if responseBodyJSON["success"] == false && responseBodyJSON["error"] == "User already exists" {
 			return true, "", nil
 		} else {
