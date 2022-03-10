@@ -31,6 +31,14 @@ const colorCyan = "\033[36m"
 
 const keysFolder = "./keys/"
 
+var orgID int = 1
+var userID int = 1
+
+var walletLocation = "wallet"
+
+var channelName string = "sla"
+var contractName string = "slasc_bridge"
+
 type userKeys struct {
 	PublicKey  string `json:"publicKey"`
 	PrivateKey string `json:"privateKey"`
@@ -49,13 +57,7 @@ func main() {
 		log.Fatalf("failed to read config: %v", err)
 	}
 
-	var orgID int = 1
-	var userID int = 1
 
-	var walletLocation = "wallet"
-
-	var channelName string = "sla"
-	var contractName string = "slasc_bridge"
 
 	ccpPath := filepath.Join(
 		"..",
