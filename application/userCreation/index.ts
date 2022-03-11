@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import { prepareContext, createUser } from './createUser.mjs';
-import enrollAdmin from './enrollAdmin.mjs';
+import { prepareContext, createUser } from './createUser';
+import enrollAdmin from './enrollAdmin';
 
 dotenv.config();
 const port = process.env.EXPRESS_PORT;

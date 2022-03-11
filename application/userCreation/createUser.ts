@@ -1,16 +1,21 @@
 import FabricCAServices from 'fabric-ca-client';
-import { Wallets } from 'fabric-network';
+import { Wallet, Wallets } from 'fabric-network';
 import { resolve, join } from 'path';
 import { readFileSync } from 'fs';
 
-let ca;
-let wallet;
-const dirname = resolve();
+let ca: FabricCAServices;
+let wallet: Wallet;
 
-async function prepareContext() {
+type KeysOrError = {
+  error?: string
+  publicKey?: string
+  privateKey?: string
+}
+
+async function prepareContext(): Promise<void> {
   // load the network configuration
   const ccpPath = resolve(
-    dirname,
+    __dirname,
     '..',
     '..',
     '..',
@@ -34,10 +39,10 @@ async function prepareContext() {
   // Create a new file system based wallet for managing identities.
   const walletPath = join(process.cwd(), 'wallet');
   wallet = await Wallets.newFileSystemWallet(walletPath);
-  console.log(`Wallet path: ${walletPath}`);
+  console.debug(`Wallet path: ${walletPath}`);
 }
 
-async function createUser(username) {
+async function createUser(username: string): Promise<KeysOrError> {
   try {
     // Check to see if we've already enrolled the user.
     const userIdentity = await wallet.get(username);
