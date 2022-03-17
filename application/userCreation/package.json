@@ -32,7 +32,7 @@
   },
   "scripts": {
     "start": "node index.ts",
-    "dev": "npm clean; nodemon index.ts",
+    "dev": "npm run clean; nodemon index.ts",
     "clean": "rm -rf ./wallet"
   }
 }
