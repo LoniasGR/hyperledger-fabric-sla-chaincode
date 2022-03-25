@@ -161,7 +161,7 @@ func main() {
 					_, err := contract.SubmitTransaction("CreateUser",
 						sla.Details.Provider.Name, sla.Details.Provider.ID, providerPubKey, "500")
 					if err != nil {
-						log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+						log.Printf(string(colorCyan)+"failed to submit transaction: %s\n"+string(colorReset), err)
 						continue
 					}
 				}
