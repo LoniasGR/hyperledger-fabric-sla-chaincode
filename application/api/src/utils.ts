@@ -64,7 +64,12 @@ export function newSigner(privateKeyPem: string): Signer {
 }
 
 export function toPEMFormat(str: string): string {
-  return str.replace(/\\n/g, '\n');
+  try {
+    return str.replace(/\\n/g, '\n');
+  } catch (e: unknown) {
+    console.error(errors.getErrorMessage(e));
+    return errors.getErrorMessage(e);
+  }
 }
 
 export function oneLiner(str: string): string {

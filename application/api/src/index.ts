@@ -2,11 +2,14 @@ import * as grpc from '@grpc/grpc-js';
 import { connect, Gateway } from '@hyperledger/fabric-gateway';
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
+
 import * as utils from './utils';
 import queryUsersByPublicKey from './ledger';
 
 const app = express();
 app.use(express.json()); // for parsing application/json
+app.use(cors());
 
 interface Connections {
   gateway: Gateway,
@@ -32,7 +35,7 @@ async function initialize(key:string, cert:string): Promise<Connections> {
   return { gateway, grpcClient: client };
 }
 
-app.get('/balance', async (req, res) => {
+app.post('/balance', async (req, res) => {
   const { key, cert } = req.body;
   if (key === undefined) {
     return res.send({ success: false, error: 'Private key is missing' });
@@ -42,6 +45,7 @@ app.get('/balance', async (req, res) => {
   }
   const keyPEM = utils.toPEMFormat(key);
   const certPEM = utils.toPEMFormat(cert);
+
   const match = utils.keysMatch(keyPEM, certPEM);
   if (typeof match !== 'boolean') {
     return res.send({ success: false, error: match });
