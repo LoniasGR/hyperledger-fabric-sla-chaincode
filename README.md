@@ -54,19 +54,21 @@ Username: admin
 Password: adminpw
 ## TODO
 
-- [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" },
-- [x] Rename `mychannel` to `SLA`
-- [x] Rename `sla` chaincode to `sla_contracts` and `sla_violation` to `sla_violation`
-- [x] When a violation happens there will be a transfer of tokens (ERC-20 style)
-- [x] `smartcontract.go` function SLAViolation Compensation scheme
-- [x] Slides ~30 Hyperledger - Deadline: Start of January
-- [x] Slides ~30 Etherium - Deadline: Start of January
-- [ ] `client.go` Wallet management (provider wallet, customer wallet)
-- [ ] App that when given a user certificates connects to Hyperledger
+- [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" }.
+- [x] Rename `mychannel` to `SLA`.
+- [x] Rename `sla` chaincode to `sla_contracts` and `sla_violation` to `sla_violation`.
+- [x] When a violation happens there will be a transfer of tokens (ERC-20 style).
+- [x] `smartcontract.go` function SLAViolation Compensation scheme.
+- [x] Slides ~30 Hyperledger - Deadline: Start of January.
+- [x] Slides ~30 Etherium - Deadline: Start of January.
+- [x] `client.go` Wallet management (provider wallet, customer wallet).
+- [x] App that when given a user certificates connects to Hyperledger.
 - [ ] Connect wallets, violation function and ERC-20
 - [ ] Chrome Extension
 - [ ] Move to Kubernetes
 - [ ] Containerize the client
 - [ ] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
-- [ ] Usecase 2: We got the data - think how to do it.
+- [ ] Status: 2 actors - client & server. Send messages between them. On kafka send the people that need to connect to the discussion.
+- [ ] Use case 2: We got the data - think how to do it.
+- [ ] Use case 3: {id: 1, timestamp: xxxxx}, queries from yesterday until now what has happened.
 - [ ] Trusted Execution Environment module (new git branch).
