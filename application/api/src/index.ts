@@ -63,7 +63,7 @@ app.post('/balance', async (req, res) => {
 
     // Get the asset details by assetID.
     const user = await queryUsersByPublicKey(contract, utils.oneLiner(certPEM));
-    return res.send({ sucess: true, user });
+    return res.send({ success: true, user });
   } finally {
     gateway.close();
     grpcClient.close();
