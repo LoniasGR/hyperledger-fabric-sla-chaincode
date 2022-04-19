@@ -61,12 +61,14 @@ Password: adminpw
 - [x] `smartcontract.go` function SLAViolation Compensation scheme
 - [x] Slides ~30 Hyperledger - Deadline: Start of January
 - [x] Slides ~30 Etherium - Deadline: Start of January
-- [ ] `client.go` Wallet management (provider wallet, customer wallet)
-- [ ] App that when given a user certificates connects to Hyperledger
+- [x] `client.go` Wallet management (provider wallet, customer wallet)
+- [x] App that when given a user certificates connects to Hyperledger
 - [ ] Connect wallets, violation function and ERC-20
-- [ ] Chrome Extension
-- [ ] Move to Kubernetes
+- [ ] Chrome Extension - fix formatting
 - [ ] Containerize the client
-- [ ] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
-- [ ] Usecase 2: We got the data - think how to do it.
+- [ ] Move to Kubernetes
+- [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
+- [ ] Clients connect to our own status node. Check out how the client works.
+- [ ] Use case 2: We got the data - think how to do it.
+- [ ] Range queries for use case 2/3: new chaincode w/ name: vru/? - store & retrieve for a time range - use fabcar example
 - [ ] Trusted Execution Environment module (new git branch).
