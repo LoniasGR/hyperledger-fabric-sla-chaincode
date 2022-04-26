@@ -51,7 +51,7 @@ app.post('/balance', async (req, res) => {
     return res.send({ success: false, error: match });
   }
   if (!match) {
-    return res.send({ success: false, error: 'Public/private key missmatch' });
+    return res.send({ success: false, error: 'Public/private key mismatch' });
   }
   const { gateway, grpcClient } = await initialize(keyPEM, certPEM);
   try {

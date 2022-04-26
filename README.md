@@ -64,7 +64,7 @@ Password: adminpw
 - [x] `client.go` Wallet management (provider wallet, customer wallet)
 - [x] App that when given a user certificates connects to Hyperledger
 - [ ] Connect wallets, violation function and ERC-20
-- [ ] Chrome Extension - fix formatting
+- [x] Chrome Extension - fix formatting
 - [ ] Containerize the client
 - [ ] Move to Kubernetes
 - [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
