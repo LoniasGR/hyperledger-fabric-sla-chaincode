@@ -42,7 +42,7 @@ func main() {
 	}
 
 	configFile := lib.ParseArgs()
-	conf, err := lib.ReadConfig(*configFile)
+	conf, err := lib.ReadConfig(*configFile[0])
 	if err != nil {
 		log.Fatalf("failed to read config: %v", err)
 	}
@@ -95,7 +95,7 @@ func main() {
 	}
 
 	if !wallet.Exists("appUser") {
-		err = lib.populateWallet(wallet, orgID, userID)
+		err = lib.PopulateWallet(wallet, orgID, userID)
 		if err != nil {
 			log.Fatalf("Failed to populate wallet contents: %v", err)
 		}
