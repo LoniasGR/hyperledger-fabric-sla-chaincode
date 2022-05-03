@@ -25,11 +25,11 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	data, err := os.ReadFile("./first-names.json")
 	if err != nil {
-		log.Fatalf("faied to read names file: %v", err)
+		log.Fatalf("failed to read names file: %v", err)
 	}
 	err = json.Unmarshal(data, &names)
 	if err != nil {
-		log.Fatalf("failed to unmarshall files: %v", err)
+		log.Fatalf("failed to unmarshal files: %v", err)
 	}
 
 	// Create the topics that will be used
@@ -41,7 +41,7 @@ func main() {
 	nViolations := flag.Int("v", 3, "Specify how many random violations to produce")
 
 	configFile := lib.ParseArgs()
-	conf, err := lib.ReadConfig(*configFile)
+	conf, err := lib.ReadConfig(*configFile[0])
 	if err != nil {
 		log.Fatalf("failed to read config: %v", err)
 	}
