@@ -6,8 +6,8 @@ github.com/GeertJohan/go.incremental v1.0.0/go.mod h1:6fAjUhbVuX1KcMD3c8TEgVUqmo
 github.com/GeertJohan/go.rice v1.0.0/go.mod h1:eH6gbSOAUv07dQuZVnBmoDP8mgsM1rtixis4Tib9if0=
 github.com/Knetic/govaluate v3.0.0+incompatible h1:7o6+MAPhYTCF0+fdvoz1xDedhRb4f6s9Tn1Tt7/WTEg=
 github.com/Knetic/govaluate v3.0.0+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220503093512-373c5edd1fe3 h1:5VmU7aCya4SAvL0Fbp/Vr4Nk3v4tnHm0IP+0bdYJt88=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220503093512-373c5edd1fe3/go.mod h1:0ztjNdxiGLuhbZ518t/CluXIHYKkE5jpB4vWHFIKomw=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220503095026-c9eaa25d324d h1:3w9yStJasNbWVxHZIOo7gsN9y0uSzjaJpAXxKQEvCu0=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220503095026-c9eaa25d324d/go.mod h1:0ztjNdxiGLuhbZ518t/CluXIHYKkE5jpB4vWHFIKomw=
 github.com/VividCortex/gohistogram v1.0.0 h1:6+hBz+qvs0JOrrNhhmR7lFxo5sINxBCGXrdtl/UvroE=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/akavel/rsrc v0.8.0/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=

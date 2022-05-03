@@ -30,6 +30,11 @@ var channelName string = "sla"
 var contractName string = "slasc_bridge"
 
 func main() {
+	// The topics that will be used
+	topics := make([]string, 2)
+	topics[0] = "sla_contracts"
+	topics[1] = "sla_violation"
+
 	log.Println("============ application-golang starts ============")
 	err := lib.SetDiscoveryAsLocalhost(true)
 	if err != nil {
@@ -51,11 +56,6 @@ func main() {
 		fmt.Sprintf("org%d.example.com", orgID),
 		fmt.Sprintf("connection-org%d.yaml", orgID),
 	)
-
-	// The topics that will be used
-	topics := make([]string, 2)
-	topics[0] = "sla_contracts"
-	topics[1] = "sla_violation"
 
 	var kafkaConfig = kafka.ConfigMap{
 		"bootstrap.servers": conf["bootstrap.servers"],
@@ -95,7 +95,7 @@ func main() {
 	}
 
 	if !wallet.Exists("appUser") {
-		err = populateWallet(wallet, orgID, userID)
+		err = lib.populateWallet(wallet, orgID, userID)
 		if err != nil {
 			log.Fatalf("Failed to populate wallet contents: %v", err)
 		}
