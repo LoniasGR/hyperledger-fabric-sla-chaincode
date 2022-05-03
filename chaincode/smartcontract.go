@@ -24,6 +24,7 @@ type sla_contract struct {
 }
 
 type User struct {
+	DocType string `json:"docType"` //docType is used to distinguish the various types of objects in state database
 	ID      string `json:"id"`
 	Name    string `json:"name"`
 	PubKey  string `json:"pubkey"`
@@ -69,15 +70,16 @@ func (s *SmartContract) CreateUser(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("user already exists")
 	}
 
-	userPtr, err := s.QueryUsersByPublicKey(ctx, pubkey)
+	user, err := s.QueryUsersByPublicKey(ctx, pubkey)
 	if err != nil {
 		return fmt.Errorf("querying for public key failed: %v", err)
 	}
-	if userPtr != nil {
+	if (user != User{}) {
 		return fmt.Errorf("public key already exists")
 	}
 
-	user := User{
+	user = User{
+		DocType: "user",
 		ID:      id,
 		Name:    name,
 		PubKey:  pubkey,
@@ -222,29 +224,33 @@ func (s *SmartContract) ReadUser(ctx contractapi.TransactionContextInterface, id
 }
 
 func (s *SmartContract) QueryUsersByPublicKey(ctx contractapi.TransactionContextInterface,
-	publicKey string) (*User, error) {
+	publicKey string) (User, error) {
 	publicKey = strings.ReplaceAll(publicKey, "\n", "")
-	queryString := fmt.Sprintf(`{"selector":{"docType": "user", "pubkey": "%s"}}`, publicKey)
+	queryString := fmt.Sprintf(`{"selector":{"docType":"user","pubkey":"%s"}}`, publicKey)
+	fmt.Println(queryString)
+
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
 	if err != nil {
-		return nil, fmt.Errorf("query failed: %v", err)
+		return User{}, fmt.Errorf("query failed: %v", err)
 	}
+	defer resultsIterator.Close()
+
 	if !resultsIterator.HasNext() {
-		return nil, nil
+		return User{}, nil
 	}
 
 	queryResult, err := resultsIterator.Next()
 	if err != nil {
-		return nil, fmt.Errorf("taking result from iterator failed: %v", err)
+		return User{}, fmt.Errorf("taking result from iterator failed: %v", err)
 	}
 
 	var user User
 	err = json.Unmarshal(queryResult.Value, &user)
 	if err != nil {
-		return nil, fmt.Errorf("could not unmarshall user: %v", err)
+		return User{}, fmt.Errorf("could not unmarshall user: %v", err)
 	}
 
-	return &user, nil
+	return user, nil
 
 }
 

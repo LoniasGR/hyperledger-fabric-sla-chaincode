@@ -2,7 +2,7 @@
 
 ## Setup
 
-* Install fabric-samples
+- Install fabric-samples
 
 ```bash
 mkdir -p $HOME/go/src/github.com/<your_github_userid>
@@ -10,36 +10,35 @@ cd $HOME/go/src/github.com/<your_github_userid>
 curl -sSL https://bit.ly/2ysbOFE | bash -s
 ```
 
-* Clone project into fabric-samples folder
+- Clone project into fabric-samples folder
 
 ```bash
 cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples
 git clone https://github.com/LoniasGR/hyperledger-fabric-sla-chaincode.git
 ```
 
-* Spin up the Kafka container
+- Spin up the Kafka container
 
 ```bash
 cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples/hyperledger-fabric-sla-chaincode/docker
 docker-compose up -d
 ```
 
-
-* Start Fabric Network
+- Start Fabric Network
 
 ```bash
 cd ..
 bash startFabric.sh
 ```
 
-* Run fabric application
+- Run fabric application
 
 ```bash
 cd ../../application
 bash runclient.sh
 ```
 
-* Run kafka producer on another terminal
+- Run kafka producer on another terminal
 
 ```bash
 cd testers/producer
@@ -49,9 +48,10 @@ go run sample-producer.go  -f ../../kafka-config/producer.properties.dev
 ## CouchDB
 
 Default credentials:
-URL: http://localhost:5984/_utils/
+URL: http://localhost:5984/\_utils/
 Username: admin
 Password: adminpw
+
 ## TODO
 
 - [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" }.
@@ -64,11 +64,11 @@ Password: adminpw
 - [x] `client.go` Wallet management (provider wallet, customer wallet).
 - [x] App that when given a user certificates connects to Hyperledger.
 - [ ] Connect wallets, violation function and ERC-20
-- [ ] Chrome Extension
-- [ ] Move to Kubernetes
+- [x] Chrome Extension - fix formatting
 - [ ] Containerize the client
-- [ ] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
-- [ ] Status: 2 actors - client & server. Send messages between them. On kafka send the people that need to connect to the discussion.
+- [ ] Move to Kubernetes
+- [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
+- [ ] Clients connect to our own status node. Check out how the client works.
 - [ ] Use case 2: We got the data - think how to do it.
-- [ ] Use case 3: {id: 1, timestamp: xxxxx}, queries from yesterday until now what has happened.
+- [ ] Range queries for use case 2/3: new chaincode w/ name: vru/? - store & retrieve for a time range - use fabcar example
 - [ ] Trusted Execution Environment module (new git branch).

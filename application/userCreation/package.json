@@ -2,7 +2,7 @@
   "name": "create_user",
   "version": "0.1.0",
   "description": "Creates users for an hyperledger organization",
-  "main": "index.mjs",
+  "main": "index.ts",
   "license": "MIT",
   "private": true,
   "engines": {
@@ -12,20 +12,27 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "fabric-ca-client": "^2.2.11",
-    "fabric-network": "^2.2.11"
+    "fabric-network": "^2.2.11",
+    "ts-node": "^10.7.0"
   },
   "devDependencies": {
+    "@tsconfig/node14": "^1.0.1",
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.21",
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@typescript-eslint/parser": "^5.14.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "typescript": "^4.6.2"
   },
   "scripts": {
-    "start": "node index.mjs",
-    "dev": "yarn clean; nodemon index.mjs",
+    "start": "node index.ts",
+    "dev": "npm run clean; nodemon index.ts",
     "clean": "rm -rf ./wallet"
   }
 }
