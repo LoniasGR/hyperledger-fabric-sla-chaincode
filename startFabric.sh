@@ -11,7 +11,7 @@ set -e
 export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
 CC_SRC_LANGUAGE="go"
-CC_SRC_PATH="${PWD}/chaincode"
+CC_SRC_PATH="${PWD}/chaincode_SLA"
 
 
 if [ -d "../explorer-local" ]

@@ -27,3 +27,6 @@ vendor/
 wallet/
 keystore/
 keys/
+
+# Node JS related
+**/node_modules/
