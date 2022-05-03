@@ -16,4 +16,4 @@ echo "run client..."
 echo "Kafka config: ${KAFKA_CONFIG}"
 rm -rf ./wallet ./keystore ./keys
 mkdir -p ./keys
-go run client.go -f ${KAFKA_CONFIG}
+go run . -f ${KAFKA_CONFIG}

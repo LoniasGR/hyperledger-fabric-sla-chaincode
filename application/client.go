@@ -1,16 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -23,18 +19,15 @@ import (
 
 const createUserUrl = "http://localhost:3000"
 
-const colorReset = "\033[0m"
-const colorBlue = "\033[34m"
-const colorRed = "\033[31m"
-const colorGreen = "\033[32m"
-const colorCyan = "\033[36m"
-
 const keysFolder = "./keys/"
 
-type userKeys struct {
-	PublicKey  string `json:"publicKey"`
-	PrivateKey string `json:"privateKey"`
-}
+var orgID int = 1
+var userID int = 1
+
+var walletLocation = "wallet"
+
+var channelName string = "sla"
+var contractName string = "slasc_bridge"
 
 func main() {
 	log.Println("============ application-golang starts ============")
@@ -48,14 +41,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to read config: %v", err)
 	}
-
-	var orgID int = 1
-	var userID int = 1
-
-	var walletLocation = "wallet"
-
-	var channelName string = "sla"
-	var contractName string = "slasc_bridge"
 
 	ccpPath := filepath.Join(
 		"..",
@@ -176,7 +161,7 @@ func main() {
 					_, err := contract.SubmitTransaction("CreateUser",
 						sla.Details.Provider.Name, sla.Details.Provider.ID, providerPubKey, "500")
 					if err != nil {
-						log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+						log.Printf(string(colorCyan)+"failed to submit transaction: %s\n"+string(colorReset), err)
 						continue
 					}
 				}
@@ -235,140 +220,4 @@ func main() {
 		log.Println("============ application-golang ends ============")
 		c_sla.Close()
 	}
-}
-
-// A wallet can hold multiple identities.
-func populateWallet(wallet *gateway.Wallet, orgID int, userID int) error {
-	log.Println("============ Populating wallet ============")
-	credPath := filepath.Join(
-		"..",
-		"..",
-		"test-network",
-		"organizations",
-		"peerOrganizations",
-		fmt.Sprintf("org%d.example.com", orgID),
-		"users",
-		fmt.Sprintf("User%d@org%d.example.com", userID, orgID),
-		"msp",
-	)
-
-	certPath := filepath.Join(credPath, "signcerts", "cert.pem")
-	// read the certificate pem
-	cert, err := ioutil.ReadFile(filepath.Clean(certPath))
-	if err != nil {
-		return err
-	}
-
-	keyDir := filepath.Join(credPath, "keystore")
-	// there's a single file in this dir containing the private key
-	files, err := ioutil.ReadDir(keyDir)
-	if err != nil {
-		return err
-	}
-	if len(files) != 1 {
-		return fmt.Errorf("keystore folder should have contain one file")
-	}
-	keyPath := filepath.Join(keyDir, files[0].Name())
-	key, err := ioutil.ReadFile(filepath.Clean(keyPath))
-	if err != nil {
-		return err
-	}
-
-	identity := gateway.NewX509Identity(fmt.Sprintf("Org%dMSP", orgID), string(cert), string(key))
-
-	return wallet.Put("appUser", identity)
-}
-
-// setDiscoveryAsLocalhost sets the environmental variable DISCOVERY_AS_LOCALHOST
-func setDiscoveryAsLocalhost(value bool) error {
-	err := os.Setenv("DISCOVERY_AS_LOCALHOST", strconv.FormatBool(value))
-	if err != nil {
-		return fmt.Errorf("failed to set DISCOVERY_AS_LOCALHOST environment variable: %v", err)
-	}
-	return nil
-}
-
-func userExistsOrCreate(contract *gateway.Contract, name, id string) (bool, string, error) {
-	result, err := contract.EvaluateTransaction("UserExists", id)
-	if err != nil {
-		err = fmt.Errorf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
-		return false, "", err
-	}
-	result_bool, err := strconv.ParseBool(string(result))
-	if err != nil {
-		err = fmt.Errorf(string(colorRed)+"failed to parse boolean: %s\n"+string(colorReset), err)
-		return false, "", err
-	}
-	if !result_bool {
-		postBody, err := json.Marshal(map[string]string{
-			"username": id,
-		})
-		if err != nil {
-			err = fmt.Errorf(string(colorRed)+"failed to marshall post request: %s\n"+string(colorReset), err)
-			return false, "", err
-		}
-		responseBody := bytes.NewBuffer(postBody)
-		resp, err := http.Post(createUserUrl, "application/json", responseBody)
-		if err != nil {
-			err = fmt.Errorf(string(colorRed)+"failed to send post request: %s\n"+string(colorReset), err)
-			return false, "", err
-		}
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			err = fmt.Errorf(string(colorRed)+"failed to get response body: %s\n"+string(colorReset), err)
-			return false, "", err
-		}
-
-		// We use interface{} since we don't know the contents of the JSON beforehand
-		var responseBodyJSON map[string]interface{}
-		err = json.Unmarshal(body, &responseBodyJSON)
-		if err != nil {
-			err = fmt.Errorf(string(colorRed)+"failed to unmarshall response body: %s\n"+string(colorReset), err)
-			return false, "", err
-		}
-		if responseBodyJSON["success"] == true {
-			// get the data of the internal JSON
-			data, ok := responseBodyJSON["data"].(map[string]interface{})
-			if !ok {
-				err = fmt.Errorf(string(colorRed) + "failed to convert interface to struct\n" + string(colorReset))
-				return false, "", err
-			}
-			// convert interface{} to string
-			privateKey := fmt.Sprintf("%v", data["privateKey"])
-			publicKey := fmt.Sprintf("%v", data["publicKey"])
-
-			publicKeyStripped := splitCertificate(publicKey)
-			privateKeyStripped := splitCertificate(privateKey)
-
-			err = saveCertificates(name, privateKeyStripped, publicKeyStripped)
-			if err != nil {
-				err = fmt.Errorf(string(colorRed)+"failed to save certificates: %s"+string(colorReset), err)
-				return false, "", err
-			}
-			return false, strings.ReplaceAll(publicKeyStripped, "\n", ""), nil
-		} else if responseBodyJSON["success"] == false && responseBodyJSON["error"] == "User already exists" {
-			return true, "", nil
-		} else {
-			return false, "", fmt.Errorf(string(colorRed)+"response failure: %v"+string(colorReset), responseBodyJSON["error"])
-		}
-	}
-	return true, "", nil
-}
-
-func splitCertificate(certificate string) string {
-	certificateSplit := strings.Split(certificate, "-----")
-	return strings.Trim(certificateSplit[2], "\n")
-}
-
-func saveCertificates(name, privateKey, publicKey string) error {
-	data := fmt.Sprintf("PRIVATE KEY:\n---------\n%v\nPUBLIC KEY:\n---------\n%v",
-		privateKey, publicKey)
-	filename := fmt.Sprintf(keysFolder+"%v.keys", name)
-	err := os.WriteFile(filename, []byte(data), 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write keys: %v", err)
-	}
-	return nil
 }
