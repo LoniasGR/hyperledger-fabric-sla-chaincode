@@ -16,5 +16,5 @@ type Obus_s struct {
 type VRU struct {
 	Timestamp int64  `json:"timestamp"`
 	Tram      Tram_s `json:"tram"`
-	Obus      Obus_s `json:"obus"`
+	OBUs      []OBUs_s `json:"obus"`
 }
