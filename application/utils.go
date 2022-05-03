@@ -4,27 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
-
-const colorReset = "\033[0m"
-const colorBlue = "\033[34m"
-const colorRed = "\033[31m"
-const colorGreen = "\033[32m"
-const colorCyan = "\033[36m"
-
-// setDiscoveryAsLocalhost sets the environmental variable DISCOVERY_AS_LOCALHOST
-func setDiscoveryAsLocalhost(value bool) error {
-	err := os.Setenv("DISCOVERY_AS_LOCALHOST", strconv.FormatBool(value))
-	if err != nil {
-		return fmt.Errorf("failed to set DISCOVERY_AS_LOCALHOST environment variable: %v", err)
-	}
-	return nil
-}
 
 // A wallet can hold multiple identities.
 func populateWallet(wallet *gateway.Wallet, orgID int, userID int) error {

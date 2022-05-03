@@ -1,17 +1,16 @@
 {
-        "timestamp": 1645712120,
-        "tram": {
-            "station_id": 1,
-            "latitude": 41.4078833,
-            "longitude": 2.2048833
-        },
-        "obus": [
-            {
-                "station_id": 4,
-                "latitude": 41.408183,
-                "longitude": 2.20605,
-                "risk": "NORISK"
-            }
-        ]
+  "timestamp": 1645712120,
+  "tram": {
+    "station_id": 1,
+    "latitude": 41.4078833,
+    "longitude": 2.2048833
+  },
+  "obus": [
+    {
+      "station_id": 4,
+      "latitude": 41.408183,
+      "longitude": 2.20605,
+      "risk": "NORISK"
     }
-
+  ]
+}

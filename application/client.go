@@ -31,7 +31,7 @@ var contractName string = "slasc_bridge"
 
 func main() {
 	log.Println("============ application-golang starts ============")
-	err := setDiscoveryAsLocalhost(true)
+	err := lib.SetDiscoveryAsLocalhost(true)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -118,7 +118,7 @@ func main() {
 
 	contract := network.GetContract(contractName)
 
-	log.Println(string(colorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(colorReset))
+	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(colorReset))
 	result, err := contract.SubmitTransaction("InitLedger")
 	if err != nil {
 		log.Fatalf("failed to submit transaction: %v", err)
@@ -156,12 +156,12 @@ func main() {
 				}
 				if !exists {
 					log.Printf("Provider's public key:\n%v", providerPubKey)
-					log.Println(string(colorGreen), `--> Submit Transaction:
+					log.Println(string(lib.ColorGreen), `--> Submit Transaction:
 					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(colorReset))
 					_, err := contract.SubmitTransaction("CreateUser",
 						sla.Details.Provider.Name, sla.Details.Provider.ID, providerPubKey, "500")
 					if err != nil {
-						log.Printf(string(colorCyan)+"failed to submit transaction: %s\n"+string(colorReset), err)
+						log.Printf(string(lib.ColorCyan)+"failed to submit transaction: %s\n"+string(colorReset), err)
 						continue
 					}
 				}
@@ -173,17 +173,17 @@ func main() {
 				}
 				if !exists {
 					log.Printf("Client's public key:\n%v", clientPubKey)
-					log.Println(string(colorGreen), `--> Submit Transaction:
+					log.Println(string(lib.ColorGreen), `--> Submit Transaction:
 					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(colorReset))
 					_, err := contract.SubmitTransaction("CreateUser",
 						sla.Details.Client.Name, sla.Details.Client.ID, clientPubKey, "500")
 					if err != nil {
-						log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+						log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
 						continue
 					}
 				}
 
-				log.Println(string(colorGreen), `--> Submit Transaction:
+				log.Println(string(lib.ColorGreen), `--> Submit Transaction:
 				CreateContract, creates new contract with ID,
 				customer, metric, provider, value, and status arguments`, string(colorReset))
 
@@ -191,7 +191,7 @@ func main() {
 					string(msg.Value),
 				)
 				if err != nil {
-					log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
 					continue
 				}
 				fmt.Println(string(result))
@@ -206,10 +206,10 @@ func main() {
 				}
 				log.Println(v)
 
-				log.Println(string(colorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(colorReset))
+				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(colorReset))
 				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
 				if err != nil {
-					log.Printf(string(colorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
+					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(colorReset), err)
 					continue
 				}
 				log.Println(string(result))
