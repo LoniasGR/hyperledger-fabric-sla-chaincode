@@ -1,4 +1,4 @@
-package main
+package vru
 
 import (
 	"encoding/json"
@@ -17,23 +17,19 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
 
-const createUserUrl = "http://localhost:3000"
-
-const keysFolder = "./keys/"
+var walletLocation = "wallet"
 
 var orgID int = 1
 var userID int = 1
 
-var walletLocation = "wallet"
-
-var channelName string = "sla"
-var contractName string = "slasc_bridge"
+var channelName string = "vru"
+var contractName string = "vru_positions"
 
 func main() {
+
 	// The topics that will be used
-	topics := make([]string, 2)
-	topics[0] = "sla_contracts"
-	topics[1] = "sla_violation"
+	topics := make([]string, 1)
+	topics[0] = "vru_positions"
 
 	log.Println("============ application-golang starts ============")
 	err := lib.SetDiscoveryAsLocalhost(true)
@@ -59,7 +55,7 @@ func main() {
 
 	var kafkaConfig = kafka.ConfigMap{
 		"bootstrap.servers": conf["bootstrap.servers"],
-		"group.id":          "sla-contracts-violations-consumer-group",
+		"group.id":          "sla-vru-consumer-group",
 		"auto.offset.reset": "beginning",
 	}
 
@@ -74,13 +70,13 @@ func main() {
 		kafkaConfig.SetKey("ssl.ca.location", filepath.Join(ca_cert, "server.cer.pem"))
 	}
 
-	c_sla, err := kafka.NewConsumer(&kafkaConfig)
+	c_vru, err := kafka.NewConsumer(&kafkaConfig)
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
 
 	// Subscribe to topic
-	err = c_sla.SubscribeTopics(topics, nil)
+	err = c_vru.SubscribeTopics(topics, nil)
 	if err != nil {
 		log.Fatalf("failed to connect to topics: %v", err)
 	}
@@ -132,92 +128,33 @@ func main() {
 			run = false
 
 		default:
-			msg, err := c_sla.ReadMessage(100 * time.Millisecond)
+			msg, err := c_vru.ReadMessage(100 * time.Millisecond)
 			if err != nil {
 				if err.(kafka.Error).Code() == kafka.ErrTimedOut {
 					continue
 				}
 				log.Fatalf("consumer failed to read: %v", err)
 			}
+			log.Println(string(msg.Value))
+			var vru lib.VRU
 
-			if *msg.TopicPartition.Topic == topics[0] {
-				log.Println(string(msg.Value))
-				var sla lib.SLA
-				err = json.Unmarshal(msg.Value, &sla)
-				if err != nil {
-					log.Fatalf("failed to unmarshal: %s", err)
-				}
-				log.Println(sla)
+			err = json.Unmarshal(msg.Value, &vru)
+			if err != nil {
+				log.Fatalf("failed to unmarshal: %s", err)
+			}
+			log.Println(vru)
 
-				exists, providerPubKey, err := userExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID)
-				if err != nil {
-					log.Printf("%v", err)
-					continue
-				}
-				if !exists {
-					log.Printf("Provider's public key:\n%v", providerPubKey)
-					log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(colorReset))
-					_, err := contract.SubmitTransaction("CreateUser",
-						sla.Details.Provider.Name, sla.Details.Provider.ID, providerPubKey, "500")
-					if err != nil {
-						log.Printf(string(lib.ColorCyan)+"failed to submit transaction: %s\n"+string(colorReset), err)
-						continue
-					}
-				}
-
-				exists, clientPubKey, err := userExistsOrCreate(contract, sla.Details.Client.Name, sla.Details.Client.ID)
-				if err != nil {
-					log.Printf("%v", err)
-					continue
-				}
-				if !exists {
-					log.Printf("Client's public key:\n%v", clientPubKey)
-					log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(lib.ColorReset))
-					_, err := contract.SubmitTransaction("CreateUser",
-						sla.Details.Client.Name, sla.Details.Client.ID, clientPubKey, "500")
-					if err != nil {
-						log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
-						continue
-					}
-				}
-
-				log.Println(string(lib.ColorGreen), `--> Submit Transaction:
+			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
 				CreateContract, creates new contract with ID,
 				customer, metric, provider, value, and status arguments`, string(lib.ColorReset))
-
 				result, err = contract.SubmitTransaction("CreateContract",
-					string(msg.Value),
-				)
-				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
-					continue
-				}
-				fmt.Println(string(result))
+				string(msg.Value),
+			)
+			if err != nil {
+				log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
 				continue
 			}
-			if *msg.TopicPartition.Topic == topics[1] {
-				log.Println(string(msg.Value))
-				var v lib.Violation
-				err = json.Unmarshal(msg.Value, &v)
-				if err != nil {
-					log.Fatalf("Unmarshal failed: %s\n", err)
-				}
-				log.Println(v)
-
-				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(colorReset))
-				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
-				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
-					continue
-				}
-				log.Println(string(result))
-				continue
-			}
-			log.Fatalf("unknown topic %s", *msg.TopicPartition.Topic)
+			fmt.Println(string(result))
 		}
-		log.Println("============ application-golang ends ============")
-		c_sla.Close()
 	}
 }

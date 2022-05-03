@@ -6,7 +6,7 @@ type Tram_s struct {
 	Longditute float64 `json:"longitude"`
 }
 
-type Obus_s struct {
+type OBU_s struct {
 	StationID  int32   `json:"station_id"`
 	Latitude   float64 `json:"latitude"`
 	Longditute float64 `json:"longitude"`
@@ -16,5 +16,5 @@ type Obus_s struct {
 type VRU struct {
 	Timestamp int64  `json:"timestamp"`
 	Tram      Tram_s `json:"tram"`
-	OBUs      []OBUs_s `json:"obus"`
+	OBUs      []OBU_s `json:"obus"`
 }
