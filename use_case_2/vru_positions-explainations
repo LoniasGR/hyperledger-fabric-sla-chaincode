@@ -1,0 +1,9 @@
+timestamp: string
+station_id: int
+lat/long: float
+risk: string  
+
+
+1. The timestamp tells which moment in time is being represented by this list. 
+2. If a tram was detected, there is an element called "tram", that has a station_id, as well as the position values (lat + long). There can be 1 tram or no tram in this list. 
+3. If at least 1 OBU was detected, there will be a list of OBUs with 1 to N entries, each representing an OBU with its station_id, the position values (lat + long) and additionally whether the OBU was exposed to any risk when the log entry was created.
