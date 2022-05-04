@@ -7,9 +7,9 @@ then
 fi
 
 if [ "$1" = "dev" ]; then
-KAFKA_CONFIG="../kafka-config/consumer.properties.dev"
+KAFKA_CONFIG="../../kafka-config/consumer.properties.dev"
 else
-KAFKA_CONFIG="../kafka-config/consumer.properties"
+KAFKA_CONFIG="../../kafka-config/consumer.properties"
 fi
 
 echo "run client..."

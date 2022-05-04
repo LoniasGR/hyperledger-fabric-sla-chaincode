@@ -65,6 +65,8 @@ Password: adminpw
 - [x] App that when given a user certificates connects to Hyperledger.
 - [ ] Connect wallets, violation function and ERC-20
 - [x] Chrome Extension - fix formatting
+- [ ] Use case 3 (see JSON) - create. channel name: "parts"
+- [ ] Get products based timerange based on quality (total, quality 1, quality 0).
 - [ ] Containerize the client
 - [ ] Move to Kubernetes
 - [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html

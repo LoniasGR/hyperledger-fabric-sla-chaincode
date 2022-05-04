@@ -63,9 +63,9 @@ func main() {
 		}
 	}()
 
-	assets := createAssets(*nAssets)
 	// Set timeout for writing
-	for _, asset := range assets {
+	for i := 0; i < *nAssets; i++ {
+		asset := createAsset()
 		assetJSON, err := json.Marshal(asset)
 		if err != nil {
 			panic(err.Error())
@@ -129,22 +129,27 @@ func createOBUSlice(nOBUs int, risk []string) []lib.OBU_s {
 	return obus
 }
 
-func createAssets(nAssets int) []lib.VRU {
+func createAsset() lib.VRU {
 	risk := []string{"HIGHRISK", "LOWRISK", "NORISK"}
+	nOBUs := rand.Intn(10)
+	tramExists := randBool()
+	timestamp := time.Now().Unix()
+
+	asset := lib.VRU{
+		Timestamp: timestamp,
+		OBUs:      createOBUSlice(nOBUs, risk),
+	}
+	if tramExists {
+		asset.Tram = createTram()
+	}
+	return asset
+}
+
+func createAssets(nAssets int) []lib.VRU {
 
 	assets := make([]lib.VRU, nAssets)
 	for i := 0; i < nAssets; i++ {
-		nOBUs := rand.Intn(10)
-		tramExists := randBool()
-		timestamp := time.Now().Unix()
-
-		asset := lib.VRU{
-			Timestamp: timestamp,
-			OBUs:      createOBUSlice(nOBUs, risk),
-		}
-		if tramExists {
-			asset.Tram = createTram()
-		}
+		asset := createAsset()
 		assets[i] = asset
 	}
 	return assets

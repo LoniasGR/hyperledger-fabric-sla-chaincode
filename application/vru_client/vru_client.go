@@ -1,4 +1,4 @@
-package vru
+package main
 
 import (
 	"encoding/json"
@@ -46,11 +46,25 @@ func main() {
 	ccpPath := filepath.Join(
 		"..",
 		"..",
+		"..",
 		"test-network",
 		"organizations",
 		"peerOrganizations",
 		fmt.Sprintf("org%d.example.com", orgID),
 		fmt.Sprintf("connection-org%d.yaml", orgID),
+	)
+
+	credPath := filepath.Join(
+		"..",
+		"..",
+		"..",
+		"test-network",
+		"organizations",
+		"peerOrganizations",
+		fmt.Sprintf("org%d.example.com", orgID),
+		"users",
+		fmt.Sprintf("User%d@org%d.example.com", userID, orgID),
+		"msp",
 	)
 
 	var kafkaConfig = kafka.ConfigMap{
@@ -91,7 +105,7 @@ func main() {
 	}
 
 	if !wallet.Exists("appUser") {
-		err = lib.PopulateWallet(wallet, orgID, userID)
+		err = lib.PopulateWallet(wallet, credPath, orgID)
 		if err != nil {
 			log.Fatalf("Failed to populate wallet contents: %v", err)
 		}
@@ -114,7 +128,7 @@ func main() {
 
 	contract := network.GetContract(contractName)
 
-	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(colorReset))
+	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
 	result, err := contract.SubmitTransaction("InitLedger")
 	if err != nil {
 		log.Fatalf("failed to submit transaction: %v", err)
@@ -147,7 +161,7 @@ func main() {
 			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
 				CreateContract, creates new contract with ID,
 				customer, metric, provider, value, and status arguments`, string(lib.ColorReset))
-				result, err = contract.SubmitTransaction("CreateContract",
+			result, err = contract.SubmitTransaction("CreateContract",
 				string(msg.Value),
 			)
 			if err != nil {

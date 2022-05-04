@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"strconv"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -27,15 +29,15 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("failed to unmarshal json: %v", err)
 	}
 
-	exists, err := s.ContractExists(ctx, vru.Timestamp)
+	exists, err := s.ContractExists(ctx, strconv.FormatInt(vru.Timestamp, 10))
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf("the Contract %s already exists", vru.Timestamp)
+		return fmt.Errorf("the Contract %v already exists", vru.Timestamp)
 	}
 
-	return ctx.GetStub().PutState(fmt.Sprintf("contract_%v", vru.Timestamp), contractJSON)
+	return ctx.GetStub().PutState(fmt.Sprintf("contract_%v", vru.Timestamp), []byte(contractJSON))
 }
 
 // ContractExists returns true when Contract with given ID exists in world state
@@ -46,4 +48,15 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 	}
 
 	return ContractJSON != nil, nil
+}
+
+func main() {
+	assetChaincode, err := contractapi.NewChaincode(new(SmartContract))
+	if err != nil {
+		log.Panicf("Error creating vru_positions chaincode: %v", err)
+	}
+
+	if err := assetChaincode.Start(); err != nil {
+		log.Panicf("Error starting vru_positions chaincode: %v", err)
+	}
 }

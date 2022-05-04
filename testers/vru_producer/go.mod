@@ -3,7 +3,7 @@ module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/testers/vru_producer
 go 1.18
 
 require (
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220503100804-13f95e6d47ce
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220504215702-325c78b4e13b
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 )
 

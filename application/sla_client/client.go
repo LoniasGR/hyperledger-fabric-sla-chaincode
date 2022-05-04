@@ -17,10 +17,6 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
 
-const createUserUrl = "http://localhost:3000"
-
-const keysFolder = "./keys/"
-
 var orgID int = 1
 var userID int = 1
 
@@ -50,11 +46,25 @@ func main() {
 	ccpPath := filepath.Join(
 		"..",
 		"..",
+		"..",
 		"test-network",
 		"organizations",
 		"peerOrganizations",
 		fmt.Sprintf("org%d.example.com", orgID),
 		fmt.Sprintf("connection-org%d.yaml", orgID),
+	)
+
+	credPath := filepath.Join(
+		"..",
+		"..",
+		"..",
+		"test-network",
+		"organizations",
+		"peerOrganizations",
+		fmt.Sprintf("org%d.example.com", orgID),
+		"users",
+		fmt.Sprintf("User%d@org%d.example.com", userID, orgID),
+		"msp",
 	)
 
 	var kafkaConfig = kafka.ConfigMap{
@@ -95,7 +105,7 @@ func main() {
 	}
 
 	if !wallet.Exists("appUser") {
-		err = lib.PopulateWallet(wallet, orgID, userID)
+		err = lib.PopulateWallet(wallet, credPath, orgID)
 		if err != nil {
 			log.Fatalf("Failed to populate wallet contents: %v", err)
 		}
@@ -118,7 +128,7 @@ func main() {
 
 	contract := network.GetContract(contractName)
 
-	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(colorReset))
+	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
 	result, err := contract.SubmitTransaction("InitLedger")
 	if err != nil {
 		log.Fatalf("failed to submit transaction: %v", err)
@@ -149,7 +159,7 @@ func main() {
 				}
 				log.Println(sla)
 
-				exists, providerPubKey, err := userExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID)
+				exists, providerPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
@@ -157,16 +167,16 @@ func main() {
 				if !exists {
 					log.Printf("Provider's public key:\n%v", providerPubKey)
 					log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(colorReset))
+					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(lib.ColorReset))
 					_, err := contract.SubmitTransaction("CreateUser",
 						sla.Details.Provider.Name, sla.Details.Provider.ID, providerPubKey, "500")
 					if err != nil {
-						log.Printf(string(lib.ColorCyan)+"failed to submit transaction: %s\n"+string(colorReset), err)
+						log.Printf(string(lib.ColorCyan)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
 						continue
 					}
 				}
 
-				exists, clientPubKey, err := userExistsOrCreate(contract, sla.Details.Client.Name, sla.Details.Client.ID)
+				exists, clientPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Client.Name, sla.Details.Client.ID)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
@@ -206,7 +216,7 @@ func main() {
 				}
 				log.Println(v)
 
-				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(colorReset))
+				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))
 				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
 				if err != nil {
 					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)

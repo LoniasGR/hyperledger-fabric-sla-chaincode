@@ -1,10 +1,11 @@
-module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/testers/sla_producer
+module github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/application
 
 go 1.17
 
 require (
 	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220504215702-325c78b4e13b
 	github.com/confluentinc/confluent-kafka-go v1.8.2
+	github.com/hyperledger/fabric-sdk-go v1.0.0
 )
 
 require (
@@ -22,7 +23,6 @@ require (
 	github.com/hyperledger/fabric-config v0.0.5 // indirect
 	github.com/hyperledger/fabric-lib-go v1.0.0 // indirect
 	github.com/hyperledger/fabric-protos-go v0.0.0-20200707132912-fee30f3ccd23 // indirect
-	github.com/hyperledger/fabric-sdk-go v1.0.0 // indirect
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect

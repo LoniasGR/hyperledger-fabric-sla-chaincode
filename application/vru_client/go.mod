@@ -3,7 +3,7 @@ module github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/appli
 go 1.18
 
 require (
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220503100432-1b947a694359
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220504215702-325c78b4e13b
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/hyperledger/fabric-sdk-go v1.0.0
 )
