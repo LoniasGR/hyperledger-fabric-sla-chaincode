@@ -71,6 +71,6 @@ Password: adminpw
 - [ ] Move to Kubernetes
 - [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
 - [ ] Clients connect to our own status node. Check out how the client works.
-- [ ] Use case 2: We got the data - think how to do it.
+- [x] Use case 2: We got the data - think how to do it.
 - [ ] Range queries for use case 2/3: new chaincode w/ name: vru/? - store & retrieve for a time range - use fabcar example
 - [ ] Trusted Execution Environment module (new git branch).

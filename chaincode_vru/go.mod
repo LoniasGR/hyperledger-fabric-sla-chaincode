@@ -1,9 +1,9 @@
-module github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/chaincode-UC2
+module github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/chaincode_vru
 
 go 1.17
 
 require (
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220503114613-b294fed4e50b
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220504231710-aa929199b3a9
 	github.com/hyperledger/fabric-contract-api-go v1.1.1
 )
 
