@@ -10,7 +10,7 @@ import (
 )
 
 // A wallet can hold multiple identities.
-func PopulateWallet(wallet *gateway.Wallet, credPath string) error {
+func PopulateWallet(wallet *gateway.Wallet, credPath string, orgID int) error {
 	log.Println("============ Populating wallet ============")
 
 	certPath := filepath.Join(credPath, "signcerts", "cert.pem")
