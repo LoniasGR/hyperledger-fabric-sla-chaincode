@@ -1,11 +1,12 @@
 package lib
 
 type Part struct {
-	Id           Part_id        `json:"_id"`
-	MA           string         `json:"MA"`
-	Timestamp    Part_timestamp `json:"TimeStamp"`
-	Version      int            `json:"Version"`
-	DocumentType string         `json:"DocumentType"`
+	Id           Part_id            `json:"_id"`
+	MA           string             `json:"MA"`
+	Timestamp    Part_timestamp     `json:"TimeStamp"`
+	Version      int                `json:"Version"`
+	DocumentType string             `json:"DocumentType"`
+	DocumentBody Part_document_body `json:"DocumentBody"`
 }
 
 type Part_id struct {
