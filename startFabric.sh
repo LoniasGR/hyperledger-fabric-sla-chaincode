@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-
 # Run as
 # ./startFabric sla slasc_bridge
 # ./startFabric vru vru_positions
 #
+#####################################
 
 # Exit on first error
 set -e
@@ -15,9 +15,14 @@ set -e
 export MSYS_NO_PATHCONV=1
 starttime=$(date +%s)
 CC_SRC_LANGUAGE="go"
-CC_SRC_PATH="${PWD}/chaincode_"${1}
-CHANNEL_NAME=${1}
-CHAINCODE_NAME=${2}
+SLA_CC_SRC_PATH="${PWD}/chaincode_sla"
+VRU_CC_SRC_PATH="${PWD}/chaincode_vru"
+
+SLA_CHANNEL_NAME=sla
+VRU_CHANNEL_NAME=vru
+
+SLA_CHAINCODE_NAME=slasc_bridge
+VRU_CHAINCODE_NAME=vru_positions
 
 if [ -d "../explorer-local" ]
 then
@@ -30,8 +35,12 @@ fi
 # launch network; create channel and join peer to channel
 pushd ../test-network
 ./network.sh down
-./network.sh up createChannel -c ${CHANNEL_NAME} -ca -s couchdb
-./network.sh deployCC -c ${CHANNEL_NAME} -ccn ${CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
+./network.sh up createChannel -c ${SLA_CHANNEL_NAME} -ca -s couchdb
+./network.sh up createChannel -c ${VRU_CHANNEL_NAME} -ca -s couchdb
+
+./network.sh deployCC -c ${SLA_CHANNEL_NAME} -ccn ${SLA_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${SLA_CC_SRC_PATH}
+./network.sh deployCC -c ${VRU_CHANNEL_NAME} -ccn ${VRU_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${VRU_CC_SRC_PATH}
+
 popd
 
 if [ -d "../explorer-local" ]

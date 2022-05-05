@@ -1,4 +1,4 @@
-module github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/chaincode_vru
+module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/chaincode_vru
 
 go 1.17
 
