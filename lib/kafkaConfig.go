@@ -4,15 +4,19 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 	"strings"
+
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 // ParseArgs parses the command line arguments and
 // returns the config file on success, or exits on error
 func ParseArgs() []*string {
 	var configFile = flag.String("f", "", "Path to Kafka configuration file")
-	var environment = flag.String("e", "prod", "Enviroment the client is running in. Can be prod or dev")
+	var environment = flag.String("e", "prod", "Environment the client is running in. Can be prod or dev")
 	flag.Parse()
 	if *configFile == "" {
 		flag.Usage()
@@ -51,4 +55,26 @@ func ReadConfig(configFile string) (map[string]string, error) {
 	}
 
 	return m, nil
+}
+
+func GetKafkaConfiguration(configFile string) kafka.ConfigMap {
+	conf, err := ReadConfig(configFile)
+	if err != nil {
+		log.Fatalf("failed to read config: %v", err)
+	}
+	var kafkaConfig = kafka.ConfigMap{
+		"bootstrap.servers": conf["bootstrap.servers"],
+	}
+
+	if conf["security.protocol"] != "" {
+		truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
+		ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
+		kafkaConfig.SetKey("ssl.keystore.location", conf["ssl.keystore.location"])
+		kafkaConfig.SetKey("security.protocol", conf["security.protocol"])
+		kafkaConfig.SetKey("ssl.keystore.password", conf["ssl.keystore.password"])
+		kafkaConfig.SetKey("ssl.key.password", conf["ssl.key.password"])
+		kafkaConfig.SetKey("ssl.ca.location", filepath.Join(ca_cert, "server.cer.pem"))
+	}
+
+	return kafkaConfig
 }

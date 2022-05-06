@@ -2,7 +2,10 @@ module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib
 
 go 1.18
 
-require github.com/hyperledger/fabric-sdk-go v1.0.0
+require (
+	github.com/confluentinc/confluent-kafka-go v1.8.2
+	github.com/hyperledger/fabric-sdk-go v1.0.0
+)
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
