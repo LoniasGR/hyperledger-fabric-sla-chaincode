@@ -55,7 +55,7 @@ type Part_document_body struct {
 	PalletchangeStops     []Part_timestamp `json:"PalletchangeStops"`
 	PalletchangeTimes     []float32        `json:"PalletchangeTimes"`
 	CarrierID             int              `json:"CarrierID"`
-	TargetCycleTime       float32          `json:"TargetCycleTime"`
+	TargetCycleTime       *float32         `json:"TargetCycleTime"`
 	ComponentCode         string           `json:"ComponentCode"`
 	ComponentName         string           `json:"ComponentName"`
 	ComponentIdent        string           `json:"ComponentIdent"`
