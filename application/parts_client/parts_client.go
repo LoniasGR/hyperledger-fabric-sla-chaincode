@@ -29,7 +29,7 @@ func main() {
 
 	// The topics that will be used
 	topics := make([]string, 1)
-	topics[0] = "parts"
+	topics[0] = "uc3-dlt"
 
 	log.Println("============ application-golang starts ============")
 	err := lib.SetDiscoveryAsLocalhost(true)
