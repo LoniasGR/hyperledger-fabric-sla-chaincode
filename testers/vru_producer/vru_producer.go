@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
@@ -24,28 +22,9 @@ func main() {
 	nAssets := flag.Int("a", 5, "Specify how many random timestamps to produce")
 
 	configFile := lib.ParseArgs()
-	conf, err := lib.ReadConfig(*configFile[0])
+	p_vru, err := lib.CreateProducer(*configFile[0])
 	if err != nil {
-		log.Fatalf("failed to read config: %v", err)
-	}
-	var kafkaConfig = kafka.ConfigMap{
-		"bootstrap.servers": conf["bootstrap.servers"],
-	}
-
-	if conf["security.protocol"] != "" {
-		truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
-		ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
-		kafkaConfig.SetKey("ssl.keystore.location", conf["ssl.keystore.location"])
-		kafkaConfig.SetKey("security.protocol", conf["security.protocol"])
-		kafkaConfig.SetKey("ssl.keystore.password", conf["ssl.keystore.password"])
-		kafkaConfig.SetKey("ssl.key.password", conf["ssl.key.password"])
-		kafkaConfig.SetKey("ssl.ca.location", filepath.Join(ca_cert, "server.cer.pem"))
-	}
-
-	p_vru, err := kafka.NewProducer(&kafkaConfig)
-
-	if err != nil {
-		log.Fatalf("failed to create producer: %v", err)
+		log.Fatalf("Failure at producer: %v", err)
 	}
 	defer p_vru.Close()
 

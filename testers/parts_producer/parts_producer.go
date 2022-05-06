@@ -14,11 +14,6 @@ import (
 	"github.com/google/uuid"
 )
 
-var names []string
-
-var providers []lib.Entity
-var clients []lib.Entity
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
@@ -29,15 +24,15 @@ func main() {
 	nAssets := flag.Int("a", 5, "Specify how many random assets to produce")
 
 	configFile := lib.ParseArgs()
-	p_sla, err := lib.CreateProducer(*configFile[0])
+	p_parts, err := lib.CreateProducer(*configFile[0])
 	if err != nil {
 		log.Fatalf("Failure at producer: %v", err)
 	}
-	defer p_sla.Close()
+	defer p_parts.Close()
 
 	// Delivery report handler for produced messages
 	go func() {
-		for e := range p_sla.Events() {
+		for e := range p_parts.Events() {
 			switch ev := e.(type) {
 			case *kafka.Message:
 				if ev.TopicPartition.Error != nil {
@@ -56,7 +51,7 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		err = p_sla.Produce(&kafka.Message{
+		err = p_parts.Produce(&kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topics[0], Partition: kafka.PartitionAny},
 			Value:          assetJSON,
 		}, nil)
