@@ -78,3 +78,13 @@ func GetKafkaConfiguration(configFile string) kafka.ConfigMap {
 
 	return kafkaConfig
 }
+
+func CreateProducer(configFile string) *kafka.Producer {
+	kafkaConfig := GetKafkaConfiguration(configFile)
+
+	producer, err := kafka.NewProducer(&kafkaConfig)
+	if err != nil {
+		log.Fatalf("failed to create producer: %v", err)
+	}
+	return producer
+}
