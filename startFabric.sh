@@ -17,12 +17,15 @@ starttime=$(date +%s)
 CC_SRC_LANGUAGE="go"
 SLA_CC_SRC_PATH="${PWD}/chaincode_sla"
 VRU_CC_SRC_PATH="${PWD}/chaincode_vru"
+PARTS_CC_SRC_PATH="${PWD}/chaincode_parts"
 
 SLA_CHANNEL_NAME=sla
 VRU_CHANNEL_NAME=vru
+PARTS_CHANNEL_NAME=parts
 
 SLA_CHAINCODE_NAME=slasc_bridge
 VRU_CHAINCODE_NAME=vru_positions
+PARTS_CHAINCODE_NAME=parts
 
 if [ -d "../explorer-local" ]
 then
@@ -37,9 +40,11 @@ pushd ../test-network
 ./network.sh down
 ./network.sh up createChannel -c ${SLA_CHANNEL_NAME} -ca -s couchdb
 ./network.sh up createChannel -c ${VRU_CHANNEL_NAME} -ca -s couchdb
+./network.sh up createChannel -c ${PARTS_CHANNEL_NAME} -ca -s couchdb
 
 ./network.sh deployCC -c ${SLA_CHANNEL_NAME} -ccn ${SLA_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${SLA_CC_SRC_PATH}
 ./network.sh deployCC -c ${VRU_CHANNEL_NAME} -ccn ${VRU_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${VRU_CC_SRC_PATH}
+./network.sh deployCC -c ${PARTS_CHANNEL_NAME} -ccn ${PARTS_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${PARTS_CC_SRC_PATH}
 
 popd
 

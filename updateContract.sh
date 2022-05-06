@@ -1,9 +1,9 @@
 set -e
 
-CHANNEL_NAME="sla"
-CC_NAME="slasc_bridge"
+CHANNEL_NAME=${2}
+CC_NAME=${3}
 CC_SRC_LANGUAGE="golang"
-CC_SRC_PATH="${PWD}/chaincode_SLA"
+CC_SRC_PATH="${PWD}/chaincode_"${2}
 CC_VERSION=$1
 CC_LABEL=`echo ${CC_NAME}_${CC_VERSION}`
 
