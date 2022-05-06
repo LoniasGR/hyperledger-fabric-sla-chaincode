@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -57,10 +56,10 @@ func ReadConfig(configFile string) (map[string]string, error) {
 	return m, nil
 }
 
-func GetKafkaConfiguration(configFile string) kafka.ConfigMap {
+func GetKafkaConfiguration(configFile string) (kafka.ConfigMap, error) {
 	conf, err := ReadConfig(configFile)
 	if err != nil {
-		log.Fatalf("failed to read config: %v", err)
+		return nil, fmt.Errorf("failed to read config: %v", err)
 	}
 	var kafkaConfig = kafka.ConfigMap{
 		"bootstrap.servers": conf["bootstrap.servers"],
@@ -76,15 +75,18 @@ func GetKafkaConfiguration(configFile string) kafka.ConfigMap {
 		kafkaConfig.SetKey("ssl.ca.location", filepath.Join(ca_cert, "server.cer.pem"))
 	}
 
-	return kafkaConfig
+	return kafkaConfig, err
 }
 
-func CreateProducer(configFile string) *kafka.Producer {
-	kafkaConfig := GetKafkaConfiguration(configFile)
+func CreateProducer(configFile string) (*kafka.Producer, error) {
+	kafkaConfig, err := GetKafkaConfiguration(configFile)
+	if err != nil {
+		return nil, err
+	}
 
 	producer, err := kafka.NewProducer(&kafkaConfig)
 	if err != nil {
-		log.Fatalf("failed to create producer: %v", err)
+		return nil, fmt.Errorf("failed to create producer: %v", err)
 	}
-	return producer
+	return producer, nil
 }
