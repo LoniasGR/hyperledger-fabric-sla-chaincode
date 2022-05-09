@@ -1,5 +1,11 @@
 package lib
 
+type Quality struct {
+	Total int `json:"total"`
+	High  int `json:"high_quality"`
+	Low   int `json:"low_quality"`
+}
+
 type Part struct {
 	Id           Part_id            `json:"_id"`
 	MA           string             `json:"MA"`
