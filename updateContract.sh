@@ -7,9 +7,9 @@ CC_SRC_PATH="${PWD}/chaincode_"${2}
 CC_VERSION=$1
 CC_LABEL=`echo ${CC_NAME}_${CC_VERSION}`
 
-if [ $# -lt 1 ]; then
+if [ $# -lt 3 ]; then
     echo "Use:"
-    echo "./updateContract.sh  cc_version"
+    echo "./updateContract.sh  cc_version channel_name cc_name"
     exit
 fi
 
@@ -34,7 +34,7 @@ export CORE_PEER_ADDRESS=localhost:7051
 popd
 
 peer lifecycle chaincode install ${CC_LABEL}.tar.gz
-peer lifecycle chaincode queryinstalled >&log.txt
+peer lifecycle chaincode queryinstalled > log.txt
 
 { set +x; } 2>/dev/null
 cat log.txt

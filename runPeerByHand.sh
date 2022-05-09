@@ -1,10 +1,17 @@
 set -e
 
+
+##########################################
+## ADAPT THOSE
+##########################################
 CHANNEL_NAME="sla"
 CC_NAME="slasc_bridge"
+
+##########################################
+## COPY THOSE
+##########################################
+
 CC_SRC_LANGUAGE="golang"
-CC_SRC_PATH="${PWD}/chaincode"
-CC_VERSION=$1
 CC_LABEL=`echo ${CC_NAME}_${CC_VERSION}`
 
 pushd ../test-network
