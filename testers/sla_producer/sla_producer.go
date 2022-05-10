@@ -145,7 +145,7 @@ func createViolations(nViolations, nAssets int) []lib.Violation {
 	values := []lib.Value{
 		{
 			Key:      "sum(container_memory_usage_bytes%7Bnamespace='core'%7D){}",
-			Value:    rand.Int63n(15270965248),
+			Value:    rand.Float32(),
 			Datetime: time.Now().Format(time.RFC3339),
 		},
 	}
