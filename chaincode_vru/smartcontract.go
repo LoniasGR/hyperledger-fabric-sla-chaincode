@@ -74,6 +74,15 @@ func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterf
 	return assets, nil
 }
 
+func (s *SmartContract) GetTotalAssetsInRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) (int, error) {
+	assets, err := s.GetAssetByRange(ctx, startKey, endKey)
+	if err != nil {
+		return 0, err
+	}
+
+	return len(assets), nil
+}
+
 func main() {
 	assetChaincode, err := contractapi.NewChaincode(new(SmartContract))
 	if err != nil {
