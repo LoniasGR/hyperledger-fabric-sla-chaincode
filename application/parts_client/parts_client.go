@@ -63,7 +63,7 @@ func main() {
 		"msp",
 	)
 
-	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0])
+	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], "parts-consumer-group")
 	if err != nil {
 		log.Fatalf("error in parts_go: %v", err)
 	}

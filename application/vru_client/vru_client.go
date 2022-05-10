@@ -7,10 +7,9 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
-	
+
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils"
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -64,7 +63,7 @@ func main() {
 		"msp",
 	)
 
-	c_vru, err := kafkaUtils.CreateConsumer(*configFile[0])
+	c_vru, err := kafkaUtils.CreateConsumer(*configFile[0], "vru-consumer-group")
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}

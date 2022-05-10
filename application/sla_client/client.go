@@ -63,7 +63,7 @@ func main() {
 		"msp",
 	)
 
-	c_sla, err := kafkaUtils.CreateConsumer(*configFile[0])
+	c_sla, err := kafkaUtils.CreateConsumer(*configFile[0], "sla-consumer-group")
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
