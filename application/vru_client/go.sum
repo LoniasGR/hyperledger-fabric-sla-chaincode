@@ -6,8 +6,10 @@ github.com/GeertJohan/go.incremental v1.0.0/go.mod h1:6fAjUhbVuX1KcMD3c8TEgVUqmo
 github.com/GeertJohan/go.rice v1.0.0/go.mod h1:eH6gbSOAUv07dQuZVnBmoDP8mgsM1rtixis4Tib9if0=
 github.com/Knetic/govaluate v3.0.0+incompatible h1:7o6+MAPhYTCF0+fdvoz1xDedhRb4f6s9Tn1Tt7/WTEg=
 github.com/Knetic/govaluate v3.0.0+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220504231710-aa929199b3a9 h1:x1JUoPlUOTGmedOvGED0eqt8ggqIth3cVwKQLQULiNQ=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220504231710-aa929199b3a9/go.mod h1:tNkpE4VaWbr6RlRym4ZCqw0VfQAiCcbMr/X2077fPGM=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220510090808-43ad41b43cd5 h1:2xWkJq+M9fQom9JwitRtU2f8sqo5MyzrsEfIcBXEH1o=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220510090808-43ad41b43cd5/go.mod h1:PsX9WK/+KPs3JcLckx9aN/pFLHv0MvoZWqFd/RpQzSo=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220510090808-43ad41b43cd5 h1:vEVHFlAkNdIe4pjD1rKLw6Jhd1ObASQCYvUmsv8I+CA=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220510090808-43ad41b43cd5/go.mod h1:tNkpE4VaWbr6RlRym4ZCqw0VfQAiCcbMr/X2077fPGM=
 github.com/VividCortex/gohistogram v1.0.0 h1:6+hBz+qvs0JOrrNhhmR7lFxo5sINxBCGXrdtl/UvroE=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/akavel/rsrc v0.8.0/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=

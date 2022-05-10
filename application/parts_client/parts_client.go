@@ -7,10 +7,10 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 
+	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils"
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
@@ -38,10 +38,6 @@ func main() {
 	}
 
 	configFile := lib.ParseArgs()
-	conf, err := lib.ReadConfig(*configFile[0])
-	if err != nil {
-		log.Fatalf("failed to read config: %v", err)
-	}
 
 	ccpPath := filepath.Join(
 		"..",
@@ -67,26 +63,9 @@ func main() {
 		"msp",
 	)
 
-	var kafkaConfig = kafka.ConfigMap{
-		"bootstrap.servers": conf["bootstrap.servers"],
-		"group.id":          "sla-parts-consumer-group",
-		"auto.offset.reset": "beginning",
-	}
-
-	if conf["security.protocol"] != "" {
-		truststore_location_slice := strings.Split(conf["ssl.truststore.location"], "/")
-		ca_cert := strings.Join(truststore_location_slice[:len(truststore_location_slice)-1], "/")
-
-		kafkaConfig.SetKey("ssl.keystore.location", conf["ssl.keystore.location"])
-		kafkaConfig.SetKey("security.protocol", conf["security.protocol"])
-		kafkaConfig.SetKey("ssl.keystore.password", conf["ssl.keystore.password"])
-		kafkaConfig.SetKey("ssl.key.password", conf["ssl.key.password"])
-		kafkaConfig.SetKey("ssl.ca.location", filepath.Join(ca_cert, "server.cer.pem"))
-	}
-
-	c_parts, err := kafka.NewConsumer(&kafkaConfig)
+	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0])
 	if err != nil {
-		log.Fatalf("failed to create consumer: %v", err)
+		log.Fatalf("error in parts_go: %v", err)
 	}
 
 	// Subscribe to topic
