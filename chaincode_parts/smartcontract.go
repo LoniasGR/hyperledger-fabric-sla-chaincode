@@ -71,14 +71,14 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 	return ContractJSON != nil, nil
 }
 
-func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*lib.Part, error) {
+func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]lib.Part, error) {
 	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
 	if err != nil {
 		return nil, err
 	}
 	defer resultsIterator.Close()
 
-	var assets []*lib.Part
+	var assets []lib.Part
 	for resultsIterator.HasNext() {
 		queryResult, err := resultsIterator.Next()
 		if err != nil {
@@ -89,30 +89,33 @@ func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterf
 		if err != nil {
 			return nil, err
 		}
-		asset.Id = lib.Part_id{Oid: getId(queryResult.Key)}
-		assets = append(assets, &asset)
+
+		id := lib.Part_id{Oid: getId(queryResult.Key)}
+		log.Println(id)
+		asset.Id = id
+		assets = append(assets, asset)
 	}
 
 	return assets, nil
 }
 
-func (s *SmartContract) GetAssetQualityByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) (*lib.Quality, error) {
+func (s *SmartContract) GetAssetQualityByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]lib.Quality, error) {
 	assets, err := s.GetAssetByRange(ctx, startKey, endKey)
 	if err != nil {
 		return nil, err
 	}
 
-	var quality *lib.Quality
+	var qualities = make([]lib.Quality, 1)
 
 	for _, asset := range assets {
 		if asset.DocumentBody.Quality == 1 {
-			quality.High += 1
+			qualities[0].High += 1
 		} else {
-			quality.Low += 1
+			qualities[0].Low += 1
 		}
 	}
-	quality.Total = len(assets)
-	return quality, nil
+	qualities[0].Total = len(assets)
+	return qualities, nil
 }
 
 // Splits the parts of the key back to our needs

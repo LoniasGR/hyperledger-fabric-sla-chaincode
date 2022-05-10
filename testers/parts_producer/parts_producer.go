@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils"
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/google/uuid"
@@ -24,7 +25,7 @@ func main() {
 	nAssets := flag.Int("a", 5, "Specify how many random assets to produce")
 
 	configFile := lib.ParseArgs()
-	p_parts, err := lib.CreateProducer(*configFile[0])
+	p_parts, err := kafkaUtils.CreateProducer(*configFile[0])
 	if err != nil {
 		log.Fatalf("Failure at producer: %v", err)
 	}
@@ -69,6 +70,8 @@ func createAssets(nAssets int) []lib.Part {
 
 	assets := make([]lib.Part, nAssets)
 	for i := 0; i < nAssets; i++ {
+
+		cycleTimeBool := rand.Intn(2)
 
 		id := createUid()
 		asset := lib.Part{
@@ -115,7 +118,6 @@ func createAssets(nAssets int) []lib.Part {
 				PalletchangeStops:     []lib.Part_timestamp{{Date: "2022-04-25T15:57:14.454Z"}},
 				PalletchangeTimes:     []float32{11.052},
 				CarrierID:             1,
-				TargetCycleTime:       nil,
 				ComponentCode:         "DMC1_+25+4+8+17+56+45",
 				ComponentName:         "E_MotorVar2",
 				ComponentIdent:        "TestSachnummer2",
@@ -127,6 +129,9 @@ func createAssets(nAssets int) []lib.Part {
 					Collection: "Components",
 				},
 			},
+		}
+		if cycleTimeBool == 1 {
+			asset.DocumentBody.CycleTime = 12.0
 		}
 		assets[i] = asset
 	}
