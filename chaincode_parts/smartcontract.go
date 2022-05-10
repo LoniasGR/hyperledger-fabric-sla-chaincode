@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -12,6 +13,14 @@ import (
 // SmartContract provides functions for managing a Contract
 type SmartContract struct {
 	contractapi.Contract
+}
+
+type Chaincode_Part struct {
+	MA           string                 `json:"MA"`
+	Timestamp    lib.Part_timestamp     `json:"TimeStamp"`
+	Version      int                    `json:"Version"`
+	DocumentType string                 `json:"DocumentType"`
+	DocumentBody lib.Part_document_body `json:"DocumentBody"`
 }
 
 // InitLedger is just a template for now.
@@ -28,15 +37,28 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("failed to unmarshal json: %v", err)
 	}
 
-	exists, err := s.ContractExists(ctx, part.Id.Oid)
+	exists, err := s.ContractExists(ctx, fmt.Sprintf("%v_%v", part.Timestamp.Date, part.Id.Oid))
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf("the Contract %v already exists", part.Id.Oid)
+		return fmt.Errorf("the Contract %v already exists", fmt.Sprintf("%v_%v", part.Timestamp.Date, part.Id.Oid))
 	}
 
-	return ctx.GetStub().PutState(fmt.Sprintf("contract_%v", part.Id.Oid), []byte(contractJSON))
+	cc_part := Chaincode_Part{
+		MA:           part.MA,
+		Timestamp:    part.Timestamp,
+		Version:      part.Version,
+		DocumentType: part.DocumentType,
+		DocumentBody: part.DocumentBody,
+	}
+
+	cc_json, err := json.Marshal(cc_part)
+	if err != nil {
+		return err
+	}
+
+	return ctx.GetStub().PutState(fmt.Sprintf("%v_%v", part.Timestamp.Date, part.Id.Oid), cc_json)
 }
 
 // ContractExists returns true when Contract with given ID exists in world state
@@ -47,6 +69,56 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 	}
 
 	return ContractJSON != nil, nil
+}
+
+func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*lib.Part, error) {
+	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	var assets []*lib.Part
+	for resultsIterator.HasNext() {
+		queryResult, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+		var asset lib.Part
+		err = json.Unmarshal(queryResult.Value, &asset)
+		if err != nil {
+			return nil, err
+		}
+		asset.Id = lib.Part_id{Oid: getId(queryResult.Key)}
+		assets = append(assets, &asset)
+	}
+
+	return assets, nil
+}
+
+func (s *SmartContract) GetAssetQualityByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) (*lib.Quality, error) {
+	assets, err := s.GetAssetByRange(ctx, startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+
+	var quality *lib.Quality
+
+	for _, asset := range assets {
+		if asset.DocumentBody.Quality == 1 {
+			quality.High += 1
+		} else {
+			quality.Low += 1
+		}
+	}
+	quality.Total = len(assets)
+	return quality, nil
+}
+
+// Splits the parts of the key back to our needs
+func getId(key string) string {
+	return strings.Split(key, "_")[1]
+
 }
 
 func main() {

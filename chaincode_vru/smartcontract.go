@@ -37,17 +37,41 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("the Contract %v already exists", vru.Timestamp)
 	}
 
-	return ctx.GetStub().PutState(fmt.Sprintf("contract_%v", vru.Timestamp), []byte(contractJSON))
+	return ctx.GetStub().PutState(fmt.Sprintf("%v", vru.Timestamp), []byte(contractJSON))
 }
 
 // ContractExists returns true when Contract with given ID exists in world state
 func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	ContractJSON, err := ctx.GetStub().GetState(fmt.Sprintf("contract_%v", id))
+	ContractJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %v", err)
 	}
 
 	return ContractJSON != nil, nil
+}
+
+func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*lib.VRU, error) {
+	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	var assets []*lib.VRU
+	for resultsIterator.HasNext() {
+		queryResult, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+		var asset lib.VRU
+		err = json.Unmarshal(queryResult.Value, &asset)
+		if err != nil {
+			return nil, err
+		}
+		assets = append(assets, &asset)
+	}
+
+	return assets, nil
 }
 
 func main() {
