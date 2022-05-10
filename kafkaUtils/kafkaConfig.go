@@ -76,11 +76,12 @@ func CreateProducer(configFile string) (*kafka.Producer, error) {
 	return producer, nil
 }
 
-func CreateConsumer(configFile string) (*kafka.Consumer, error) {
+func CreateConsumer(configFile, groupId string) (*kafka.Consumer, error) {
 	kafkaConfig, err := GetKafkaConfiguration(configFile)
 	if err != nil {
 		return nil, err
 	}
+	kafkaConfig.SetKey("group.id", groupId)
 
 	consumer, err := kafka.NewConsumer(&kafkaConfig)
 	if err != nil {
