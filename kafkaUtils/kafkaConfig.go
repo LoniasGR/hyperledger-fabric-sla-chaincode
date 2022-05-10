@@ -2,7 +2,6 @@ package kafkaUtils
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
