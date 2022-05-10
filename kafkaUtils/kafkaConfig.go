@@ -82,6 +82,7 @@ func CreateConsumer(configFile, groupId string) (*kafka.Consumer, error) {
 		return nil, err
 	}
 	kafkaConfig.SetKey("group.id", groupId)
+	kafkaConfig.SetKey("auto.offset.reset", "beginning")
 
 	consumer, err := kafka.NewConsumer(&kafkaConfig)
 	if err != nil {
