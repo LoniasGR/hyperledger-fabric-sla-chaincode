@@ -65,12 +65,15 @@ Password: adminpw
 - [x] App that when given a user certificates connects to Hyperledger.
 - [ ] Connect wallets, violation function and ERC-20
 - [x] Chrome Extension - fix formatting
-- [ ] Use case 3 (see JSON) - create. channel name: "parts"
-- [ ] Get products based timerange based on quality (total, quality 1, quality 0).
-- [ ] Containerize the client
-- [ ] Move to Kubernetes
+- [x] Use case 3 (see JSON) - create. channel name: "parts", topic: "uc3-dtl"
+- [ ] Get number of products based time range based on quality (total, quality 1, quality 0). [10/05]
+- [ ] Extension buttons to pick Use Case. []
+- [ ] Different users/OUs to different channels. []
+- [ ] Containerize the client.
+- [ ] Move to Kubernetes.
 - [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
-- [ ] Clients connect to our own status node. Check out how the client works.
+- [ ] Clients connect to our own status node. Check out how the client works. [10/05]
 - [x] Use case 2: We got the data - think how to do it.
+- [x] Check if UC2 client works w/ Partners. [05/05]
 - [ ] Range queries for use case 2/3: new chaincode w/ name: vru/? - store & retrieve for a time range - use fabcar example
 - [ ] Trusted Execution Environment module (new git branch).
