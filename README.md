@@ -66,6 +66,7 @@ Password: adminpw
 - [ ] Connect wallets, violation function and ERC-20
 - [x] Chrome Extension - fix formatting
 - [x] Use case 3 (see JSON) - create. channel name: "parts", topic: "uc3-dtl"
+- [x] Use case 2: Return number of JSONs in time-range.
 - [ ] Get number of products based time range based on quality (total, quality 1, quality 0). [10/05]
 - [ ] Extension buttons to pick Use Case. []
 - [ ] Different users/OUs to different channels. []
