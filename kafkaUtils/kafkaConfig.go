@@ -11,20 +11,6 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
-// ParseArgs parses the command line arguments and
-// returns the config file on success, or exits on error
-func ParseArgs() []*string {
-	var configFile = flag.String("f", "", "Path to Kafka configuration file")
-	var environment = flag.String("e", "prod", "Environment the client is running in. Can be prod or dev")
-	flag.Parse()
-	if *configFile == "" {
-		flag.Usage()
-		os.Exit(2) // the same exit code flag.Parse uses
-	}
-
-	return []*string{configFile, environment}
-}
-
 // ReadConfig reads the file specified by configFile and
 // creates a map of key-value pairs that correspond to each
 // line of the file. ReadConfig returns the map on success,
