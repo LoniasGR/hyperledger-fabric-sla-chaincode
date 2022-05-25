@@ -1,32 +1,17 @@
-import * as path from 'path';
 import * as crypto from 'crypto';
 import * as grpc from '@grpc/grpc-js';
 import { Identity, Signer, signers } from '@hyperledger/fabric-gateway';
 import { promises as fs } from 'fs';
 
 import * as errors from './errors';
+import * as constants from './constants';
 
-export function envOrDefault(key: string, defaultValue: string): string {
-  return process.env[key] || defaultValue;
-}
-
-export const expressPort = envOrDefault('EXPRESS_PORT', '8000');
-
-export const channelName = envOrDefault('CHANNEL_NAME', 'mychannel');
-export const chaincodeName = envOrDefault('CHAINCODE_NAME', 'basic');
-export const mspId = envOrDefault('MSP_ID', 'Org1MSP');
-
-// Path to crypto materials.
-export const cryptoPath = envOrDefault('CRYPTO_PATH', path.resolve(__dirname, '..', '..', '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com'));
-
-// Path to peer tls certificate.
-export const tlsCertPath = envOrDefault('TLS_CERT_PATH', path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt'));
-
-// Gateway peer endpoint.
-export const peerEndpoint = envOrDefault('PEER_ENDPOINT', 'localhost:7051');
-
-// Gateway peer SSL host name override.
-export const peerHostAlias = envOrDefault('PEER_HOST_ALIAS', 'peer0.org1.example.com');
+export type KeysWithStatus = {
+  keyPEM: string,
+  certPEM: string,
+  success: boolean,
+  error: string,
+};
 
 /**
  * displayInputParameters() will print the global scope parameters used by the main driver routine.
@@ -34,26 +19,31 @@ export const peerHostAlias = envOrDefault('PEER_HOST_ALIAS', 'peer0.org1.example
 export async function displayInputParameters(): Promise<void> {
   console.debug('*********************************');
   console.debug('**      INPUT PARAMETERS       **');
-  console.debug(`channelName:       ${channelName}`);
-  console.debug(`chaincodeName:     ${chaincodeName}`);
-  console.debug(`mspId:             ${mspId}`);
-  console.debug(`cryptoPath:        ${cryptoPath}`);
-  console.debug(`tlsCertPath:       ${tlsCertPath}`);
-  console.debug(`peerEndpoint:      ${peerEndpoint}`);
-  console.debug(`peerHostAlias:     ${peerHostAlias}`);
+  console.debug(`SLA channelName:       ${constants.SLAChannelName}`);
+  console.debug(`SLA chaincodeName:     ${constants.SLAChaincodeName}`);
+  console.debug(`VRU channelName:       ${constants.VRUChannelName}`);
+  console.debug(`VRU chaincodeName:     ${constants.VRUChaincodeName}`);
+  console.debug(`Parts channelName:       ${constants.PartsChannelName}`);
+  console.debug(`Parts chaincodeName:     ${constants.PartsChaincodeName}`);
+  console.debug(`mspId:             ${constants.mspId}`);
+  console.debug(`cryptoPath:        ${constants.cryptoPath}`);
+  console.debug(`tlsCertPath:       ${constants.tlsCertPath}`);
+  console.debug(`peerEndpoint:      ${constants.peerEndpoint}`);
+  console.debug(`peerHostAlias:     ${constants.peerHostAlias}`);
   console.debug('*********************************');
 }
 
 export async function newGrpcConnection(): Promise<grpc.Client> {
-  const tlsRootCert = await fs.readFile(tlsCertPath);
+  const tlsRootCert = await fs.readFile(constants.tlsCertPath);
   const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
-  return new grpc.Client(peerEndpoint, tlsCredentials, {
-    'grpc.ssl_target_name_override': peerHostAlias,
+  return new grpc.Client(constants.peerEndpoint, tlsCredentials, {
+    'grpc.ssl_target_name_override': constants.peerHostAlias,
   });
 }
 
 export function newIdentity(cert: string):Identity {
   const credentials = Buffer.from(cert);
+  const { mspId } = constants;
   return { mspId, credentials };
 }
 
@@ -76,7 +66,7 @@ export function oneLiner(str: string): string {
   return str.replace(/\n/g, '');
 }
 
-export function keysMatch(key:string, cert: string): boolean|string {
+export function keysMatch(key:string, cert: string): boolean | string {
   try {
     const publicKeyFromPrivate = crypto.createPublicKey(key);
     const publicKey = crypto.createPublicKey(cert);
@@ -87,4 +77,35 @@ export function keysMatch(key:string, cert: string): boolean|string {
     console.error(errors.getErrorMessage(e));
     return errors.getErrorMessage(e);
   }
+}
+
+export function verifyKeys(key: string, cert: string): KeysWithStatus {
+  if (key === undefined) {
+    return {
+      success: false, error: 'Private key is missing', keyPEM: '', certPEM: '',
+    };
+  }
+  if (cert === undefined) {
+    return {
+      success: false, error: 'Public key is missing', keyPEM: '', certPEM: '',
+    };
+  }
+  const keyPEM = toPEMFormat(key);
+  const certPEM = toPEMFormat(cert);
+
+  const match = keysMatch(keyPEM, certPEM);
+  if (typeof match !== 'boolean') {
+    return {
+      success: false, error: match, keyPEM: '', certPEM: '',
+    };
+  }
+  if (!match) {
+    return {
+      success: false, error: 'Public/private key mismatch', keyPEM: '', certPEM: '',
+    };
+  }
+
+  return {
+    success: true, keyPEM, certPEM, error: '',
+  };
 }

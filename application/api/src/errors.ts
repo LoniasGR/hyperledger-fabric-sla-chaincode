@@ -1,6 +1,6 @@
 export type ErrorWithMessage = {
-    message: string
-  }
+  message: string
+};
 
 export function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
   return (
