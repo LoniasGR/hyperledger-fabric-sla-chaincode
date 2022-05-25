@@ -52,6 +52,10 @@ URL: http://localhost:5984/\_utils/
 Username: admin
 Password: adminpw
 
+## Fabric Explorer
+Port: 8080
+Username: exploreradmin
+Password: exploreradminpw
 ## TODO
 
 - [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" }.
