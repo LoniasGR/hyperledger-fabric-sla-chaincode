@@ -66,7 +66,7 @@ export async function queryPartsTimeRange(
     const resultBytes = await contract.evaluateTransaction('GetAssetQualityByRange', `${start}`, `${end}`);
     const resultJson = utf8Decoder.decode(resultBytes);
     const result = JSON.parse(resultJson);
-    console.log('*** Result:', result);
+    console.log('*** Result:', result[0]);
     return result[0];
   } catch (e: unknown) {
     console.error(errors.getErrorMessage(e));
