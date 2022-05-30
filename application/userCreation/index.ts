@@ -16,6 +16,7 @@ app.post('/', async (req, res) => {
   const { username } = req.body;
   const result = await createUser(username);
   if (result.error === undefined) {
+    console.debug(`Created  user: ${username}`);
     return res.json({ success: true, data: result });
   }
   return res.json({ success: false, error: result.error });
