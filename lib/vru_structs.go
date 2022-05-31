@@ -14,7 +14,13 @@ type OBU_s struct {
 }
 
 type VRU struct {
-	Timestamp int64  `json:"timestamp"`
-	Tram      Tram_s `json:"tram"`
+	Timestamp int64   `json:"timestamp"`
+	Tram      Tram_s  `json:"tram"`
 	OBUs      []OBU_s `json:"obus"`
+}
+
+type Risk struct {
+	HighRisk int `json:"highRisk"`
+	LowRisk  int `json:"lowRisk"`
+	NoRisk   int `json:"noRisk"`
 }
