@@ -74,13 +74,27 @@ func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterf
 	return assets, nil
 }
 
-func (s *SmartContract) GetTotalAssetsInRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) (int, error) {
+func (s *SmartContract) GetAssetRiskInRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) (lib.Risk, error) {
 	assets, err := s.GetAssetByRange(ctx, startKey, endKey)
 	if err != nil {
-		return 0, err
+		return lib.Risk{}, err
 	}
+	var risk = lib.Risk{}
 
-	return len(assets), nil
+	for _, asset := range assets {
+		for _, OBU := range asset.OBUs {
+			if OBU.Risk == "HIGHRISK" {
+				risk.HighRisk += 1
+			}
+			if OBU.Risk == "LOWRISK" {
+				risk.LowRisk += 1
+			}
+			if OBU.Risk == "NORISK" {
+				risk.NoRisk += 1
+			}
+		}
+	}
+	return risk, nil
 }
 
 func main() {

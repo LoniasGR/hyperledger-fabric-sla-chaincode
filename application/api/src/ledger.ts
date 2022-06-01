@@ -14,6 +14,12 @@ type PartsData = {
   low_quality: number,
 };
 
+type VRUData = {
+  HighRisk: number,
+  LowRisk: number,
+  NoRisk: number,
+}
+
 const utf8Decoder = new TextDecoder();
 /**
  * Function to query if a user with the specified public key exists.
@@ -42,10 +48,10 @@ export async function queryVRUTimeRange(
   contract: Contract,
   start: string,
   end: string,
-): Promise<number | string> {
+): Promise<VRUData | string> {
   try {
     console.debug('\n--> Evaluate Transaction: queryVRUTimeRange');
-    const resultBytes = await contract.evaluateTransaction('GetTotalAssetsInRange', `${start}`, `${end}`);
+    const resultBytes = await contract.evaluateTransaction('GetAssetRiskInRange', `${start}`, `${end}`);
     const resultJson = utf8Decoder.decode(resultBytes);
     const result = JSON.parse(resultJson);
     console.log('*** Result:', result);
