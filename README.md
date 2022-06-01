@@ -67,18 +67,20 @@ Password: exploreradminpw
 - [x] Slides ~30 Etherium - Deadline: Start of January.
 - [x] `client.go` Wallet management (provider wallet, customer wallet).
 - [x] App that when given a user certificates connects to Hyperledger.
-- [ ] Connect wallets, violation function and ERC-20
 - [x] Chrome Extension - fix formatting
 - [x] Use case 3 (see JSON) - create. channel name: "parts", topic: "uc3-dtl"
 - [x] Use case 2: Return number of JSONs in time-range.
-- [ ] Get number of products based time range based on quality (total, quality 1, quality 0). [10/05]
-- [ ] Extension buttons to pick Use Case. []
-- [ ] Different users/OUs to different channels. []
-- [ ] Containerize the client.
-- [ ] Move to Kubernetes.
-- [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
-- [ ] Clients connect to our own status node. Check out how the client works. [10/05]
+- [x] Get number of products based time range based on quality (total, quality 1, quality 0). [10/05]
+- [x] Extension buttons to pick Use Case. []
 - [x] Use case 2: We got the data - think how to do it.
 - [x] Check if UC2 client works w/ Partners. [05/05]
-- [ ] Range queries for use case 2/3: new chaincode w/ name: vru/? - store & retrieve for a time range - use fabcar example
+- [x] Range queries for use case 2/3: new chaincode w/ name: vru/? - store & retrieve for a time range - use fabcar example
+- [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
+- [ ] Connect wallets, violation function and ERC-20
+
+- [ ] UC2: High Risk/Low Risk/No Risk data on wallet []
+- [ ] Different users/OUs to different channels. [priority 1]
+- [ ] Clients connect to our own status node. Check out how the client works. [priority 2]
+- [ ] Containerize the client.
+- [ ] Move to Kubernetes.
 - [ ] Trusted Execution Environment module (new git branch).
