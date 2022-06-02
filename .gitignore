@@ -30,3 +30,7 @@ keys/
 
 # Node JS related
 **/node_modules/
+
+# Hyperledger related stuff
+channel-artifacts/
+log.txt
