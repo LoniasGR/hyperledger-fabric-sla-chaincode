@@ -17,7 +17,7 @@ export const PartsChaincodeName = envOrDefault('PARTS_CHAINCODE_NAME', 'parts');
 export const mspId = envOrDefault('MSP_ID', 'Org1MSP');
 
 // Path to crypto materials.
-export const cryptoPath = envOrDefault('CRYPTO_PATH', path.resolve(__dirname, '..', '..', '..', 'organization'));
+export const cryptoPath = envOrDefault('CRYPTO_PATH', path.resolve(__dirname, '..', '..', '..', 'organizations', 'peerOrganizations', 'org1.example.com'));
 
 // Path to peer tls certificate.
 export const tlsCertPath = envOrDefault('TLS_CERT_PATH', path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt'));

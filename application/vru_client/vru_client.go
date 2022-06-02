@@ -42,14 +42,18 @@ func main() {
 	ccpPath := filepath.Join(
 		"..",
 		"..",
-		"organization",
+		"organizations",
+		"peerOrganizations",
+		fmt.Sprintf("org%d.example.com", orgID),
 		fmt.Sprintf("connection-org%d.yaml", orgID),
 	)
 
 	credPath := filepath.Join(
 		"..",
 		"..",
-		"organization",
+		"organizations",
+		"peerOrganizations",
+		fmt.Sprintf("org%d.example.com", orgID),
 		"users",
 		fmt.Sprintf("User%d@org%d.example.com", userID, orgID),
 		"msp",
