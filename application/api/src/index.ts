@@ -161,4 +161,5 @@ app.post('/parts', async (req, res) => {
 
 app.listen(constants.expressPort, () => {
   console.debug(`⚡️[server]: Server is running at https://localhost:${constants.expressPort}`);
+  utils.displayInputParameters();
 });
