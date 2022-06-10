@@ -53,9 +53,11 @@ Username: admin
 Password: adminpw
 
 ## Fabric Explorer
+
 Port: 8080
 Username: exploreradmin
 Password: exploreradminpw
+
 ## TODO
 
 - [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" }.
@@ -78,7 +80,9 @@ Password: exploreradminpw
 - [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
 - [ ] Connect wallets, violation function and ERC-20
 
-- [ ] UC2: High Risk/Low Risk/No Risk data on wallet []
+- [x] UC2: High Risk/Low Risk/No Risk data on wallet []
+- [ ] Video wallet demo
+
 - [ ] Different users/OUs to different channels. [priority 1]
 - [ ] Clients connect to our own status node. Check out how the client works. [priority 2]
 - [ ] Containerize the client.
