@@ -1,0 +1,14 @@
+version: "3"
+services:
+  sla_client:
+    build:
+      context: ../sla_client/
+      dockerfile: goClients.Dockerfile
+  vru_client:
+    build:
+      context: ../vru_client/
+      dockerfile: goClients.Dockerfile
+  parts_client:
+    build:
+      context: ../parts_client/
+      dockerfile: goClients.Dockerfile
