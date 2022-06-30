@@ -26,7 +26,7 @@ type Part_timestamp struct {
 type Part_document_body struct {
 	Start                 Part_timestamp   `json:"Start"`
 	Stop                  Part_timestamp   `json:"Stop"`
-	CycleTime             float32              `json:"CycleTime"`
+	CycleTime             float32          `json:"CycleTime"`
 	Duration              float32          `json:"Duration"`
 	ActiveTime            float32          `json:"ActiveTime"`
 	Quality               int              `json:"Quality"`
@@ -45,7 +45,7 @@ type Part_document_body struct {
 	UnloadingTime         float32          `json:"UnloadingTime"`
 	Pallet                int              `json:"Pallet"`
 	FeedOverride          float32          `json:"FeedOverride"`
-	FeedOverrideRapid     int              `json:"FeedOverrideRapid"`
+	FeedOverrideRapid     float32          `json:"FeedOverrideRapid"`
 	SpindleOverride       int              `json:"SpindleOverride"`
 	ToolChangeOveride     float32          `json:"ToolChangeOveride"`
 	SpindleNumber         int              `json:"SpindleNumber"`
