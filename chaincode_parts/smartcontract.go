@@ -17,7 +17,7 @@ type SmartContract struct {
 
 type Chaincode_Part struct {
 	MA           string                 `json:"MA"`
-	Timestamp    lib.Part_timestamp     `json:"TimeStamp"`
+	Timestamp    string                 `json:"TimeStamp"`
 	Version      int                    `json:"Version"`
 	DocumentType string                 `json:"DocumentType"`
 	DocumentBody lib.Part_document_body `json:"DocumentBody"`
@@ -37,12 +37,12 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("failed to unmarshal json: %v", err)
 	}
 
-	exists, err := s.ContractExists(ctx, fmt.Sprintf("%v_%v", part.Timestamp.Date, part.Id.Oid))
+	exists, err := s.ContractExists(ctx, fmt.Sprintf("%v_%v", part.Timestamp, part.Id.Oid))
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf("the Contract %v already exists", fmt.Sprintf("%v_%v", part.Timestamp.Date, part.Id.Oid))
+		return fmt.Errorf("the Contract %v already exists", fmt.Sprintf("%v_%v", part.Timestamp, part.Id.Oid))
 	}
 
 	cc_part := Chaincode_Part{
@@ -58,7 +58,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return err
 	}
 
-	return ctx.GetStub().PutState(fmt.Sprintf("%v_%v", part.Timestamp.Date, part.Id.Oid), cc_json)
+	return ctx.GetStub().PutState(fmt.Sprintf("%v_%v", part.Timestamp, part.Id.Oid), cc_json)
 }
 
 // ContractExists returns true when Contract with given ID exists in world state
