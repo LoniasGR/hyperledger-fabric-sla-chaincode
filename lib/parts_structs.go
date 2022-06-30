@@ -26,7 +26,7 @@ type Part_timestamp struct {
 type Part_document_body struct {
 	Start                 Part_timestamp   `json:"Start"`
 	Stop                  Part_timestamp   `json:"Stop"`
-	CycleTime             int              `json:"CycleTime"`
+	CycleTime             float32              `json:"CycleTime"`
 	Duration              float32          `json:"Duration"`
 	ActiveTime            float32          `json:"ActiveTime"`
 	Quality               int              `json:"Quality"`
