@@ -46,7 +46,7 @@ type Part_document_body struct {
 	Pallet                int              `json:"Pallet"`
 	FeedOverride          float32          `json:"FeedOverride"`
 	FeedOverrideRapid     float32          `json:"FeedOverrideRapid"`
-	SpindleOverride       int              `json:"SpindleOverride"`
+	SpindleOverride       float32          `json:"SpindleOverride"`
 	ToolChangeOveride     float32          `json:"ToolChangeOveride"`
 	SpindleNumber         int              `json:"SpindleNumber"`
 	ReleaseLocked         bool             `json:"ReleaseLocked"`
