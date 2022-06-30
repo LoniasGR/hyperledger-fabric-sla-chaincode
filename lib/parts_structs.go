@@ -20,7 +20,7 @@ type Part_id struct {
 }
 
 type Part_timestamp struct {
-	Date string `json:"$date"`
+	Date int `json:"$date"`
 }
 
 type Part_document_body struct {
