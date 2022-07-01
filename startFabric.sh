@@ -36,6 +36,7 @@ then
 fi
 
 # launch network; create channel and join peer to channel
+pushd ../test-network
 ./network.sh down
 ./network.sh up createChannel -c ${SLA_CHANNEL_NAME} -ca -s couchdb
 ./network.sh up createChannel -c ${VRU_CHANNEL_NAME} -ca -s couchdb
@@ -44,6 +45,7 @@ fi
 ./network.sh deployCC -c ${SLA_CHANNEL_NAME} -ccn ${SLA_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${SLA_CC_SRC_PATH}
 ./network.sh deployCC -c ${VRU_CHANNEL_NAME} -ccn ${VRU_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${VRU_CC_SRC_PATH}
 ./network.sh deployCC -c ${PARTS_CHANNEL_NAME} -ccn ${PARTS_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${PARTS_CC_SRC_PATH}
+popd
 
 if [ -d "../explorer-local" ]
 then
