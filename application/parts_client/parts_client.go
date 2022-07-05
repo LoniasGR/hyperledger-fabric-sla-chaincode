@@ -42,6 +42,8 @@ func main() {
 	ccpPath := filepath.Join(
 		"..",
 		"..",
+		"..",
+		"test-network",
 		"organizations",
 		"peerOrganizations",
 		fmt.Sprintf("org%d.example.com", orgID),
@@ -51,6 +53,8 @@ func main() {
 	credPath := filepath.Join(
 		"..",
 		"..",
+		"..",
+		"test-network",
 		"organizations",
 		"peerOrganizations",
 		fmt.Sprintf("org%d.example.com", orgID),
@@ -59,7 +63,7 @@ func main() {
 		"msp",
 	)
 
-	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], "parts-consumer-group")
+	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], "queen-of-the-year")
 	if err != nil {
 		log.Fatalf("error in parts_go: %v", err)
 	}
@@ -110,6 +114,13 @@ func main() {
 	}
 	log.Println(string(result))
 
+	f, err := os.OpenFile("data.json",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	defer f.Close()
+
 	var run bool = true
 	for run {
 		select {
@@ -124,18 +135,24 @@ func main() {
 				}
 				log.Fatalf("consumer failed to read: %v", err)
 			}
-			log.Println(string(msg.Value))
+			log.Println(string(msg.Value), '\n')
+
 			var part lib.Part
 
 			err = json.Unmarshal(msg.Value, &part)
 			if err != nil {
 				log.Fatalf("failed to unmarshal: %s", err)
 			}
-			log.Println(part)
+			log.Println(part, '\n')
+
+			file, _ := json.MarshalIndent(part, "", " ")
+			if _, err := f.Write(file); err != nil {
+				log.Println(err)
+			}
 
 			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-				CreateContract, creates new contract with ID,
-				customer, metric, provider, value, and status arguments`, string(lib.ColorReset))
+				CreateContract, creates new parts entry with ID, Timestamp
+				and all Document details`, string(lib.ColorReset))
 			result, err = contract.SubmitTransaction("CreateContract",
 				string(msg.Value),
 			)

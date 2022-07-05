@@ -4,7 +4,7 @@ import { prepareContext, createUser } from './createUser';
 import enrollAdmin from './enrollAdmin';
 
 dotenv.config();
-const port = process.env.EXPRESS_PORT;
+const port = process.env.EXPRESS_PORT || 3000;
 
 enrollAdmin();
 prepareContext();
