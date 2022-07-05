@@ -90,8 +90,11 @@ app.post('/balance', async (req, res) => {
     const contract = network.getContract(constants.SLAChaincodeName);
 
     // Get the asset details by assetID.
-    const user = await queryUsersByPublicKey(contract, utils.oneLiner(certPEM));
-    return res.send({ success: true, user });
+    const userOrError = await queryUsersByPublicKey(contract, utils.oneLiner(certPEM));
+    if(typeof userOrError !==  "object") {
+      return res.send({success: false, error: userOrError})
+    }
+    return res.send({ success: true, user: userOrError });
   } finally {
     gateway.close();
     grpcClient.close();

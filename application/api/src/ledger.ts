@@ -37,6 +37,9 @@ export async function queryUsersByPublicKey(
     const result = JSON.parse(resultJson);
     console.log('*** Result:', result);
     const { id, name, balance } = result;
+    if (id === '' || name === '' || balance === '') {
+      return errors.getErrorMessage('User does not exist.');
+    }
     return { id, name, balance };
   } catch (e: unknown) {
     console.error(errors.getErrorMessage(e));
