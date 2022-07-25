@@ -129,25 +129,33 @@ func main() {
 				log.Fatalf("consumer failed to read: %v", err)
 			}
 			log.Println(string(msg.Value))
-			var vru lib.VRU
+			var vru_slice []lib.VRU
 
-			err = json.Unmarshal(msg.Value, &vru)
+			err = json.Unmarshal(msg.Value, &vru_slice)
 			if err != nil {
 				log.Fatalf("failed to unmarshal: %s", err)
 			}
-			log.Println(vru)
+			log.Println(vru_slice)
 
-			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
+			for _, vru := range vru_slice {
+				vru_json, err := json.Marshal(vru)
+				if err != nil {
+					log.Printf("Could not marshall singe vru from slice: %s", err)
+				}
+
+				log.Println(string(lib.ColorGreen), `--> Submit Transaction:
 				CreateContract, creates new contract with ID,
 				customer, metric, provider, value, and status arguments`, string(lib.ColorReset))
-			result, err = contract.SubmitTransaction("CreateContract",
-				string(msg.Value),
-			)
-			if err != nil {
-				log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
-				continue
+
+				result, err = contract.SubmitTransaction("CreateContract",
+					string(vru_json),
+				)
+				if err != nil {
+					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+					continue
+				}
+				fmt.Println(string(result))
 			}
-			fmt.Println(string(result))
 		}
 	}
 }
