@@ -43,23 +43,39 @@ func main() {
 	}()
 
 	// Set timeout for writing
-	for i := 0; i < *nAssets; i++ {
-		asset := createAsset()
-		assetJSON, err := json.Marshal(asset)
-		if err != nil {
-			panic(err.Error())
-		}
-		err = p_vru.Produce(&kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &topics[0], Partition: kafka.PartitionAny},
-			Value:          assetJSON,
-		}, nil)
-
-		if err != nil {
-			log.Fatal("failed to write messages: ", err)
-		}
-		log.Println(asset)
-		time.Sleep(1 * time.Second)
+	assets := createAssets(*nAssets)
+	assetsJSON, err := json.Marshal(assets)
+	if err != nil {
+		panic(err.Error())
 	}
+	err = p_vru.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topics[0], Partition: kafka.PartitionAny},
+		Value:          assetsJSON,
+	}, nil)
+
+	if err != nil {
+		log.Fatal("failed to write messages: ", err)
+	}
+	log.Println(assets)
+	time.Sleep(1 * time.Second)
+
+	// for i := 0; i < *nAssets; i++ {
+	// 	asset := createAsset()
+	// 	assetJSON, err := json.Marshal(asset)
+	// 	if err != nil {
+	// 		panic(err.Error())
+	// 	}
+	// 	err = p_vru.Produce(&kafka.Message{
+	// 		TopicPartition: kafka.TopicPartition{Topic: &topics[0], Partition: kafka.PartitionAny},
+	// 		Value:          assetJSON,
+	// 	}, nil)
+
+	// 	if err != nil {
+	// 		log.Fatal("failed to write messages: ", err)
+	// 	}
+	// 	log.Println(asset)
+	// 	time.Sleep(1 * time.Second)
+	// }
 
 }
 
@@ -130,6 +146,7 @@ func createAssets(nAssets int) []lib.VRU {
 	for i := 0; i < nAssets; i++ {
 		asset := createAsset()
 		assets[i] = asset
+		time.Sleep(1 * time.Second)
 	}
 	return assets
 }
