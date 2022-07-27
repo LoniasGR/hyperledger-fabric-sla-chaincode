@@ -19,7 +19,7 @@ import (
 
 var walletLocation = "wallet"
 
-var orgID int = 1
+var orgID int = 2
 var userID int = 1
 
 var channelName string = "vru"
@@ -144,8 +144,8 @@ func main() {
 				}
 
 				log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-				CreateContract, creates new contract with ID,
-				customer, metric, provider, value, and status arguments`, string(lib.ColorReset))
+				CreateContract, creates new incident with Timestamp,
+				and related tram and OBUs incidents`, string(lib.ColorReset))
 
 				result, err = contract.SubmitTransaction("CreateContract",
 					string(vru_json),

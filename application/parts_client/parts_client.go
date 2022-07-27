@@ -19,7 +19,7 @@ import (
 
 var walletLocation = "wallet"
 
-var orgID int = 1
+var orgID int = 3
 var userID int = 1
 
 var channelName string = "parts"
