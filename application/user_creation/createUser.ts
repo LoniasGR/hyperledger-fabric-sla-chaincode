@@ -3,8 +3,8 @@ import { Wallet, Wallets } from 'fabric-network';
 import { resolve, join } from 'path';
 import { readFileSync } from 'fs';
 
-let ca: FabricCAServices;
-let wallet: Wallet;
+let ca: Array<FabricCAServices> = [];
+let wallet: Array<Wallet> = [];
 
 type KeysOrError = {
   error?: string
@@ -12,62 +12,64 @@ type KeysOrError = {
   privateKey?: string
 }
 
-async function prepareContext(): Promise<void> {
+async function prepareContext(org: number, ledger: string): Promise<void> {
   // load the network configuration
   const ccpPath = resolve(
     __dirname,
     '..',
     '..',
+    '..',
+    'test-network',
     'organizations',
     'peerOrganizations',
-    'org1.example.com',
-    'connection-org1.json',
+    `org${org}.example.com`,
+    `connection-org${org}.json`,
   );
   const ccp = JSON.parse(readFileSync(ccpPath, 'utf8'));
 
   // Create a new CA client for interacting with the CA.
-  const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
+  const caInfo = ccp.certificateAuthorities[`ca.org${org}.example.com`];
   const caTLSCACerts = caInfo.tlsCACerts.pem;
-  ca = new FabricCAServices(
+  ca[org-1] = new FabricCAServices(
     caInfo.url,
     { trustedRoots: caTLSCACerts, verify: false },
     caInfo.caName,
   );
 
   // Create a new file system based wallet for managing identities.
-  const walletPath = join(process.cwd(), 'wallet');
-  wallet = await Wallets.newFileSystemWallet(walletPath);
+  const walletPath = join(process.cwd(), `wallet_${ledger}`);
+  wallet[org-1] = await Wallets.newFileSystemWallet(walletPath);
   console.debug(`Wallet path: ${walletPath}`);
 }
 
-async function createUser(username: string): Promise<KeysOrError> {
+async function createUser(username: string, org: number, ledger: string): Promise<KeysOrError> {
   try {
     // Check to see if we've already enrolled the user.
-    const userIdentity = await wallet.get(username);
+    const userIdentity = await wallet[org-1].get(username);
     if (userIdentity) {
-      console.error(`An identity for the user "${username}" already exists in the wallet`);
+      console.error(`An identity for the user "${username}" already exists in wallet ${ledger}`);
       return { error: 'User already exists' };
     }
 
     // Check to see if we've already enrolled the admin user.
-    const adminIdentity = await wallet.get('admin');
+    const adminIdentity = await wallet[org-1].get('admin');
     if (!adminIdentity) {
-      console.error('An identity for the admin user "admin" does not exist in the wallet');
+      console.error(`An identity for the admin user admin does not exist in the wallet ${ledger}`);
       console.error('Run the enrollAdmin.js application before retrying');
       return { error: 'Admin is not enrolled' };
     }
 
     // build a user object for authenticating with the CA
-    const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
+    const provider = wallet[org-1].getProviderRegistry().getProvider(adminIdentity.type);
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
     // Register the user, enroll the user, and import the new identity into the wallet.
-    const secret = await ca.register({
+    const secret = await ca[org-1].register({
       affiliation: 'org1.department1',
       enrollmentID: username,
       role: 'client',
     }, adminUser);
-    const enrollment = await ca.enroll({
+    const enrollment = await ca[org-1].enroll({
       enrollmentID: username,
       enrollmentSecret: secret,
     });
@@ -79,7 +81,7 @@ async function createUser(username: string): Promise<KeysOrError> {
       mspId: 'Org1MSP',
       type: 'X.509',
     };
-    await wallet.put(username, x509Identity);
+    await wallet[org-1].put(username, x509Identity);
     return {
       publicKey: enrollment.certificate,
       privateKey: enrollment.key.toBytes(),
