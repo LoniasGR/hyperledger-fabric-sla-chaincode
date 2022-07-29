@@ -1,0 +1,3762 @@
+[
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:37:22.715+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656563842715
+            },
+            "Stop": {
+                "$date": 1656564070692
+            },
+            "CycleTime": 218.322,
+            "Duration": 227.977,
+            "ActiveTime": 223.886,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656563848218
+            },
+            "LoadingTime": 5.503,
+            "ClampingStarts": [
+                {
+                    "$date": 1656563849160
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656563863463
+                }
+            ],
+            "ClampingTimes": [
+                14.303
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656563863463
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656563863499
+                }
+            ],
+            "AdjustingTimes": [
+                0.036
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656564064062
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656564067482
+                }
+            ],
+            "ReleasingTimes": [
+                3.42
+            ],
+            "UnloadingStart": {
+                "$date": 1656564067680
+            },
+            "UnloadingTime": 3.012,
+            "Pallet": 1,
+            "FeedOverride": 95.247116,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 76.250854,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdae999db3a3e7b68048ce"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:41:17.503+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656564077503
+            },
+            "Stop": {
+                "$date": 1656564305390
+            },
+            "CycleTime": 218.238,
+            "Duration": 227.887,
+            "ActiveTime": 223.891,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656564082981
+            },
+            "LoadingTime": 5.478,
+            "ClampingStarts": [
+                {
+                    "$date": 1656564083887
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656564097985
+                }
+            ],
+            "ClampingTimes": [
+                14.098
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656564097985
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656564098021
+                }
+            ],
+            "AdjustingTimes": [
+                0.036
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656564298723
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656564302125
+                }
+            ],
+            "ReleasingTimes": [
+                3.402
+            ],
+            "UnloadingStart": {
+                "$date": 1656564302323
+            },
+            "UnloadingTime": 3.067,
+            "Pallet": 1,
+            "FeedOverride": 95.213646,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 74.52308,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdb0e89db3a3e7b68048cf"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:45:12.194+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656564312194
+            },
+            "Stop": {
+                "$date": 1656564540014
+            },
+            "CycleTime": 218.168,
+            "Duration": 227.82,
+            "ActiveTime": 223.866,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656564317653
+            },
+            "LoadingTime": 5.459,
+            "ClampingStarts": [
+                {
+                    "$date": 1656564318595
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656564332732
+                }
+            ],
+            "ClampingTimes": [
+                14.137
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656564332732
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656564332762
+                }
+            ],
+            "AdjustingTimes": [
+                0.03
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656564533361
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656564536763
+                }
+            ],
+            "ReleasingTimes": [
+                3.402
+            ],
+            "UnloadingStart": {
+                "$date": 1656564536961
+            },
+            "UnloadingTime": 3.053,
+            "Pallet": 1,
+            "FeedOverride": 95.254395,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 72.8097,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdb3379db3a3e7b68048d0"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:49:06.866+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656564546866
+            },
+            "Stop": {
+                "$date": 1656564774777
+            },
+            "CycleTime": 218.282,
+            "Duration": 227.911,
+            "ActiveTime": 223.921,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656564552343
+            },
+            "LoadingTime": 5.477,
+            "ClampingStarts": [
+                {
+                    "$date": 1656564553261
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656564567362
+                }
+            ],
+            "ClampingTimes": [
+                14.101
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656564567362
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656564567398
+                }
+            ],
+            "AdjustingTimes": [
+                0.036
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656564768105
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656564771543
+                }
+            ],
+            "ReleasingTimes": [
+                3.438
+            ],
+            "UnloadingStart": {
+                "$date": 1656564771741
+            },
+            "UnloadingTime": 3.036,
+            "Pallet": 1,
+            "FeedOverride": 95.13518,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 71.16329,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdb5829db3a3e7b68048d1"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:53:01.592+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656564781592
+            },
+            "Stop": {
+                "$date": 1656565009473
+            },
+            "CycleTime": 218.336,
+            "Duration": 227.881,
+            "ActiveTime": 223.964,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656564787105
+            },
+            "LoadingTime": 5.513,
+            "ClampingStarts": [
+                {
+                    "$date": 1656564787921
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656564802046
+                }
+            ],
+            "ClampingTimes": [
+                14.125
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656564802046
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656564802076
+                }
+            ],
+            "AdjustingTimes": [
+                0.03
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656565002831
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656565006257
+                }
+            ],
+            "ReleasingTimes": [
+                3.426
+            ],
+            "UnloadingStart": {
+                "$date": 1656565006455
+            },
+            "UnloadingTime": 3.018,
+            "Pallet": 1,
+            "FeedOverride": 95.22405,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 69.45132,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdb8b99db3a3e7b68048d2"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:37:22.715+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656563842715
+            },
+            "Stop": {
+                "$date": 1656564070692
+            },
+            "CycleTime": 218.322,
+            "Duration": 227.977,
+            "ActiveTime": 223.886,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656563848218
+            },
+            "LoadingTime": 5.503,
+            "ClampingStarts": [
+                {
+                    "$date": 1656563849160
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656563863463
+                }
+            ],
+            "ClampingTimes": [
+                14.303
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656563863463
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656563863499
+                }
+            ],
+            "AdjustingTimes": [
+                0.036
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656564064062
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656564067482
+                }
+            ],
+            "ReleasingTimes": [
+                3.42
+            ],
+            "UnloadingStart": {
+                "$date": 1656564067680
+            },
+            "UnloadingTime": 3.012,
+            "Pallet": 1,
+            "FeedOverride": 95.247116,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 76.250854,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdae999db3a3e7b68048ce"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:41:17.503+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656564077503
+            },
+            "Stop": {
+                "$date": 1656564305390
+            },
+            "CycleTime": 218.238,
+            "Duration": 227.887,
+            "ActiveTime": 223.891,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656564082981
+            },
+            "LoadingTime": 5.478,
+            "ClampingStarts": [
+                {
+                    "$date": 1656564083887
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656564097985
+                }
+            ],
+            "ClampingTimes": [
+                14.098
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656564097985
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656564098021
+                }
+            ],
+            "AdjustingTimes": [
+                0.036
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656564298723
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656564302125
+                }
+            ],
+            "ReleasingTimes": [
+                3.402
+            ],
+            "UnloadingStart": {
+                "$date": 1656564302323
+            },
+            "UnloadingTime": 3.067,
+            "Pallet": 1,
+            "FeedOverride": 95.213646,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 74.52308,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdb0e89db3a3e7b68048cf"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:45:12.194+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656564312194
+            },
+            "Stop": {
+                "$date": 1656564540014
+            },
+            "CycleTime": 218.168,
+            "Duration": 227.82,
+            "ActiveTime": 223.866,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656564317653
+            },
+            "LoadingTime": 5.459,
+            "ClampingStarts": [
+                {
+                    "$date": 1656564318595
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656564332732
+                }
+            ],
+            "ClampingTimes": [
+                14.137
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656564332732
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656564332762
+                }
+            ],
+            "AdjustingTimes": [
+                0.03
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656564533361
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656564536763
+                }
+            ],
+            "ReleasingTimes": [
+                3.402
+            ],
+            "UnloadingStart": {
+                "$date": 1656564536961
+            },
+            "UnloadingTime": 3.053,
+            "Pallet": 1,
+            "FeedOverride": 95.254395,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 72.8097,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdb3379db3a3e7b68048d0"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:49:06.866+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656564546866
+            },
+            "Stop": {
+                "$date": 1656564774777
+            },
+            "CycleTime": 218.282,
+            "Duration": 227.911,
+            "ActiveTime": 223.921,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656564552343
+            },
+            "LoadingTime": 5.477,
+            "ClampingStarts": [
+                {
+                    "$date": 1656564553261
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656564567362
+                }
+            ],
+            "ClampingTimes": [
+                14.101
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656564567362
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656564567398
+                }
+            ],
+            "AdjustingTimes": [
+                0.036
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656564768105
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656564771543
+                }
+            ],
+            "ReleasingTimes": [
+                3.438
+            ],
+            "UnloadingStart": {
+                "$date": 1656564771741
+            },
+            "UnloadingTime": 3.036,
+            "Pallet": 1,
+            "FeedOverride": 95.13518,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 71.16329,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdb5829db3a3e7b68048d1"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    },
+    {
+        "_id": {
+            "$oid": ""
+        },
+        "MA": "ma-005620",
+        "TimeStamp": "2022-06-30T04:53:01.592+00:00",
+        "Version": 1,
+        "DocumentType": "T1ComponentMain",
+        "DocumentBody": {
+            "Start": {
+                "$date": 1656564781592
+            },
+            "Stop": {
+                "$date": 1656565009473
+            },
+            "CycleTime": 218.336,
+            "Duration": 227.881,
+            "ActiveTime": 223.964,
+            "Quality": 1,
+            "LoadingStop": {
+                "$date": 1656564787105
+            },
+            "LoadingTime": 5.513,
+            "ClampingStarts": [
+                {
+                    "$date": 1656564787921
+                }
+            ],
+            "ClampingStops": [
+                {
+                    "$date": 1656564802046
+                }
+            ],
+            "ClampingTimes": [
+                14.125
+            ],
+            "AdjustingStarts": [
+                {
+                    "$date": 1656564802046
+                }
+            ],
+            "AdjustingStops": [
+                {
+                    "$date": 1656564802076
+                }
+            ],
+            "AdjustingTimes": [
+                0.03
+            ],
+            "ReleasingStarts": [
+                {
+                    "$date": 1656565002831
+                }
+            ],
+            "ReleasingStops": [
+                {
+                    "$date": 1656565006257
+                }
+            ],
+            "ReleasingTimes": [
+                3.426
+            ],
+            "UnloadingStart": {
+                "$date": 1656565006455
+            },
+            "UnloadingTime": 3.018,
+            "Pallet": 1,
+            "FeedOverride": 95.22405,
+            "FeedOverrideRapid": 100,
+            "SpindleOverride": 100,
+            "ToolChangeOveride": 69.45132,
+            "SpindleNumber": 1,
+            "ReleaseLocked": false,
+            "NokTBr": false,
+            "NokTMo": false,
+            "NokRew": false,
+            "NokCla": false,
+            "NokWpc": false,
+            "NokNcP": false,
+            "ProductionCondUnavail": false,
+            "PalletchangeStarts": null,
+            "PalletchangeStops": null,
+            "PalletchangeTimes": null,
+            "CarrierID": 1,
+            "ComponentCode": "",
+            "ComponentName": "",
+            "ComponentIdent": "",
+            "ComponentVersion": "",
+            "CycleTimeLoss": 0,
+            "CycleTimeGain": 0,
+            "mongo_ref": {
+                "_id": {
+                    "$oid": "62bdb8b99db3a3e7b68048d2"
+                },
+                "collection": "Components_from_fast"
+            }
+        }
+    }
+]{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:37:22.715+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656563842715
+  },
+  "Stop": {
+   "$date": 1656564070692
+  },
+  "CycleTime": 218.322,
+  "Duration": 227.977,
+  "ActiveTime": 223.886,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656563848218
+  },
+  "LoadingTime": 5.503,
+  "ClampingStarts": [
+   {
+    "$date": 1656563849160
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656563863463
+   }
+  ],
+  "ClampingTimes": [
+   14.303
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656563863463
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656563863499
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564064062
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564067482
+   }
+  ],
+  "ReleasingTimes": [
+   3.42
+  ],
+  "UnloadingStart": {
+   "$date": 1656564067680
+  },
+  "UnloadingTime": 3.012,
+  "Pallet": 1,
+  "FeedOverride": 95.247116,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 76.250854,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdae999db3a3e7b68048ce"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:41:17.503+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564077503
+  },
+  "Stop": {
+   "$date": 1656564305390
+  },
+  "CycleTime": 218.238,
+  "Duration": 227.887,
+  "ActiveTime": 223.891,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564082981
+  },
+  "LoadingTime": 5.478,
+  "ClampingStarts": [
+   {
+    "$date": 1656564083887
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564097985
+   }
+  ],
+  "ClampingTimes": [
+   14.098
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564097985
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564098021
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564298723
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564302125
+   }
+  ],
+  "ReleasingTimes": [
+   3.402
+  ],
+  "UnloadingStart": {
+   "$date": 1656564302323
+  },
+  "UnloadingTime": 3.067,
+  "Pallet": 1,
+  "FeedOverride": 95.213646,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 74.52308,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdb0e89db3a3e7b68048cf"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:45:12.194+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564312194
+  },
+  "Stop": {
+   "$date": 1656564540014
+  },
+  "CycleTime": 218.168,
+  "Duration": 227.82,
+  "ActiveTime": 223.866,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564317653
+  },
+  "LoadingTime": 5.459,
+  "ClampingStarts": [
+   {
+    "$date": 1656564318595
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564332732
+   }
+  ],
+  "ClampingTimes": [
+   14.137
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564332732
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564332762
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564533361
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564536763
+   }
+  ],
+  "ReleasingTimes": [
+   3.402
+  ],
+  "UnloadingStart": {
+   "$date": 1656564536961
+  },
+  "UnloadingTime": 3.053,
+  "Pallet": 1,
+  "FeedOverride": 95.254395,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 72.8097,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdb3379db3a3e7b68048d0"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:49:06.866+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564546866
+  },
+  "Stop": {
+   "$date": 1656564774777
+  },
+  "CycleTime": 218.282,
+  "Duration": 227.911,
+  "ActiveTime": 223.921,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564552343
+  },
+  "LoadingTime": 5.477,
+  "ClampingStarts": [
+   {
+    "$date": 1656564553261
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564567362
+   }
+  ],
+  "ClampingTimes": [
+   14.101
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564567362
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564567398
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564768105
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564771543
+   }
+  ],
+  "ReleasingTimes": [
+   3.438
+  ],
+  "UnloadingStart": {
+   "$date": 1656564771741
+  },
+  "UnloadingTime": 3.036,
+  "Pallet": 1,
+  "FeedOverride": 95.13518,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 71.16329,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdb5829db3a3e7b68048d1"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:53:01.592+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564781592
+  },
+  "Stop": {
+   "$date": 1656565009473
+  },
+  "CycleTime": 218.336,
+  "Duration": 227.881,
+  "ActiveTime": 223.964,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564787105
+  },
+  "LoadingTime": 5.513,
+  "ClampingStarts": [
+   {
+    "$date": 1656564787921
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564802046
+   }
+  ],
+  "ClampingTimes": [
+   14.125
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564802046
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564802076
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656565002831
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656565006257
+   }
+  ],
+  "ReleasingTimes": [
+   3.426
+  ],
+  "UnloadingStart": {
+   "$date": 1656565006455
+  },
+  "UnloadingTime": 3.018,
+  "Pallet": 1,
+  "FeedOverride": 95.22405,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 69.45132,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdb8b99db3a3e7b68048d2"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:37:22.715+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656563842715
+  },
+  "Stop": {
+   "$date": 1656564070692
+  },
+  "CycleTime": 218.322,
+  "Duration": 227.977,
+  "ActiveTime": 223.886,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656563848218
+  },
+  "LoadingTime": 5.503,
+  "ClampingStarts": [
+   {
+    "$date": 1656563849160
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656563863463
+   }
+  ],
+  "ClampingTimes": [
+   14.303
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656563863463
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656563863499
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564064062
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564067482
+   }
+  ],
+  "ReleasingTimes": [
+   3.42
+  ],
+  "UnloadingStart": {
+   "$date": 1656564067680
+  },
+  "UnloadingTime": 3.012,
+  "Pallet": 1,
+  "FeedOverride": 95.247116,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 76.250854,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdae999db3a3e7b68048ce"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:41:17.503+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564077503
+  },
+  "Stop": {
+   "$date": 1656564305390
+  },
+  "CycleTime": 218.238,
+  "Duration": 227.887,
+  "ActiveTime": 223.891,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564082981
+  },
+  "LoadingTime": 5.478,
+  "ClampingStarts": [
+   {
+    "$date": 1656564083887
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564097985
+   }
+  ],
+  "ClampingTimes": [
+   14.098
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564097985
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564098021
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564298723
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564302125
+   }
+  ],
+  "ReleasingTimes": [
+   3.402
+  ],
+  "UnloadingStart": {
+   "$date": 1656564302323
+  },
+  "UnloadingTime": 3.067,
+  "Pallet": 1,
+  "FeedOverride": 95.213646,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 74.52308,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdb0e89db3a3e7b68048cf"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:45:12.194+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564312194
+  },
+  "Stop": {
+   "$date": 1656564540014
+  },
+  "CycleTime": 218.168,
+  "Duration": 227.82,
+  "ActiveTime": 223.866,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564317653
+  },
+  "LoadingTime": 5.459,
+  "ClampingStarts": [
+   {
+    "$date": 1656564318595
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564332732
+   }
+  ],
+  "ClampingTimes": [
+   14.137
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564332732
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564332762
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564533361
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564536763
+   }
+  ],
+  "ReleasingTimes": [
+   3.402
+  ],
+  "UnloadingStart": {
+   "$date": 1656564536961
+  },
+  "UnloadingTime": 3.053,
+  "Pallet": 1,
+  "FeedOverride": 95.254395,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 72.8097,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdb3379db3a3e7b68048d0"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:49:06.866+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564546866
+  },
+  "Stop": {
+   "$date": 1656564774777
+  },
+  "CycleTime": 218.282,
+  "Duration": 227.911,
+  "ActiveTime": 223.921,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564552343
+  },
+  "LoadingTime": 5.477,
+  "ClampingStarts": [
+   {
+    "$date": 1656564553261
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564567362
+   }
+  ],
+  "ClampingTimes": [
+   14.101
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564567362
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564567398
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564768105
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564771543
+   }
+  ],
+  "ReleasingTimes": [
+   3.438
+  ],
+  "UnloadingStart": {
+   "$date": 1656564771741
+  },
+  "UnloadingTime": 3.036,
+  "Pallet": 1,
+  "FeedOverride": 95.13518,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 71.16329,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdb5829db3a3e7b68048d1"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:53:01.592+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564781592
+  },
+  "Stop": {
+   "$date": 1656565009473
+  },
+  "CycleTime": 218.336,
+  "Duration": 227.881,
+  "ActiveTime": 223.964,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564787105
+  },
+  "LoadingTime": 5.513,
+  "ClampingStarts": [
+   {
+    "$date": 1656564787921
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564802046
+   }
+  ],
+  "ClampingTimes": [
+   14.125
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564802046
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564802076
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656565002831
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656565006257
+   }
+  ],
+  "ReleasingTimes": [
+   3.426
+  ],
+  "UnloadingStart": {
+   "$date": 1656565006455
+  },
+  "UnloadingTime": 3.018,
+  "Pallet": 1,
+  "FeedOverride": 95.22405,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 69.45132,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62bdb8b99db3a3e7b68048d2"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:28:54.876+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656563334876
+  },
+  "Stop": {
+   "$date": 1656565349557
+  },
+  "CycleTime": 218.588,
+  "Duration": 2014.681,
+  "ActiveTime": 224.094,
+  "Quality": 0,
+  "LoadingStop": {
+   "$date": 1656565113025
+  },
+  "LoadingTime": 5.495,
+  "ClampingStarts": [
+   {
+    "$date": 1656565113955
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656565128432
+   }
+  ],
+  "ClampingTimes": [
+   14.477
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656565128432
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656565128468
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656563334876
+   },
+   {
+    "$date": 1656565329145
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656563337761
+   },
+   {
+    "$date": 1656565332543
+   }
+  ],
+  "ReleasingTimes": [
+   2.885,
+   3.398
+  ],
+  "UnloadingStart": {
+   "$date": 0
+  },
+  "UnloadingTime": 0,
+  "Pallet": 1,
+  "FeedOverride": 95.467735,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 67.521515,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfab9f9db3a3e7b68048d3"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:33:10.848+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656563590848
+  },
+  "Stop": {
+   "$date": 1656563835936
+  },
+  "CycleTime": 235.518,
+  "Duration": 245.088,
+  "ActiveTime": 241.032,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656563596272
+  },
+  "LoadingTime": 5.424,
+  "ClampingStarts": [
+   {
+    "$date": 1656563597148
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656563611282
+   }
+  ],
+  "ClampingTimes": [
+   14.134
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656563611282
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656563611312
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656563829246
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656563832666
+   }
+  ],
+  "ReleasingTimes": [
+   3.42
+  ],
+  "UnloadingStart": {
+   "$date": 1656563832864
+  },
+  "UnloadingTime": 3.072,
+  "Pallet": 1,
+  "FeedOverride": 95.481026,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 79.14345,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfb05d9db3a3e7b68048d5"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:45:12.194+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564312194
+  },
+  "Stop": {
+   "$date": 1656564540014
+  },
+  "CycleTime": 218.168,
+  "Duration": 227.82,
+  "ActiveTime": 223.866,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564317653
+  },
+  "LoadingTime": 5.459,
+  "ClampingStarts": [
+   {
+    "$date": 1656564318595
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564332732
+   }
+  ],
+  "ClampingTimes": [
+   14.137
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564332732
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564332762
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564533361
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564536763
+   }
+  ],
+  "ReleasingTimes": [
+   3.402
+  ],
+  "UnloadingStart": {
+   "$date": 1656564536961
+  },
+  "UnloadingTime": 3.053,
+  "Pallet": 1,
+  "FeedOverride": 95.254395,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 72.8097,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfb7139db3a3e7b68048d8"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T05:42:48.56+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656567768560
+  },
+  "Stop": {
+   "$date": 1656568013757
+  },
+  "CycleTime": 235.609,
+  "Duration": 245.197,
+  "ActiveTime": 241.112,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656567774026
+  },
+  "LoadingTime": 5.466,
+  "ClampingStarts": [
+   {
+    "$date": 1656567774925
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656567789080
+   }
+  ],
+  "ClampingTimes": [
+   14.155
+  ],
+  "AdjustingStarts": null,
+  "AdjustingStops": null,
+  "AdjustingTimes": null,
+  "ReleasingStarts": [
+   {
+    "$date": 1656568007102
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656568010534
+   }
+  ],
+  "ReleasingTimes": [
+   3.432
+  ],
+  "UnloadingStart": {
+   "$date": 1656568010732
+  },
+  "UnloadingTime": 3.025,
+  "Pallet": 1,
+  "FeedOverride": 95.51972,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 79.14261,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfd6a29db3a3e7b68048dd"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T05:55:24.512+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656568524512
+  },
+  "Stop": {
+   "$date": 1656568769920
+  },
+  "CycleTime": 235.8,
+  "Duration": 245.408,
+  "ActiveTime": 241.448,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656568529986
+  },
+  "LoadingTime": 5.474,
+  "ClampingStarts": [
+   {
+    "$date": 1656568530874
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656568544996
+   }
+  ],
+  "ClampingTimes": [
+   14.122
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656568544996
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656568545032
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656568763290
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656568766674
+   }
+  ],
+  "ReleasingTimes": [
+   3.384
+  ],
+  "UnloadingStart": {
+   "$date": 1656568766884
+  },
+  "UnloadingTime": 3.036,
+  "Pallet": 1,
+  "FeedOverride": 95.46243,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 79.17732,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfdcd59db3a3e7b68048e0"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T05:59:36.753+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656568776753
+  },
+  "Stop": {
+   "$date": 1656569005018
+  },
+  "CycleTime": 218.696,
+  "Duration": 228.265,
+  "ActiveTime": 224.293,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656568782212
+  },
+  "LoadingTime": 5.459,
+  "ClampingStarts": [
+   {
+    "$date": 1656568783106
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656568797405
+   }
+  ],
+  "ClampingTimes": [
+   14.299
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656568797405
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656568797441
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656568998347
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656569001802
+   }
+  ],
+  "ReleasingTimes": [
+   3.455
+  ],
+  "UnloadingStart": {
+   "$date": 1656569002000
+  },
+  "UnloadingTime": 3.018,
+  "Pallet": 1,
+  "FeedOverride": 95.21106,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 76.20223,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfdec39db3a3e7b68048e1"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T06:19:11.214+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656569951214
+  },
+  "Stop": {
+   "$date": 1656570179449
+  },
+  "CycleTime": 218.657,
+  "Duration": 228.235,
+  "ActiveTime": 224.245,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656569956700
+  },
+  "LoadingTime": 5.486,
+  "ClampingStarts": [
+   {
+    "$date": 1656569957564
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656569971704
+   }
+  ],
+  "ClampingTimes": [
+   14.14
+  ],
+  "AdjustingStarts": null,
+  "AdjustingStops": null,
+  "AdjustingTimes": null,
+  "ReleasingStarts": [
+   {
+    "$date": 1656570172832
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656570176221
+   }
+  ],
+  "ReleasingTimes": [
+   3.389
+  ],
+  "UnloadingStart": {
+   "$date": 1656570176413
+  },
+  "UnloadingTime": 3.036,
+  "Pallet": 1,
+  "FeedOverride": 95.14997,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 67.83155,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfe84b9db3a3e7b68048e6"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T06:27:01.161+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656570421161
+  },
+  "Stop": {
+   "$date": 1656570649269
+  },
+  "CycleTime": 218.444,
+  "Duration": 228.108,
+  "ActiveTime": 224.078,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656570426620
+  },
+  "LoadingTime": 5.459,
+  "ClampingStarts": [
+   {
+    "$date": 1656570427556
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656570441601
+   }
+  ],
+  "ClampingTimes": [
+   14.045
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656570441601
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656570441637
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656570642604
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656570646000
+   }
+  ],
+  "ReleasingTimes": [
+   3.396
+  ],
+  "UnloadingStart": {
+   "$date": 1656570646198
+  },
+  "UnloadingTime": 3.071,
+  "Pallet": 1,
+  "FeedOverride": 95.21304,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 65.832985,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfec1e9db3a3e7b68048e8"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T06:30:56.109+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656570656109
+  },
+  "Stop": {
+   "$date": 1656570884014
+  },
+  "CycleTime": 218.36,
+  "Duration": 227.905,
+  "ActiveTime": 224.023,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656570661568
+  },
+  "LoadingTime": 5.459,
+  "ClampingStarts": [
+   {
+    "$date": 1656570662378
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656570676437
+   }
+  ],
+  "ClampingTimes": [
+   14.059
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656570676437
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656570676467
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656570877312
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656570880738
+   }
+  ],
+  "ReleasingTimes": [
+   3.426
+  ],
+  "UnloadingStart": {
+   "$date": 1656570880936
+  },
+  "UnloadingTime": 3.078,
+  "Pallet": 1,
+  "FeedOverride": 95.22719,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 65.79951,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfee079db3a3e7b68048e9"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:28:59.033+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656563339033
+  },
+  "Stop": {
+   "$date": 1656563584019
+  },
+  "CycleTime": 235.452,
+  "Duration": 244.986,
+  "ActiveTime": 241.05,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656563344427
+  },
+  "LoadingTime": 5.394,
+  "ClampingStarts": [
+   {
+    "$date": 1656563345351
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656563359605
+   }
+  ],
+  "ClampingTimes": [
+   14.254
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656563359605
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656563359635
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656563577401
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656563580803
+   }
+  ],
+  "ReleasingTimes": [
+   3.402
+  ],
+  "UnloadingStart": {
+   "$date": 1656563580995
+  },
+  "UnloadingTime": 3.024,
+  "Pallet": 1,
+  "FeedOverride": 95.54527,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 79.145546,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfadf59db3a3e7b68048d4"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:37:22.715+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656563842715
+  },
+  "Stop": {
+   "$date": 1656564070692
+  },
+  "CycleTime": 218.322,
+  "Duration": 227.977,
+  "ActiveTime": 223.886,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656563848218
+  },
+  "LoadingTime": 5.503,
+  "ClampingStarts": [
+   {
+    "$date": 1656563849160
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656563863463
+   }
+  ],
+  "ClampingTimes": [
+   14.303
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656563863463
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656563863499
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564064062
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564067482
+   }
+  ],
+  "ReleasingTimes": [
+   3.42
+  ],
+  "UnloadingStart": {
+   "$date": 1656564067680
+  },
+  "UnloadingTime": 3.012,
+  "Pallet": 1,
+  "FeedOverride": 95.247116,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 76.250854,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfb2999db3a3e7b68048d6"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:41:17.503+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564077503
+  },
+  "Stop": {
+   "$date": 1656564305390
+  },
+  "CycleTime": 218.238,
+  "Duration": 227.887,
+  "ActiveTime": 223.891,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564082981
+  },
+  "LoadingTime": 5.478,
+  "ClampingStarts": [
+   {
+    "$date": 1656564083887
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564097985
+   }
+  ],
+  "ClampingTimes": [
+   14.098
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564097985
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564098021
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564298723
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564302125
+   }
+  ],
+  "ReleasingTimes": [
+   3.402
+  ],
+  "UnloadingStart": {
+   "$date": 1656564302323
+  },
+  "UnloadingTime": 3.067,
+  "Pallet": 1,
+  "FeedOverride": 95.213646,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 74.52308,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfb4d79db3a3e7b68048d7"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:49:06.866+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564546866
+  },
+  "Stop": {
+   "$date": 1656564774777
+  },
+  "CycleTime": 218.282,
+  "Duration": 227.911,
+  "ActiveTime": 223.921,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564552343
+  },
+  "LoadingTime": 5.477,
+  "ClampingStarts": [
+   {
+    "$date": 1656564553261
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564567362
+   }
+  ],
+  "ClampingTimes": [
+   14.101
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564567362
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564567398
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656564768105
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656564771543
+   }
+  ],
+  "ReleasingTimes": [
+   3.438
+  ],
+  "UnloadingStart": {
+   "$date": 1656564771741
+  },
+  "UnloadingTime": 3.036,
+  "Pallet": 1,
+  "FeedOverride": 95.13518,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 71.16329,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfb94d9db3a3e7b68048d9"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:53:01.592+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656564781592
+  },
+  "Stop": {
+   "$date": 1656565009473
+  },
+  "CycleTime": 218.336,
+  "Duration": 227.881,
+  "ActiveTime": 223.964,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656564787105
+  },
+  "LoadingTime": 5.513,
+  "ClampingStarts": [
+   {
+    "$date": 1656564787921
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656564802046
+   }
+  ],
+  "ClampingTimes": [
+   14.125
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656564802046
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656564802076
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656565002831
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656565006257
+   }
+  ],
+  "ReleasingTimes": [
+   3.426
+  ],
+  "UnloadingStart": {
+   "$date": 1656565006455
+  },
+  "UnloadingTime": 3.018,
+  "Pallet": 1,
+  "FeedOverride": 95.22405,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 69.45132,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfbc6f9db3a3e7b68048da"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T04:58:27.53+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656565107530
+  },
+  "Stop": {
+   "$date": 1656567486050
+  },
+  "CycleTime": 218.588,
+  "Duration": 2378.52,
+  "ActiveTime": 221.233,
+  "Quality": 0,
+  "LoadingStop": {
+   "$date": 1656565113025
+  },
+  "LoadingTime": 5.495,
+  "ClampingStarts": [
+   {
+    "$date": 1656565113955
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656565128432
+   }
+  ],
+  "ClampingTimes": [
+   14.477
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656565128432
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656565128468
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656565329145
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656565332543
+   }
+  ],
+  "ReleasingTimes": [
+   3.398
+  ],
+  "UnloadingStart": {
+   "$date": 1656567486026
+  },
+  "UnloadingTime": 0.024,
+  "Pallet": 1,
+  "FeedOverride": 95.39224,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 66.80654,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfd2819db3a3e7b68048db"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T05:47:00.591+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656568020591
+  },
+  "Stop": {
+   "$date": 1656568265852
+  },
+  "CycleTime": 235.674,
+  "Duration": 245.261,
+  "ActiveTime": 241.247,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656568026002
+  },
+  "LoadingTime": 5.411,
+  "ClampingStarts": [
+   {
+    "$date": 1656568026926
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656568041243
+   }
+  ],
+  "ClampingTimes": [
+   14.317
+  ],
+  "AdjustingStarts": null,
+  "AdjustingStops": null,
+  "AdjustingTimes": null,
+  "ReleasingStarts": [
+   {
+    "$date": 1656568259229
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656568262600
+   }
+  ],
+  "ReleasingTimes": [
+   3.371
+  ],
+  "UnloadingStart": {
+   "$date": 1656568262804
+  },
+  "UnloadingTime": 3.048,
+  "Pallet": 1,
+  "FeedOverride": 95.472,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 79.143814,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfd8b49db3a3e7b68048de"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T05:51:12.652+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656568272652
+  },
+  "Stop": {
+   "$date": 1656568517679
+  },
+  "CycleTime": 235.476,
+  "Duration": 245.027,
+  "ActiveTime": 241.062,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656568278123
+  },
+  "LoadingTime": 5.471,
+  "ClampingStarts": [
+   {
+    "$date": 1656568278993
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656568293038
+   }
+  ],
+  "ClampingTimes": [
+   14.045
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656568293038
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656568293074
+   }
+  ],
+  "AdjustingTimes": [
+   0.036
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656568511050
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656568514469
+   }
+  ],
+  "ReleasingTimes": [
+   3.419
+  ],
+  "UnloadingStart": {
+   "$date": 1656568514667
+  },
+  "UnloadingTime": 3.012,
+  "Pallet": 1,
+  "FeedOverride": 95.36729,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 79.129776,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfdac49db3a3e7b68048df"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T06:11:22.176+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656569482176
+  },
+  "Stop": {
+   "$date": 1656569709691
+  },
+  "CycleTime": 217.97,
+  "Duration": 227.515,
+  "ActiveTime": 223.579,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656569487599
+  },
+  "LoadingTime": 5.423,
+  "ClampingStarts": [
+   {
+    "$date": 1656569488475
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656569502480
+   }
+  ],
+  "ClampingTimes": [
+   14.005
+  ],
+  "AdjustingStarts": [
+   {
+    "$date": 1656569502480
+   }
+  ],
+  "AdjustingStops": [
+   {
+    "$date": 1656569502510
+   }
+  ],
+  "AdjustingTimes": [
+   0.03
+  ],
+  "ReleasingStarts": [
+   {
+    "$date": 1656569703025
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656569706445
+   }
+  ],
+  "ReleasingTimes": [
+   3.42
+  ],
+  "UnloadingStart": {
+   "$date": 1656569706649
+  },
+  "UnloadingTime": 3.042,
+  "Pallet": 1,
+  "FeedOverride": 95.21374,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 71.12312,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfe47d9db3a3e7b68048e4"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}{
+ "_id": {
+  "$oid": ""
+ },
+ "MA": "ma-005620",
+ "TimeStamp": "2022-06-30T06:34:50.823+00:00",
+ "Version": 1,
+ "DocumentType": "T1ComponentMain",
+ "DocumentBody": {
+  "Start": {
+   "$date": 1656570890823
+  },
+  "Stop": {
+   "$date": 1656571118782
+  },
+  "CycleTime": 218.42,
+  "Duration": 227.959,
+  "ActiveTime": 224.042,
+  "Quality": 1,
+  "LoadingStop": {
+   "$date": 1656570896301
+  },
+  "LoadingTime": 5.478,
+  "ClampingStarts": [
+   {
+    "$date": 1656570897116
+   }
+  ],
+  "ClampingStops": [
+   {
+    "$date": 1656570911307
+   }
+  ],
+  "ClampingTimes": [
+   14.191
+  ],
+  "AdjustingStarts": null,
+  "AdjustingStops": null,
+  "AdjustingTimes": null,
+  "ReleasingStarts": [
+   {
+    "$date": 1656571112099
+   }
+  ],
+  "ReleasingStops": [
+   {
+    "$date": 1656571115536
+   }
+  ],
+  "ReleasingTimes": [
+   3.437
+  ],
+  "UnloadingStart": {
+   "$date": 1656571115734
+  },
+  "UnloadingTime": 3.048,
+  "Pallet": 1,
+  "FeedOverride": 95.19674,
+  "FeedOverrideRapid": 100,
+  "SpindleOverride": 100,
+  "ToolChangeOveride": 65.8184,
+  "SpindleNumber": 1,
+  "ReleaseLocked": false,
+  "NokTBr": false,
+  "NokTMo": false,
+  "NokRew": false,
+  "NokCla": false,
+  "NokWpc": false,
+  "NokNcP": false,
+  "ProductionCondUnavail": false,
+  "PalletchangeStarts": null,
+  "PalletchangeStops": null,
+  "PalletchangeTimes": null,
+  "CarrierID": 1,
+  "ComponentCode": "",
+  "ComponentName": "",
+  "ComponentIdent": "",
+  "ComponentVersion": "",
+  "CycleTimeLoss": 0,
+  "CycleTimeGain": 0,
+  "mongo_ref": {
+   "_id": {
+    "$oid": "62dfeff29db3a3e7b68048ea"
+   },
+   "collection": "Components_from_fast"
+  }
+ }
+}

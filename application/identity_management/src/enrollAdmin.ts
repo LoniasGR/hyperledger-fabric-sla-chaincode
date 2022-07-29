@@ -16,6 +16,7 @@ async function enrollAdmin(org: number, ledger: string): Promise<void> {
       '..',
       '..',
       '..',
+      '..',
       'test-network',
       'organizations',
       'peerOrganizations',

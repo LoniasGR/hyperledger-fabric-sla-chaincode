@@ -1,8 +1,8 @@
 {
-  "name": "create_user",
+  "name": "identity_management",
   "version": "0.1.0",
-  "description": "Creates users for an hyperledger organization",
-  "main": "index.ts",
+  "description": "Manages users' information for an hyperledger organization",
+  "main": "src/index.ts",
   "license": "MIT",
   "private": true,
   "engines": {
@@ -31,8 +31,9 @@
     "typescript": "^4.6.2"
   },
   "scripts": {
-    "start": "node index.ts",
-    "dev": "npm run clean; nodemon index.ts",
-    "clean": "rm -rf ./wallet"
+    "start": "node build/src/index.js",
+    "dev": "npm run clean; nodemon src/index.ts",
+    "build-dist": "./node_modules/typescript/bin/tsc",
+    "clean": "rm -rf ./wallet_*"
   }
 }
