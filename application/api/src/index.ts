@@ -1,9 +1,10 @@
 import * as grpc from '@grpc/grpc-js';
-import { connect, Gateway, GatewayError } from '@hyperledger/fabric-gateway';
+import { connect, Gateway } from '@hyperledger/fabric-gateway';
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 
+import axios from 'axios';
 import * as utils from './utils';
 import * as constants from './constants';
 import { queryUsersByPublicKey, queryVRUTimeRange, queryPartsTimeRange } from './ledger';
@@ -32,16 +33,27 @@ type GatewayAndKeys = {
 type GatewayOrError = {
   error?: Error,
   gateway?: GatewayAndKeys,
+  org?: number,
 };
 
-async function initialize(key:string, cert:string): Promise<Connections> {
-  await utils.displayInputParameters();
+async function initialize(key:string, cert:string, org: number): Promise<Connections> {
+  console.log(org);
+  await utils.displayInputParameters(org);
+
+  const {
+    mspId, tlsCertPath, peerEndpoint, peerHostAlias,
+  } = constants.orgConstants[org - 1];
 
   // The gRPC client connection should be shared by all Gateway connections to this endpoint.
-  const client = await utils.newGrpcConnection();
+  const grpcClient = await utils.newGrpcConnection(
+    tlsCertPath,
+    peerEndpoint,
+    peerHostAlias,
+  );
+
   const gateway = connect({
-    client,
-    identity: utils.newIdentity(cert),
+    client: grpcClient,
+    identity: utils.newIdentity(cert, mspId),
     signer: utils.newSigner(key),
     // Default timeouts for different gRPC calls
     evaluateOptions: () => ({ deadline: Date.now() + 5000 }), // 5 seconds
@@ -50,7 +62,7 @@ async function initialize(key:string, cert:string): Promise<Connections> {
     commitStatusOptions: () => ({ deadline: Date.now() + 60000 }), // 1 minute
   });
 
-  return { gateway, grpcClient: client };
+  return { gateway, grpcClient };
 }
 
 async function checkAndInitializeKeys(key: string, cert: string): Promise<GatewayOrError> {
@@ -61,12 +73,24 @@ async function checkAndInitializeKeys(key: string, cert: string): Promise<Gatewa
     return { error: { success, error } };
   }
 
+  const result = await axios.post(`${constants.userManagementServiceURL}/exists`, { cert });
+  console.debug(result.data);
+  if (result.data.success === false) {
+    return { error: { success: false, error: result.data.error } };
+  }
+
+  if (result.data.exists === false) {
+    return { error: { success: false, error: 'User does not exist' } };
+  }
+  const { organisation } = result.data;
+
   const { keyPEM, certPEM } = keysWithStatus;
-  const { gateway, grpcClient } = await initialize(keyPEM, certPEM);
+  const { gateway, grpcClient } = await initialize(keyPEM, certPEM, organisation);
   return {
     gateway: {
       gateway, grpcClient, keyPEM, certPEM,
     },
+    org: organisation,
   };
 }
 
@@ -75,9 +99,14 @@ app.post('/balance', async (req, res) => {
   const gatewayOrError = await checkAndInitializeKeys(key, cert);
   if (gatewayOrError.error !== undefined) {
     const { success, error } = gatewayOrError.error;
-    res.send({ success, error });
+    return res.send({ success, error });
   }
-  const gt = gatewayOrError.gateway!;
+
+  if (gatewayOrError.org !== 1) {
+    return res.send({ success: false, error: 'User does not exist in this ledger' });
+  }
+
+  const gt: GatewayAndKeys = gatewayOrError.gateway!;
   const {
     gateway, grpcClient, certPEM,
   } = gt;
@@ -91,8 +120,8 @@ app.post('/balance', async (req, res) => {
 
     // Get the asset details by assetID.
     const userOrError = await queryUsersByPublicKey(contract, utils.oneLiner(certPEM));
-    if(typeof userOrError !==  "object") {
-      return res.send({success: false, error: userOrError})
+    if (typeof userOrError !== 'object') {
+      return res.send({ success: false, error: userOrError });
     }
     return res.send({ success: true, user: userOrError });
   } finally {
@@ -106,11 +135,17 @@ app.post('/vru/incidents', async (req, res) => {
     key, cert, startDate, endDate,
   } = req.body;
   const gatewayOrError = await checkAndInitializeKeys(key, cert);
+
   if (gatewayOrError.error !== undefined) {
     const { success, error } = gatewayOrError.error;
-    res.send({ success, error });
+    return res.send({ success, error });
   }
-  const gt = gatewayOrError.gateway!;
+
+  if (gatewayOrError.org !== 2) {
+    return res.send({ success: false, error: 'User does not exist in this ledger' });
+  }
+
+  const gt: GatewayAndKeys = gatewayOrError.gateway!;
   const {
     gateway, grpcClient,
   } = gt;
@@ -137,11 +172,17 @@ app.post('/parts', async (req, res) => {
   } = req.body;
 
   const gatewayOrError = await checkAndInitializeKeys(key, cert);
+
   if (gatewayOrError.error !== undefined) {
     const { success, error } = gatewayOrError.error;
-    res.send({ success, error });
+    return res.send({ success, error });
   }
-  const gt = gatewayOrError.gateway!;
+
+  if (gatewayOrError.org !== 3) {
+    return res.send({ success: false, error: 'User does not exist in this ledger' });
+  }
+
+  const gt: GatewayAndKeys = gatewayOrError.gateway!;
   const {
     gateway, grpcClient,
   } = gt;
@@ -164,5 +205,4 @@ app.post('/parts', async (req, res) => {
 
 app.listen(constants.expressPort, () => {
   console.debug(`⚡️[server]: Server is running at https://localhost:${constants.expressPort}`);
-  utils.displayInputParameters();
 });

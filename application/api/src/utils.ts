@@ -16,7 +16,7 @@ export type KeysWithStatus = {
 /**
  * displayInputParameters() will print the global scope parameters used by the main driver routine.
  */
-export async function displayInputParameters(): Promise<void> {
+export async function displayInputParameters(org: number): Promise<void> {
   console.debug('*********************************');
   console.debug('**      INPUT PARAMETERS       **');
   console.debug(`SLA channelName:       ${constants.SLAChannelName}`);
@@ -25,25 +25,47 @@ export async function displayInputParameters(): Promise<void> {
   console.debug(`VRU chaincodeName:     ${constants.VRUChaincodeName}`);
   console.debug(`Parts channelName:       ${constants.PartsChannelName}`);
   console.debug(`Parts chaincodeName:     ${constants.PartsChaincodeName}`);
-  console.debug(`mspId:             ${constants.mspId}`);
-  console.debug(`cryptoPath:        ${constants.cryptoPath}`);
-  console.debug(`tlsCertPath:       ${constants.tlsCertPath}`);
-  console.debug(`peerEndpoint:      ${constants.peerEndpoint}`);
-  console.debug(`peerHostAlias:     ${constants.peerHostAlias}`);
+  if (org === 1) {
+    console.debug('**          ORG 1              **');
+    console.debug(`mspId:             ${constants.org1MSPId}`);
+    console.debug(`cryptoPath:        ${constants.org1CryptoPath}`);
+    console.debug(`tlsCertPath:       ${constants.org1TlsCertPath}`);
+    console.debug(`peerEndpoint:      ${constants.org1PeerEndpoint}`);
+    console.debug(`peerHostAlias:     ${constants.org1PeerHostAlias}`);
+  }
+  if (org === 2) {
+    console.debug('**          ORG 2              **');
+    console.debug(`mspId:             ${constants.org2MSPId}`);
+    console.debug(`cryptoPath:        ${constants.org2CryptoPath}`);
+    console.debug(`tlsCertPath:       ${constants.org2TlsCertPath}`);
+    console.debug(`peerEndpoint:      ${constants.org2PeerEndpoint}`);
+    console.debug(`peerHostAlias:     ${constants.org2PeerHostAlias}`);
+  }
+  if (org === 3) {
+    console.debug('**          ORG 3              **');
+    console.debug(`mspId:             ${constants.org3MSPId}`);
+    console.debug(`cryptoPath:        ${constants.org3CryptoPath}`);
+    console.debug(`tlsCertPath:       ${constants.org3TlsCertPath}`);
+    console.debug(`peerEndpoint:      ${constants.org3PeerEndpoint}`);
+    console.debug(`peerHostAlias:     ${constants.org3PeerHostAlias}`);
+  }
   console.debug('*********************************');
 }
 
-export async function newGrpcConnection(): Promise<grpc.Client> {
-  const tlsRootCert = await fs.readFile(constants.tlsCertPath);
+export async function newGrpcConnection(
+  tlsCertPath:string,
+  peerEndpoint:string,
+  peerHostAlias: string,
+): Promise<grpc.Client> {
+  const tlsRootCert = await fs.readFile(tlsCertPath);
   const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
-  return new grpc.Client(constants.peerEndpoint, tlsCredentials, {
-    'grpc.ssl_target_name_override': constants.peerHostAlias,
+  return new grpc.Client(peerEndpoint, tlsCredentials, {
+    'grpc.ssl_target_name_override': peerHostAlias,
   });
 }
 
-export function newIdentity(cert: string):Identity {
+export function newIdentity(cert: string, mspId: string):Identity {
   const credentials = Buffer.from(cert);
-  const { mspId } = constants;
   return { mspId, credentials };
 }
 
