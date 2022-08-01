@@ -12,7 +12,7 @@ else
 fi
 
 if [ -z "$2" ]; then
-   PORT=8000
+   PORT=8005
 else
    PORT="$2"
 fi
