@@ -34,6 +34,7 @@ type GatewayOrError = {
   error?: Error,
   gateway?: GatewayAndKeys,
   org?: number,
+  username?: string,
 };
 
 async function initialize(key:string, cert:string, org: number): Promise<Connections> {
@@ -82,7 +83,7 @@ async function checkAndInitializeKeys(key: string, cert: string): Promise<Gatewa
   if (result.data.exists === false) {
     return { error: { success: false, error: 'User does not exist' } };
   }
-  const { organisation } = result.data;
+  const { organisation, username } = result.data;
 
   const { keyPEM, certPEM } = keysWithStatus;
   const { gateway, grpcClient } = await initialize(keyPEM, certPEM, organisation);
@@ -91,8 +92,22 @@ async function checkAndInitializeKeys(key: string, cert: string): Promise<Gatewa
       gateway, grpcClient, keyPEM, certPEM,
     },
     org: organisation,
+    username: username,
   };
 }
+
+app.post('/init', async (req, res) => {
+  const { key, cert } = req.body;
+  const gatewayOrError : GatewayOrError = await checkAndInitializeKeys(key, cert);
+
+  if (gatewayOrError.error !== undefined) {
+    const { success, error } = gatewayOrError.error;
+    return res.send({ success, error });
+  }
+
+  return res.send({success: true, organisation: gatewayOrError.org, username: gatewayOrError.username});
+});
+
 
 app.post('/balance', async (req, res) => {
   const { key, cert } = req.body;

@@ -116,9 +116,12 @@ export async function createUser(
   }
 }
 
-export async function userExists(cert: string): Promise<{found: boolean, org: number}> {
+export async function userExists(cert: string):
+  Promise<{found: boolean, org: number, username:string}> {
   let found = false;
   let org = 0;
+  let username = '';
+
   const asyncUsers: Array<Promise<Array<string>>> = [];
   const asyncCredentials: Array<Promise<Identity | undefined>> = [];
   const credentials = [];
@@ -136,7 +139,7 @@ export async function userExists(cert: string): Promise<{found: boolean, org: nu
   }
 
   for (let i = 0; i < wallet.length; i += 1) {
-    for (let u = 0; u < users.length; u += 1) {
+    for (let u = 0; u < users[i].length; u += 1) {
       const user = credentials[i][u];
       if (user !== undefined) {
         const userJSON = JSON.stringify(user);
@@ -144,10 +147,11 @@ export async function userExists(cert: string): Promise<{found: boolean, org: nu
         if (toPEMFormat(cert) === toPEMFormat(actualUser.credentials.certificate)) {
           found = true;
           org = i + 1;
+          username = users[i][u];
           break;
         }
       }
     }
   }
-  return { found, org };
+  return { found, org, username };
 }

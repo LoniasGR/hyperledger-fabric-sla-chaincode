@@ -31,8 +31,11 @@ app.post('/create', async (req, res) => {
 
 app.post('/exists', async (req, res) => {
   const { cert } = req.body;
-  const { found, org } = await userExists(cert);
-  return res.json({ success: true, exists: found, organisation: org });
+  const { found, org, username } = await userExists(cert);
+  console.debug(`User ${username} found on organisation ${org}`);
+  return res.json({
+    success: true, exists: found, organisation: org, username,
+  });
 });
 
 app.listen(port, () => {
