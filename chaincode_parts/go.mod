@@ -3,7 +3,7 @@ module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/chaincode_parts
 go 1.17
 
 require (
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220630204429-7d76acc995a5
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220808134520-5f069a3850a4
 	github.com/hyperledger/fabric-contract-api-go v1.1.1
 )
 
