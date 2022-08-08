@@ -18,7 +18,12 @@ type UserKeys struct {
 	PrivateKey string `json:"privateKey"`
 }
 
-func UserExistsOrCreate(contract *gateway.Contract, name, id string) (bool, string, error) {
+type UserRequest struct {
+	Username     string `json:"username"`
+	Organization int    `json:"org"`
+}
+
+func UserExistsOrCreate(contract *gateway.Contract, name, id string, org int) (bool, string, error) {
 	result, err := contract.EvaluateTransaction("UserExists", id)
 	if err != nil {
 		err = fmt.Errorf(string(ColorRed)+"failed to submit transaction: %s\n"+string(ColorReset), err)
@@ -30,8 +35,9 @@ func UserExistsOrCreate(contract *gateway.Contract, name, id string) (bool, stri
 		return false, "", err
 	}
 	if !result_bool {
-		postBody, err := json.Marshal(map[string]string{
-			"username": id,
+		postBody, err := json.Marshal(UserRequest{
+			Username:     name,
+			Organization: org,
 		})
 		if err != nil {
 			err = fmt.Errorf(string(ColorRed)+"failed to marshall post request: %s\n"+string(ColorReset), err)
