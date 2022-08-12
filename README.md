@@ -83,7 +83,7 @@ Password: exploreradminpw
 - [x] UC2: High Risk/Low Risk/No Risk data on wallet []
 - [x] Video wallet demo
 
-- [ ] Different users/OUs to different channels. [priority 1]
+- [x] Different users/OUs to different channels. [priority 1]
 - Instead of OUs use different ORGs?
 - The UserCreation service will check in which orgs/MSPs the user exists.
 
