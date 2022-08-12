@@ -81,9 +81,12 @@ Password: exploreradminpw
 - [ ] Connect wallets, violation function and ERC-20
 
 - [x] UC2: High Risk/Low Risk/No Risk data on wallet []
-- [ ] Video wallet demo
+- [x] Video wallet demo
 
 - [ ] Different users/OUs to different channels. [priority 1]
+- Instead of OUs use different ORGs?
+- The UserCreation service will check in which orgs/MSPs the user exists.
+
 - [ ] Clients connect to our own status node. Check out how the client works. [priority 2]
 - [ ] Containerize the client.
 - [ ] Move to Kubernetes.
