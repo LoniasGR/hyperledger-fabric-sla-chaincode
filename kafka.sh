@@ -2,7 +2,7 @@
 
 set -e
 
-pushd .kafka/docker/
+pushd ./kafka/docker/
 
 if [ "$1" = "down" ]; then
     docker-compose down

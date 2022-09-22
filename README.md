@@ -81,13 +81,13 @@ Password: exploreradminpw
 - [ ] Connect wallets, violation function and ERC-20
 
 - [x] UC2: High Risk/Low Risk/No Risk data on wallet []
-- [x] Video wallet demo
 
 - [x] Different users/OUs to different channels. [priority 1]
-- Instead of OUs use different ORGs?
-- The UserCreation service will check in which orgs/MSPs the user exists.
+- [x] Time measurements of how long it takes to deploy SLAs.
+- [ ] SLA 1.1 -> Start chaincodes through the chaincodeapi. [priority 1]
+- [ ] Video wallet demo showing that one user cannot see stuff from other channels. [priority 1]
+- [ ] Trusted Execution Environment module (new git branch - in go from feature preview bracnh) -> https://github.com/hyperledger/fabric-private-chaincode. [priority 2]
+- [ ] Move to Kubernetes (SLASC bridge v.1). [priority 2]
+- [ ] Containerize the client. [priority 2]
 
 - [ ] Clients connect to our own status node. Check out how the client works. [priority 2]
-- [ ] Containerize the client.
-- [ ] Move to Kubernetes.
-- [ ] Trusted Execution Environment module (new git branch).
