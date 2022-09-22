@@ -31,13 +31,18 @@ app.post('/create', async (req, res) => {
 
 app.post('/exists', async (req, res) => {
   const { cert } = req.body;
-  const { found, org, username } = await userExists(cert);
-  console.debug(`User ${username} found on organisation ${org}`);
+  const { found, org, username } = await userExists(cert.replaceAll('\n', ''));
+  if (found) {
+    console.debug(`User ${username} found on organisation ${org}`);
+  } else {
+    console.debug('User not found');
+  }
+
   return res.json({
     success: true, exists: found, organisation: org, username,
   });
 });
 
 app.listen(port, () => {
-  console.debug(`Example app listening on port ${port}`);
+  console.debug(`Identity management app listening on port ${port}`);
 });
