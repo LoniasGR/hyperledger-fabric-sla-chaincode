@@ -112,7 +112,7 @@ export async function createUser(
     };
   } catch (error) {
     console.error(`Failed to enroll user ${username}: ${error}`);
-    return { error: 'Uknown failure' };
+    return { error: 'Unknown failure' };
   }
 }
 

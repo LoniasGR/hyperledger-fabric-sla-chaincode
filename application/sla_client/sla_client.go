@@ -138,7 +138,7 @@ func main() {
 				}
 				log.Println(sla)
 
-				exists, providerPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID)
+				exists, providerPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
@@ -155,7 +155,7 @@ func main() {
 					}
 				}
 
-				exists, clientPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Client.Name, sla.Details.Client.ID)
+				exists, clientPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Client.Name, sla.Details.Client.ID, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
