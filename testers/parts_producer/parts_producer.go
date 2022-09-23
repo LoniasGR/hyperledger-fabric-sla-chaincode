@@ -77,28 +77,28 @@ func createAssets(nAssets int) []lib.Part {
 		asset := lib.Part{
 			Id:           lib.Part_id{Oid: id},
 			MA:           "ma-005089",
-			Timestamp:    lib.Part_timestamp{Date: makeTimestamp()},
+			Timestamp:    makeTimestampString(),
 			Version:      1,
 			DocumentType: "T2Bauteil",
 			DocumentBody: lib.Part_document_body{
-				Start:                 lib.Part_timestamp{Date: makeTimestamp()},
-				Stop:                  lib.Part_timestamp{Date: makeTimestamp()},
+				Start:                 lib.Part_timestamp{Date: makeTimestampInt()},
+				Stop:                  lib.Part_timestamp{Date: makeTimestampInt()},
 				CycleTime:             0,
 				Duration:              28.334,
 				ActiveTime:            23.798,
 				Quality:               quality[rand.Intn(len(quality))],
-				LoadingStop:           lib.Part_timestamp{Date: makeTimestamp()},
+				LoadingStop:           lib.Part_timestamp{Date: makeTimestampInt()},
 				LoadingTime:           2.478,
-				ClampingStarts:        []lib.Part_timestamp{{Date: makeTimestamp()}},
-				ClampingStops:         []lib.Part_timestamp{{Date: makeTimestamp()}},
+				ClampingStarts:        []lib.Part_timestamp{{Date: makeTimestampInt()}},
+				ClampingStops:         []lib.Part_timestamp{{Date: makeTimestampInt()}},
 				ClampingTimes:         []float32{4.338},
-				AdjustingStarts:       []lib.Part_timestamp{{Date: makeTimestamp()}},
-				AdjustingStops:        []lib.Part_timestamp{{Date: makeTimestamp()}},
+				AdjustingStarts:       []lib.Part_timestamp{{Date: makeTimestampInt()}},
+				AdjustingStops:        []lib.Part_timestamp{{Date: makeTimestampInt()}},
 				AdjustingTimes:        []float32{4.338},
-				ReleasingStarts:       []lib.Part_timestamp{{Date: makeTimestamp()}},
-				ReleasingStops:        []lib.Part_timestamp{{Date: makeTimestamp()}},
+				ReleasingStarts:       []lib.Part_timestamp{{Date: makeTimestampInt()}},
+				ReleasingStops:        []lib.Part_timestamp{{Date: makeTimestampInt()}},
 				ReleasingTimes:        []float32{4.338},
-				UnloadingStart:        lib.Part_timestamp{Date: makeTimestamp()},
+				UnloadingStart:        lib.Part_timestamp{Date: makeTimestampInt()},
 				UnloadingTime:         2.964,
 				Pallet:                1,
 				FeedOverride:          91.23438492483591,
@@ -114,8 +114,8 @@ func createAssets(nAssets int) []lib.Part {
 				NokWpc:                false,
 				NokNcP:                false,
 				ProductionCondUnavail: false,
-				PalletchangeStarts:    []lib.Part_timestamp{{Date: makeTimestamp()}},
-				PalletchangeStops:     []lib.Part_timestamp{{Date: makeTimestamp()}},
+				PalletchangeStarts:    []lib.Part_timestamp{{Date: makeTimestampInt()}},
+				PalletchangeStops:     []lib.Part_timestamp{{Date: makeTimestampInt()}},
 				PalletchangeTimes:     []float32{11.052},
 				CarrierID:             1,
 				ComponentCode:         "DMC1_+25+4+8+17+56+45",
@@ -145,6 +145,10 @@ func createUid() string {
 	return id_str[:16]
 }
 
-func makeTimestamp() string {
+func makeTimestampString() string {
 	return time.Now().UTC().Format(time.RFC3339)
+}
+
+func makeTimestampInt() int {
+	return int(time.Now().Unix())
 }

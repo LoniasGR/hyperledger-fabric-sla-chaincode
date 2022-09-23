@@ -3,8 +3,8 @@ module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/testers/parts_produc
 go 1.18
 
 require (
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220510115647-55b33f9fde4d
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220510115647-55b33f9fde4d
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220808134520-5f069a3850a4
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220808134520-5f069a3850a4
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/google/uuid v1.3.0
 )
