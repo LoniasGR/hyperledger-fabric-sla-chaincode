@@ -180,7 +180,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 
 	contract := sla_contract{
 		SLA:        sla,
-		Modifier:   rand.Intn(10),
+		Modifier:   10,
 		Violations: 0,
 	}
 	slaContractJSON, err := json.Marshal(contract)
