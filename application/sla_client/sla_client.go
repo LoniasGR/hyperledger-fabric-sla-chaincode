@@ -195,8 +195,8 @@ func main() {
 				}
 				log.Println(v)
 
-				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))
-				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
+				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with sla violation details", string(lib.ColorReset))
+				result, err = contract.SubmitTransaction("SLAViolated", string(msg.Value))
 				if err != nil {
 					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
 					continue

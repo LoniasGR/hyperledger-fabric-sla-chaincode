@@ -19,7 +19,7 @@ type SmartContract struct {
 
 type sla_contract struct {
 	lib.SLA
-	Value      int `json:"Value"` // compensation amount
+	Modifier   int `json:"Modifier"` // compensation amount
 	Violations int `json:"Violations"`
 }
 
@@ -180,7 +180,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 
 	contract := sla_contract{
 		SLA:        sla,
-		Value:      rand.Intn(20) + 10,
+		Modifier:   rand.Intn(10),
 		Violations: 0,
 	}
 	slaContractJSON, err := json.Marshal(contract)
@@ -304,13 +304,20 @@ func (s *SmartContract) UserExists(ctx contractapi.TransactionContextInterface, 
 }
 
 // SLAViolated changes the number of violations that have happened.
-func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface, id string) error {
-	contract, err := s.ReadContract(ctx, id)
+func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface, violationJSON string) error {
+	var violation lib.Violation
+
+	err := json.Unmarshal([]byte(violationJSON), &violation)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal json: %v", err)
+	}
+
+	contract, err := s.ReadContract(ctx, violation.SLAID)
 	if err != nil {
 		return err
 	}
 	if contract.SLA.State == "stopped" {
-		return fmt.Errorf("the contract %s is completed, no violations can happen", id)
+		return fmt.Errorf("the contract %s is completed, no violations can happen", contract.ID)
 	}
 
 	contract.Violations += 1
@@ -319,41 +326,14 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 		return err
 	}
 
-	err = s.TransferTokens(ctx, contract.SLA.Details.Provider.ID, contract.SLA.Details.Client.ID, contract.Value)
+	compensationAmount := contract.Modifier * violation.Importance
+
+	err = s.TransferTokens(ctx, contract.SLA.Details.Provider.ID, contract.SLA.Details.Client.ID, compensationAmount)
 	if err != nil {
 		return fmt.Errorf("could not transfer tokens from violation: %v", err)
 	}
 
-	return ctx.GetStub().PutState(id, ContractJSON)
-}
-
-// TODO: Needs to be redone!
-// GetAllContracts returns all Contracts found in world state
-func (s *SmartContract) GetAllContracts(ctx contractapi.TransactionContextInterface) ([]*sla_contract, error) {
-	// range query with empty string for startKey and endKey does an
-	// open-ended query of all Contracts in the chaincode namespace.
-	resultsIterator, err := ctx.GetStub().GetStateByRange("contract_0", "")
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	var Contracts []*sla_contract
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-
-		var Contract sla_contract
-		err = json.Unmarshal(queryResponse.Value, &Contract)
-		if err != nil {
-			return nil, err
-		}
-		Contracts = append(Contracts, &Contract)
-	}
-
-	return Contracts, nil
+	return ctx.GetStub().PutState(contract.ID, ContractJSON)
 }
 
 func main() {
