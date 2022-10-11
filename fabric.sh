@@ -60,7 +60,7 @@ function networkDown() {
 
   # launch network; create channel and join peer to channel
   pushd ../test-network
-  docker stop logspout
+  docker stop logspout || true
   ./network.sh down
   popd
 }
