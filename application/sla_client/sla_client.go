@@ -114,6 +114,20 @@ func main() {
 	}
 	log.Println(string(result))
 
+	f_sla, err := os.OpenFile("slas.json",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	defer f_sla.Close()
+
+	f_vio, err := os.OpenFile("violations.json",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	defer f_vio.Close()
+
 	var run bool = true
 	for run {
 		select {
@@ -137,6 +151,11 @@ func main() {
 					log.Fatalf("failed to unmarshal: %s", err)
 				}
 				log.Println(sla)
+
+				file, _ := json.MarshalIndent(sla, "", " ")
+				if _, err := f_sla.Write(file); err != nil {
+					log.Println(err)
+				}
 
 				exists, providerPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID, 1)
 				if err != nil {
@@ -194,6 +213,11 @@ func main() {
 					log.Fatalf("Unmarshal failed: %s\n", err)
 				}
 				log.Println(v)
+
+				file, _ := json.MarshalIndent(v, "", " ")
+				if _, err := f_vio.Write(file); err != nil {
+					log.Println(err)
+				}
 
 				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))
 				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
