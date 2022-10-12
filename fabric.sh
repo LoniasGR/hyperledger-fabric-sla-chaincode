@@ -7,8 +7,7 @@
 #
 #####################################
 
-# Exit on first error
-set -e
+trap "restoreConfigtx" EXIT
 
 . scripts/utils.sh
 
@@ -39,17 +38,17 @@ function startLogSpout() {
 function cleanExplorer() {
   if [ -d "../explorer-local" ]; then
     println "Cleaning up explorer containers"
-    pushd ../explorer-local
+    pushd ../explorer-local || fatalln "Could not find directory ../explorer-local"
     docker-compose down -v
-    popd
+    popd || fataln "Could not exit directory"
   fi
 }
 
 function startExplorer() {
   if [ -d "../explorer-local" ]; then
-    pushd ../explorer-local
+    pushd ../explorer-local || fatalln "Could not find directory ../explorer-local"
     bash ./restart-explorer.sh
-    popd
+    popd || fataln "Could not exit directory"
   else
     println "Explorer does not exist! Skipping!"
   fi
@@ -59,18 +58,18 @@ function networkDown() {
   cleanExplorer
 
   # launch network; create channel and join peer to channel
-  pushd ../test-network
-  docker stop logspout || true
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
+  docker stop logspout || infoln "Logspout not running"
   ./network.sh down
-  popd
+  popd || fataln "Could not exit directory"
 }
 
 function deployChaincodes() {
-  pushd ../test-network
-  ./network.sh deployCC -c ${SLA_CHANNEL_NAME} -ccn ${SLA_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${SLA_CC_SRC_PATH}
-  ./network.sh deployCC -c ${VRU_CHANNEL_NAME} -ccn ${VRU_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${VRU_CC_SRC_PATH}
-  ./network.sh deployCC -c ${PARTS_CHANNEL_NAME} -ccn ${PARTS_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp ${PARTS_CC_SRC_PATH}
-  popd
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
+  ./network.sh deployCC -c ${SLA_CHANNEL_NAME} -ccn ${SLA_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp "${SLA_CC_SRC_PATH}"
+  ./network.sh deployCC -c ${VRU_CHANNEL_NAME} -ccn ${VRU_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp "${VRU_CC_SRC_PATH}"
+  ./network.sh deployCC -c ${PARTS_CHANNEL_NAME} -ccn ${PARTS_CHAINCODE_NAME} -ccl ${CC_SRC_LANGUAGE} -ccp "${PARTS_CC_SRC_PATH}"
+  popd || fataln "Could not exit directory"
 }
 
 function development() {
@@ -78,11 +77,11 @@ function development() {
   # Shut down the network and then restart it
   networkDown
 
-  pushd ../test-network
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
   ./network.sh up createChannel -c ${SLA_CHANNEL_NAME} -ca -s couchdb
   ./network.sh up createChannel -c ${VRU_CHANNEL_NAME} -ca -s couchdb
   ./network.sh up createChannel -c ${PARTS_CHANNEL_NAME} -ca -s couchdb
-  popd
+  popd || fataln "Could not exit directory"
 
   deployChaincodes
 
@@ -97,28 +96,29 @@ function development() {
   println
   println "Then, install dependencies and run the test using:"
   println "bash runclient.sh"
+  exit 0
 }
 
 function createChannel() {
-  pushd ../test-network
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
   export PATH=${PWD}/../bin:$PATH
   export FABRIC_CFG_PATH=${PWD}/configtx
   export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
   export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
   export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.key
 
-  configtxgen -profile $2 -outputBlock ./channel-artifacts/$1.block -channelID $1
+  configtxgen -profile "$2" -outputBlock ./channel-artifacts/"$1".block -channelID "$1"
 
-  osnadmin channel join --channelID $1 --config-block ./channel-artifacts/$1.block -o localhost:7053 --ca-file "$ORDERER_CA" --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"
+  osnadmin channel join --channelID "$1" --config-block ./channel-artifacts/"$1".block -o localhost:7053 --ca-file "$ORDERER_CA" --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"
 
   # List channels
   osnadmin channel list -o localhost:7053 --ca-file "$ORDERER_CA" --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"
 
-  popd
+  popd || fataln "Could not exit directory"
 }
 
 function addOrgToChannel() {
-  pushd ../test-network
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
   # Join Org1 peer on SLA
   export CORE_PEER_TLS_ENABLED=true
   export CORE_PEER_LOCALMSPID="Org${1}MSP"
@@ -128,20 +128,19 @@ function addOrgToChannel() {
 
   export FABRIC_CFG_PATH=$PWD/../config/
 
-  peer channel join -b ./channel-artifacts/${3}.block
-  popd
+  peer channel join -b ./channel-artifacts/"${3}".block
+  popd || fataln "Could not exit directory"
 }
 
 function addOrg3() {
-  pushd ../test-network
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
   # Create the third org
-  cd addOrg3
+  cd addOrg3 || fatalln "Could not enter addOrg3 directory"
 
   export PATH=${PWD}/../../bin:${PWD}:$PATH
   export FABRIC_CFG_PATH=${PWD}
 
-  fabric-ca-client version >/dev/null 2>&1
-  if [[ $? -ne 0 ]]; then
+  if [[ $(fabric-ca-client version) -ne 0 ]]; then
     echo "ERROR! fabric-ca-client binary not found.."
     echo
     echo "Follow the instructions in the Fabric docs to install the Fabric Binaries:"
@@ -152,6 +151,7 @@ function addOrg3() {
   infoln "Generating certificates using Fabric CA"
   docker-compose -f compose/compose-ca-org3.yaml -f compose/docker/docker-compose-ca-org3.yaml up -d 2>&1
 
+  # shellcheck source=../test-network/addOrg3/fabric-ca/registerEnroll.sh
   . fabric-ca/registerEnroll.sh
 
   sleep 10
@@ -167,11 +167,11 @@ function addOrg3() {
 
   DOCKER_SOCK="${DOCKER_SOCK}" docker-compose -f compose/compose-org3.yaml -f compose/compose-couch-org3.yaml -f compose/docker/docker-compose-couch-org3.yaml \
     -f compose/docker/docker-compose-org3.yaml up -d
-  popd
+  popd || fataln "Could not exit directory"
 }
 
 function deployChaincode() {
-  pushd ../test-network
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
   CHANNEL_NAME=${1}
   CC_NAME=${2}
   CC_SRC_PATH=${3}
@@ -203,13 +203,17 @@ function deployChaincode() {
   FABRIC_CFG_PATH=$PWD/../config/
 
   infoln "Vendoring Go dependencies at $CC_SRC_PATH"
-  pushd $CC_SRC_PATH
+  pushd "$CC_SRC_PATH" ||  fatalln "${CC_SRC_PATH} not found"
   GO111MODULE=on go mod vendor
-  popd
+  popd || fatalln "Could not leave directory"
   successln "Finished vendoring Go dependencies"
 
   # import utils
+
+  # shellcheck source=../test-network/scripts/envVar.sh
   . scripts/envVar.sh
+
+    # shellcheck source=../test-network/scripts/ccutils.sh
   . scripts/ccutils.sh
 
   packageChaincode
@@ -225,7 +229,7 @@ function deployChaincode() {
   approveForMyOrg "${PEER_NUMBER}"
 
   ## Check commit readiness
-  peer lifecycle chaincode checkcommitreadiness --channelID "${CHANNEL_NAME}" --name "${CC_NAME}" --version ${CC_VERSION} --sequence ${CC_SEQUENCE} --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --output json
+  peer lifecycle chaincode checkcommitreadiness --channelID "${CHANNEL_NAME}" --name "${CC_NAME}" --version "${CC_VERSION}" --sequence "${CC_SEQUENCE}" --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --output json
 
   commitChaincodeDefinition "${PEER_NUMBER}"
   peer lifecycle chaincode querycommitted --channelID "${CHANNEL_NAME}" --name "${CC_NAME}" --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
@@ -233,8 +237,9 @@ function deployChaincode() {
 
 packageChaincode() {
   set -x
-  peer lifecycle chaincode package "${CC_NAME}".tar.gz --path "${CC_SRC_PATH}" --lang ${CC_RUNTIME_LANGUAGE} --label ${CC_NAME}_${CC_VERSION} >&log.txt
+  peer lifecycle chaincode package "${CC_NAME}".tar.gz --path "${CC_SRC_PATH}" --lang "${CC_RUNTIME_LANGUAGE}" --label "${CC_NAME}_${CC_VERSION}" >&log.txt
   res=$?
+  PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid "${CC_NAME}".tar.gz)
   { set +x; } 2>/dev/null
   cat log.txt
   verifyResult $res "Chaincode packaging has failed"
@@ -248,9 +253,9 @@ function testing() {
   infoln "Running test network"
 
   # Start the two orgs network
-  pushd ../test-network
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
   ./network.sh up -ca -s couchdb
-  popd
+  popd || fatalln "Could not leave directory ../test-network"
 
   # Start logspout for logging
   infoln "Starting logspout"
@@ -262,9 +267,9 @@ function testing() {
 
   # Move our own configtx.yaml in place
   infoln "Replacing configtx"
-  pushd ../test-network
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
   mv ./configtx/configtx.yaml ./configtx/configtx-backup.yaml
-  popd
+  popd || fataln "Could not exit directory"
   cp ./configtx/configtx.yaml ../test-network/configtx
 
   infoln "Creating channels"
@@ -280,8 +285,8 @@ function testing() {
   addOrgToChannel 3 11051 ${PARTS_CHANNEL_NAME}
 
   infoln "Deploing chaincode to each channel"
-  # deployChaincode ${SLA_CHANNEL_NAME} ${SLA_CHAINCODE_NAME} ${SLA_CC_SRC_PATH} 1
-  # infoln "SLA Chaincode deployed"
+    deployChaincode ${SLA_CHANNEL_NAME} ${SLA_CHAINCODE_NAME} "${SLA_CC_SRC_PATH}" 1
+    infoln "SLA Chaincode deployed"
 
   deployChaincode ${VRU_CHANNEL_NAME} ${VRU_CHAINCODE_NAME} "${VRU_CC_SRC_PATH}" 2
   infoln "VRU Chaincode deployed"
@@ -289,10 +294,15 @@ function testing() {
   deployChaincode ${PARTS_CHANNEL_NAME} ${PARTS_CHAINCODE_NAME} "${PARTS_CC_SRC_PATH}" 3
   infoln "Parts Chaincode deployed"
 
+  restoreConfigtx
+}
+
+function restoreConfigtx() {
   infoln "Returing original configtx"
-  pushd ../test-network
+  pushd ../test-network || fatalln "Could not find directory ../test-network"
   mv ./configtx/configtx-backup.yaml ./configtx/configtx.yaml
-  popd
+  popd || fataln "Could not exit directory"
+  exit 0
 }
 
 function printHelp() {
