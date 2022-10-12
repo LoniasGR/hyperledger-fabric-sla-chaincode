@@ -114,12 +114,12 @@ func main() {
 	}
 	log.Println(string(result))
 
-	f, err := os.OpenFile("data.json",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// Open file for logging incoming json objects
+	f, err := lib.OpenJsonFile("parts.json")
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	defer f.Close()
+	defer lib.CloseJsonFile(f)
 
 	var run bool = true
 	for run {
@@ -135,19 +135,22 @@ func main() {
 				}
 				log.Fatalf("consumer failed to read: %v", err)
 			}
+			// Print object as json
 			log.Println(string(msg.Value), '\n')
 
 			var part lib.Part
 
+			// Unmarshal object and print it to stdout
 			err = json.Unmarshal(msg.Value, &part)
 			if err != nil {
 				log.Fatalf("failed to unmarshal: %s", err)
 			}
 			log.Println(part, '\n')
 
-			file, _ := json.MarshalIndent(part, "", " ")
-			if _, err := f.Write(file); err != nil {
-				log.Println(err)
+			// Write json object to file
+			jsonToFile, _ := json.MarshalIndent(part, "", " ")
+			if err = lib.WriteJsonObjectToFile(f, jsonToFile); err != nil {
+				log.Printf("%v", err)
 			}
 
 			log.Println(string(lib.ColorGreen), `--> Submit Transaction:

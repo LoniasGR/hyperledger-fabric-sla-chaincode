@@ -63,7 +63,7 @@ func main() {
 		"msp",
 	)
 
-	c_sla, err := kafkaUtils.CreateConsumer(*configFile[0], "sla-consumer-group")
+	c_sla, err := kafkaUtils.CreateConsumer(*configFile[0], "testerino")
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
@@ -114,19 +114,17 @@ func main() {
 	}
 	log.Println(string(result))
 
-	f_sla, err := os.OpenFile("slas.json",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f_sla, err := lib.OpenJsonFile("slas.json")
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	defer f_sla.Close()
+	defer lib.CloseJsonFile(f_sla)
 
-	f_vio, err := os.OpenFile("violations.json",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f_vio, err := lib.OpenJsonFile("violations.json")
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	defer f_vio.Close()
+	defer lib.CloseJsonFile(f_vio)
 
 	var run bool = true
 	for run {
@@ -152,9 +150,9 @@ func main() {
 				}
 				log.Println(sla)
 
-				file, _ := json.MarshalIndent(sla, "", " ")
-				if _, err := f_sla.Write(file); err != nil {
-					log.Println(err)
+				jsonToFile, _ := json.MarshalIndent(sla, "", " ")
+				if err = lib.WriteJsonObjectToFile(f_sla, jsonToFile); err != nil {
+					log.Printf("%v", err)
 				}
 
 				exists, providerPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID, 1)
@@ -214,9 +212,9 @@ func main() {
 				}
 				log.Println(v)
 
-				file, _ := json.MarshalIndent(v, "", " ")
-				if _, err := f_vio.Write(file); err != nil {
-					log.Println(err)
+				jsonToFile, _ := json.MarshalIndent(v, "", " ")
+				if err = lib.WriteJsonObjectToFile(f_vio, jsonToFile); err != nil {
+					fmt.Printf("%v", err)
 				}
 
 				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))

@@ -114,12 +114,12 @@ func main() {
 	}
 	log.Println(string(result))
 
-	f, err := os.OpenFile("data.json",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// Open file for logging incoming json objects
+	f, err := lib.OpenJsonFile("vru.json")
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	defer f.Close()
+	defer lib.CloseJsonFile(f)
 
 	var run bool = true
 	for run {
@@ -150,9 +150,9 @@ func main() {
 					log.Printf("Could not marshall singe vru from slice: %s", err)
 				}
 
-				file, _ := json.MarshalIndent(vru, "", " ")
-				if _, err := f.Write(file); err != nil {
-					log.Println(err)
+				jsonToFile, _ := json.MarshalIndent(vru, "", " ")
+				if err = lib.WriteJsonObjectToFile(f, jsonToFile); err != nil {
+					log.Printf("%v", err)
 				}
 
 				log.Println(string(lib.ColorGreen), `--> Submit Transaction:
