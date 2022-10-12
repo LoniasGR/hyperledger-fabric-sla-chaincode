@@ -105,4 +105,5 @@ func WriteJsonObjectToFile(f *os.File, obj []byte) error {
 	if _, err := f.Write([]byte(",")); err != nil {
 		return err
 	}
+	return nil
 }
