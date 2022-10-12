@@ -92,7 +92,7 @@ function development() {
   println
   println "Next, use the application to interact with the deployed contract."
   println
-  println "Start by changing into the "application" directory:"
+  println "Start by changing into the \"application\" directory:"
   println "cd application"
   println
   println "Then, install dependencies and run the test using:"
@@ -216,24 +216,24 @@ function deployChaincode() {
 
   ## Install chaincode on peer
   infoln "Installing chaincode on peer"
-  installChaincode ${PEER_NUMBER}
+  installChaincode "${PEER_NUMBER}"
 
   ## query whether the chaincode is installed
-  queryInstalled ${PEER_NUMBER}
+  queryInstalled "${PEER_NUMBER}"
 
   ## approve the definition for org
-  approveForMyOrg ${PEER_NUMBER}
+  approveForMyOrg "${PEER_NUMBER}"
 
   ## Check commit readiness
-  peer lifecycle chaincode checkcommitreadiness --channelID ${CHANNEL_NAME} --name ${CC_NAME} --version ${CC_VERSION} --sequence ${CC_SEQUENCE} --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --output json
+  peer lifecycle chaincode checkcommitreadiness --channelID "${CHANNEL_NAME}" --name "${CC_NAME}" --version ${CC_VERSION} --sequence ${CC_SEQUENCE} --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --output json
 
-  commitChaincodeDefinition ${PEER_NUMBER}
-  peer lifecycle chaincode querycommitted --channelID ${CHANNEL_NAME} --name ${CC_NAME} --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+  commitChaincodeDefinition "${PEER_NUMBER}"
+  peer lifecycle chaincode querycommitted --channelID "${CHANNEL_NAME}" --name "${CC_NAME}" --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
 }
 
 packageChaincode() {
   set -x
-  peer lifecycle chaincode package ${CC_NAME}.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label ${CC_NAME}_${CC_VERSION} >&log.txt
+  peer lifecycle chaincode package "${CC_NAME}".tar.gz --path "${CC_SRC_PATH}" --lang ${CC_RUNTIME_LANGUAGE} --label ${CC_NAME}_${CC_VERSION} >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
@@ -269,30 +269,25 @@ function testing() {
 
   infoln "Creating channels"
   createChannel ${SLA_CHANNEL_NAME} Org1ApplicationGenesis
-  sleep 5
   createChannel ${VRU_CHANNEL_NAME} Org2ApplicationGenesis
-  sleep 5
   createChannel ${PARTS_CHANNEL_NAME} Org3ApplicationGenesis
+
   sleep 5
 
   infoln "Adding orgs to channels"
   addOrgToChannel 1 7051 ${SLA_CHANNEL_NAME}
-  sleep 5
   addOrgToChannel 2 9051 ${VRU_CHANNEL_NAME}
-  sleep 5
   addOrgToChannel 3 11051 ${PARTS_CHANNEL_NAME}
-  sleep 5
 
-  infoln "Deploy chaincode to each channel"
-  deployChaincode ${SLA_CHANNEL_NAME} ${SLA_CHAINCODE_NAME} ${SLA_CC_SRC_PATH} 1
-  infoln "SLA Chaincode deployed"
-  sleep 5
+  infoln "Deploing chaincode to each channel"
+  # deployChaincode ${SLA_CHANNEL_NAME} ${SLA_CHAINCODE_NAME} ${SLA_CC_SRC_PATH} 1
+  # infoln "SLA Chaincode deployed"
 
-  deployChaincode ${VRU_CHANNEL_NAME} ${VRU_CHAINCODE_NAME} ${VRU_CC_SRC_PATH} 2
-  sleep 5
+  deployChaincode ${VRU_CHANNEL_NAME} ${VRU_CHAINCODE_NAME} "${VRU_CC_SRC_PATH}" 2
+  infoln "VRU Chaincode deployed"
 
-  deployChaincode ${PARTS_CHANNEL_NAME} ${PARTS_CHAINCODE_NAME} ${PARTS_CC_SRC_PATH} 3
-  sleep 5
+  deployChaincode ${PARTS_CHANNEL_NAME} ${PARTS_CHAINCODE_NAME} "${PARTS_CC_SRC_PATH}" 3
+  infoln "Parts Chaincode deployed"
 
   infoln "Returing original configtx"
   pushd ../test-network
