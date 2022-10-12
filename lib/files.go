@@ -77,8 +77,8 @@ func CloseJsonFile(f *os.File) error {
 		char := make([]byte, 1)
 		f.Read(char)
 
-		if cursor != -1 && (char[0] == '}' || char[0] == ',') { // stop if we find a JSON object or array
-			if char[0] == ',' {
+		if cursor != -1 && (char[0] == '}' || char[0] == ',' || char[0] == '[')  { // stop if we find a JSON object or array
+			if char[0] == ',' || char[0] == '[' {
 				if _, err := f.Write([]byte("\n]\n")); err != nil {
 					err1 = err
 					break
