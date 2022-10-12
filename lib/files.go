@@ -68,7 +68,7 @@ func CloseJsonFile(f *os.File) error {
 	var cursor int64 = 0
 	stat, _ := f.Stat()
 	fsize := stat.Size()
-	var err1 error
+	var err1 error = nil
 
 	for {
 		cursor -= 1
@@ -81,14 +81,17 @@ func CloseJsonFile(f *os.File) error {
 			if char[0] == ',' {
 				if _, err := f.Write([]byte("\n]\n")); err != nil {
 					err1 = err
+					break
 				}
 			} else {
 				err1 = fmt.Errorf("could not find JSON array end")
+				break
 			}
 		}
 
 		if cursor == -fsize { // stop if we are at the beginning
 			err1 = fmt.Errorf("could not find JSON array end")
+			break
 		}
 	}
 	err2 := f.Close()
