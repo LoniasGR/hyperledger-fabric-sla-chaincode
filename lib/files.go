@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 )
 
@@ -19,17 +20,23 @@ func FileExists(path string) (bool, error) {
 	}
 	return exists, nil
 }
+
+// These functions work with arrays of JSON objects. OpenJsonFile
+// expects that the file does not exist or is a valid JSON array.
+// That means that an empty file will throw an error.
 func OpenJsonFile(path string) (*os.File, error) {
 	existed, err := FileExists(path)
 	if err != nil {
 		return nil, err
 	}
 
-	f, err := os.OpenFile(path,
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
 	}
+
+	// If the file did not exist, we just add the start of the array
+	// and are done.
 	if !existed {
 		_, err = f.WriteString("[\n")
 		if err != nil {
@@ -42,6 +49,7 @@ func OpenJsonFile(path string) (*os.File, error) {
 	stat, _ := f.Stat()
 	fsize := stat.Size()
 
+	// We seek the file to find where the array ends.
 	for {
 		cursor -= 1
 		f.Seek(cursor, io.SeekEnd)
@@ -49,26 +57,41 @@ func OpenJsonFile(path string) (*os.File, error) {
 		char := make([]byte, 1)
 		f.Read(char)
 
-		if cursor != -1 && (char[0] == ']' || char[0] == '}') { // stop if we find a JSON object or array
-			if char[0] == '}' {
-				return f, fmt.Errorf("could not find JSON array end")
+		if char[0] == ']' {
+			// After we have found the end of the array we need to seek to figure out
+			// if we need to add a comma or not.
+			var inner_cur int64 = 0
+			for {
+				inner_cur -= 1
+				f.Seek(inner_cur+cursor, io.SeekEnd)
+
+				char2 := make([]byte, 1)
+				f.Read(char2)
+				if char2[0] == '}' {
+					f.WriteAt([]byte{','}, fsize+cursor)
+					return f, nil
+				}
+				if cursor+inner_cur == -fsize {
+					// If we reach the end of file and have not found the end of a JSON object,
+					// we can expect that the file is an empty array.
+					break
+				}
 			}
-			f.Write([]byte{' '})
+
+			f.WriteAt([]byte{' '}, fsize+cursor)
+			return f, nil
 		}
 
 		if cursor == -fsize { // stop if we are at the beginning
-			return f, fmt.Errorf("could not find JSON array end")
+			return f, fmt.Errorf("end of file reached without finding the end of a JSON array")
 		}
 	}
-
-	return f, nil
 }
 
-func CloseJsonFile(f *os.File) error {
+func CloseJsonFile(f *os.File) {
 	var cursor int64 = 0
 	stat, _ := f.Stat()
 	fsize := stat.Size()
-	var err1 error = nil
 
 	for {
 		cursor -= 1
@@ -77,28 +100,32 @@ func CloseJsonFile(f *os.File) error {
 		char := make([]byte, 1)
 		f.Read(char)
 
-		if cursor != -1 && (char[0] == '}' || char[0] == ',' || char[0] == '[')  { // stop if we find a JSON object or array
-			if char[0] == ',' || char[0] == '[' {
-				if _, err := f.Write([]byte("\n]\n")); err != nil {
-					err1 = err
-					break
+		if char[0] == ',' || char[0] == '[' || char[0] == '}' {
+			if char[0] == ',' {
+				// We need to write over the comma.
+				_, err := f.WriteAt([]byte("]"), fsize+cursor)
+				if err != nil {
+					log.Printf("could not write file")
 				}
-			} else {
-				err1 = fmt.Errorf("could not find JSON array end")
-				break
+			} else if char[0] == '[' || char[0] == '}' {
+				// We don't want to write over the start of the array.
+				_, err := f.WriteAt([]byte("]"), fsize+cursor+1)
+				if err != nil {
+					log.Printf("could not write file")
+				}
 			}
+			break
 		}
 
 		if cursor == -fsize { // stop if we are at the beginning
-			err1 = fmt.Errorf("could not find JSON array end")
+			log.Printf("end of file reached without finding the last JSON object or start of array")
 			break
 		}
 	}
-	err2 := f.Close()
-	if err2 != nil || err1 != nil {
-		return fmt.Errorf("closed with errors: %v, %v", err1, err2)
+	err := f.Close()
+	if err != nil {
+		log.Printf("closed with errors: %v", err)
 	}
-	return nil
 }
 
 func WriteJsonObjectToFile(f *os.File, obj []byte) error {
