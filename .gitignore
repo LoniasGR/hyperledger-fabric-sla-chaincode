@@ -44,3 +44,10 @@ organizations/fabric-ca/org1/*
 
 organizations/fabric-ca/org2/*
 ! organizations/fabric-ca/org2/fabric-ca-server.config.yaml
+
+
+# Debug JSONs
+**/**/slas.json
+**/**/violations.json
+**/**/vru.json
+**/**/parts.json
