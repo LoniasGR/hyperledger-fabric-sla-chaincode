@@ -74,3 +74,5 @@ typings/
 
 wallet_*
 !wallet_*/.gitkeep
+
+/build
