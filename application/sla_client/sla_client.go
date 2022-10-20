@@ -155,52 +155,29 @@ func main() {
 					log.Printf("%v", err)
 				}
 
-				exists, providerPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, sla.Details.Provider.ID, 1)
+				_, _, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
-				}
-				if !exists {
-					log.Printf("Provider's public key:\n%v", providerPubKey)
-					log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(lib.ColorReset))
-					_, err := contract.SubmitTransaction("CreateUser",
-						sla.Details.Provider.Name, sla.Details.Provider.ID, providerPubKey, "500")
-					if err != nil {
-						log.Printf(string(lib.ColorCyan)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
-						continue
-					}
 				}
 
-				exists, clientPubKey, err := lib.UserExistsOrCreate(contract, sla.Details.Client.Name, sla.Details.Client.ID, 1)
+				_, _, err = lib.UserExistsOrCreate(contract, sla.Details.Client.Name, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
-				}
-				if !exists {
-					log.Printf("Client's public key:\n%v", clientPubKey)
-					log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(lib.ColorReset))
-					_, err := contract.SubmitTransaction("CreateUser",
-						sla.Details.Client.Name, sla.Details.Client.ID, clientPubKey, "500")
-					if err != nil {
-						log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
-						continue
-					}
 				}
 
 				log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-				CreateContract, creates new contract with ID,
-				customer, metric, provider, value, and status arguments`, string(lib.ColorReset))
+				CreateOrUpdateContract, creates new contract or updates existing one with SLA`, string(lib.ColorReset))
 
-				result, err = contract.SubmitTransaction("CreateContract",
+				_, err = contract.SubmitTransaction("CreateOrUpdateContract",
 					string(msg.Value),
 				)
 				if err != nil {
 					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
 					continue
 				}
-				fmt.Println(string(result))
+				log.Println("submitted")
 				continue
 			}
 			if *msg.TopicPartition.Topic == topics[1] {
@@ -218,7 +195,7 @@ func main() {
 				}
 
 				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))
-				result, err = contract.SubmitTransaction("SLAViolated", v.SLAID)
+				result, err = contract.SubmitTransaction("SLAViolated", string(msg.Value))
 				if err != nil {
 					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
 					continue
