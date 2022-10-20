@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220510101724-c3c41a5c26d6
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221018122807-8ddb84ff1aa6
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221020150126-7a6daa57213a
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/hyperledger/fabric-sdk-go v1.0.0
 )
