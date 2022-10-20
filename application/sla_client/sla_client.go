@@ -15,6 +15,7 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
+	"github.com/robfig/cron/v3"
 )
 
 var orgID int = 1
@@ -108,11 +109,18 @@ func main() {
 	contract := network.GetContract(contractName)
 
 	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
-	result, err := contract.SubmitTransaction("InitLedger")
+	_, err = contract.SubmitTransaction("InitLedger")
 	if err != nil {
 		log.Fatalf("failed to submit transaction: %v", err)
 	}
-	log.Println(string(result))
+
+	// Initialize the daily refunding process
+	c := cron.New()
+	c.AddFunc("@midnight", func() { runRefunds(*contract) })
+	c.Start()
+
+	// Inspect the cron job entries' next and previous run times.
+	log.Println(c.Entries())
 
 	f_sla, err := lib.OpenJsonFile("slas.json")
 	if err != nil {
@@ -155,13 +163,13 @@ func main() {
 					log.Printf("%v", err)
 				}
 
-				_, _, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, 1)
+				_, _, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
 				}
 
-				_, _, err = lib.UserExistsOrCreate(contract, sla.Details.Client.Name, 1)
+				_, _, err = lib.UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
@@ -195,7 +203,7 @@ func main() {
 				}
 
 				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))
-				result, err = contract.SubmitTransaction("SLAViolated", string(msg.Value))
+				result, err := contract.SubmitTransaction("SLAViolated", string(msg.Value))
 				if err != nil {
 					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
 					continue
@@ -208,4 +216,15 @@ func main() {
 		log.Println("============ application-golang ends ============")
 		c_sla.Close()
 	}
+}
+
+func runRefunds(contract gateway.Contract) error {
+	log.Println(string(lib.ColorGreen), `--> Submit Transaction:
+	RefundAllSLAs, refund all SLAs`, string(lib.ColorReset))
+
+	_, err := contract.SubmitTransaction("RefundAllSLAs")
+	if err != nil {
+		return fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+	}
+	return nil
 }

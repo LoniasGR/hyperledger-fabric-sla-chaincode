@@ -8,8 +8,8 @@ github.com/Knetic/govaluate v3.0.0+incompatible h1:7o6+MAPhYTCF0+fdvoz1xDedhRb4f
 github.com/Knetic/govaluate v3.0.0+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220510101724-c3c41a5c26d6 h1:ehv6sYLPROlsd3EXNao7cxoKQVws8cYEr1yUnNRKlW4=
 github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220510101724-c3c41a5c26d6/go.mod h1:PsX9WK/+KPs3JcLckx9aN/pFLHv0MvoZWqFd/RpQzSo=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221020150126-7a6daa57213a h1:FOgtHYH5OHQ4851UtakFT/C0XmP7RQ5B7AyEo00lhRQ=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221020150126-7a6daa57213a/go.mod h1:tNkpE4VaWbr6RlRym4ZCqw0VfQAiCcbMr/X2077fPGM=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221020220037-085b77049cd2 h1:hBZVsbGCZgSLLz02x+a96riQLizZVcit87qZQdYqmBY=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221020220037-085b77049cd2/go.mod h1:tNkpE4VaWbr6RlRym4ZCqw0VfQAiCcbMr/X2077fPGM=
 github.com/VividCortex/gohistogram v1.0.0 h1:6+hBz+qvs0JOrrNhhmR7lFxo5sINxBCGXrdtl/UvroE=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/akavel/rsrc v0.8.0/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
@@ -137,6 +137,8 @@ github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d/go.mod h1:c3At6R
 github.com/prometheus/procfs v0.0.2/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsTZCD3I8kEA=
 github.com/prometheus/procfs v0.0.3 h1:CTwfnzjQ+8dS6MhHHu4YswVAD99sL2wjPqP+VkURmKE=
 github.com/prometheus/procfs v0.0.3/go.mod h1:4A/X28fw3Fc593LaREMrKMqOKvUAntwMDaekg4FpcdQ=
+github.com/robfig/cron/v3 v3.0.0 h1:kQ6Cb7aHOHTSzNVNEhmp8EcWKLb4CbiMW9h9VyIhO4E=
+github.com/robfig/cron/v3 v3.0.0/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.3.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/spf13/afero v1.3.1 h1:GPTpEAuNr98px18yNQ66JllNil98wfRZ/5Ukny8FeQA=
