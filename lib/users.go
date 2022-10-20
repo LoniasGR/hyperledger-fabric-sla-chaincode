@@ -24,7 +24,7 @@ type UserRequest struct {
 	Organization int    `json:"org"`
 }
 
-func UserExistsOrCreate(contract *gateway.Contract, name string, org int) (bool, string, error) {
+func UserExistsOrCreate(contract *gateway.Contract, name string, balance, org int) (bool, string, error) {
 	result, err := contract.EvaluateTransaction("UserExists", name)
 	if err != nil {
 		err = fmt.Errorf(string(ColorRed)+"failed to submit transaction: %s\n"+string(ColorReset), err)
@@ -96,7 +96,7 @@ func UserExistsOrCreate(contract *gateway.Contract, name string, org int) (bool,
 	publicKeyOneLine := strings.ReplaceAll(publicKeyStripped, "\n", "")
 	log.Println(string(ColorGreen), `--> Submit Transaction:
 					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(ColorReset))
-	_, err = contract.SubmitTransaction("CreateUser", name, publicKeyOneLine, "500")
+	_, err = contract.SubmitTransaction("CreateUser", name, publicKeyOneLine, strconv.Itoa(balance))
 	if err != nil {
 		return false, "", fmt.Errorf(string(ColorRed)+"failed to submit transaction: %s\n"+string(ColorReset), err)
 	}
