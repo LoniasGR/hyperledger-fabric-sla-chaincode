@@ -109,7 +109,7 @@ func (s *SmartContract) Mint(ctx contractapi.TransactionContextInterface, id str
 		return "", fmt.Errorf("could not update user balance: %v", err)
 	}
 
-	return fmt.Sprintf("New balance is: %d\n", updatedBalance), nil
+	return fmt.Sprintf("New balance is: %f\n", updatedBalance), nil
 }
 
 func (s *SmartContract) transferTokens(ctx contractapi.TransactionContextInterface,
