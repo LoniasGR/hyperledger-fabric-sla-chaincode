@@ -20,9 +20,9 @@ type SmartContract struct {
 type sla_contract struct {
 	lib.SLA
 	RefundValue     int     `json:"RefundValue"` // compensation amount
-	TotalViolations int     `json:"TotalViolations"`
+	TotalViolations []int   `json:"TotalViolations"`
 	DailyValue      float64 `json:"DailyValue"`
-	DailyViolations int     `json:DailyViolations"`
+	DailyViolations []int   `json:"DailyViolations"`
 }
 
 type User struct {
@@ -146,7 +146,7 @@ func (s *SmartContract) transferTokens(ctx contractapi.TransactionContextInterfa
 	return nil
 }
 
-// CreateContract issues a new Contract to the world state with given details.
+// CreateOrUpdateContract issues a new Contract to the world state with given details.
 func (s *SmartContract) CreateOrUpdateContract(ctx contractapi.TransactionContextInterface, contractJSON string) error {
 	var sla lib.SLA
 	err := json.Unmarshal([]byte(contractJSON), &sla)
@@ -176,8 +176,8 @@ func (s *SmartContract) CreateOrUpdateContract(ctx contractapi.TransactionContex
 	}
 
 	value := rand.Intn(20) + 10
-	totalViolations := 0
-	dailyViolations := 0
+	totalViolations := make([]int, 1)
+	dailyViolations := make([]int, 1)
 	dailyValue := 0.0
 
 	if exists {
@@ -263,7 +263,7 @@ func (s *SmartContract) QueryUsersByPublicKey(ctx contractapi.TransactionContext
 	var user User
 	err = json.Unmarshal(queryResult.Value, &user)
 	if err != nil {
-		return User{}, fmt.Errorf("could not unmarshall user: %v", err)
+		return User{}, fmt.Errorf("could not unmarshal user: %v", err)
 	}
 
 	return user, nil
@@ -335,17 +335,28 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("the contract %s is completed, no violations can happen", vio.SLAID)
 	}
 
-	contract.DailyViolations += 1
-
-	if vio.GuaranteeID == "40" {
+	switch vio.GuaranteeID {
+	case "40":
+		// This should happen only the first time the SLA is violated, but it's the time
+		// we actually have information about the violation itself.
+		if len(contract.DailyViolations) < 3 {
+			contract.DailyViolations = make([]int, 3)
+			contract.TotalViolations = make([]int, 3)
+		}
 		switch vio.ImportanceName {
 		case "Warning":
 			contract.DailyValue += (1 - 0.985) * float64(contract.RefundValue)
+			contract.DailyViolations[0] += 1
 		case "Serious":
 			contract.DailyValue += (1 - 0.965) * float64(contract.RefundValue)
+			contract.DailyViolations[1] += 1
 		case "Catastrophic":
 			contract.DailyValue += (1 - 0.945) * float64(contract.RefundValue)
+			contract.DailyViolations[2] += 1
 		}
+	// If we don't know the type of guarantee
+	default:
+		contract.DailyViolations[0] += 1
 	}
 	ContractJSON, err := json.Marshal(contract)
 	if err != nil {
@@ -369,13 +380,15 @@ func (s *SmartContract) RefundSLA(ctx contractapi.TransactionContextInterface, i
 		return fmt.Errorf("the contract %s is completed, no violations can happen", id)
 	}
 
-	err = s.transferTokens(ctx, contract.SLA.Details.Provider.ID, contract.SLA.Details.Client.ID, contract.DailyValue)
+	err = s.transferTokens(ctx, contract.SLA.Details.Provider.Name, contract.SLA.Details.Client.Name, contract.DailyValue)
 	if err != nil {
 		return err
 	}
 
-	contract.TotalViolations += contract.DailyViolations
-	contract.DailyViolations = 0
+	for i := 0; i < len(contract.DailyViolations); i++ {
+		contract.TotalViolations[i] += contract.DailyViolations[i]
+		contract.DailyViolations[i] = 0
+	}
 	contract.DailyValue = 0.0
 
 	ContractJSON, err := json.Marshal(contract)
