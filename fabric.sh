@@ -133,6 +133,8 @@ function addOrgToChannel() {
 }
 
 function addOrg3() {
+  local result
+
   pushd ../test-network || fatalln "Could not find directory ../test-network"
   # Create the third org
   cd addOrg3 || fatalln "Could not enter addOrg3 directory"
@@ -140,7 +142,8 @@ function addOrg3() {
   export PATH=${PWD}/../../bin:${PWD}:$PATH
   export FABRIC_CFG_PATH=${PWD}
 
-  if [[ $(fabric-ca-client version) -ne 0 ]]; then
+  result=$(fabric-ca-client version)
+  if [[ $result -ne 0 ]]; then
     echo "ERROR! fabric-ca-client binary not found.."
     echo
     echo "Follow the instructions in the Fabric docs to install the Fabric Binaries:"

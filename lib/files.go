@@ -129,6 +129,8 @@ func CloseJsonFile(f *os.File) {
 }
 
 func WriteJsonObjectToFile(f *os.File, obj []byte) error {
+	f.Seek(0, io.SeekEnd)
+
 	if _, err := f.Write(obj); err != nil {
 		return err
 	}
