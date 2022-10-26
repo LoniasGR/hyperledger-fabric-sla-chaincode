@@ -1,9 +1,10 @@
-module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/chaincode_sla
+module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/ccas_sla
 
 go 1.17
 
 require (
 	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20220808134520-5f069a3850a4
+	github.com/hyperledger/fabric-chaincode-go v0.0.0-20200424173110-d7076418f212
 	github.com/hyperledger/fabric-contract-api-go v1.1.1
 )
 
@@ -28,7 +29,6 @@ require (
 	github.com/golang/protobuf v1.3.3 // indirect
 	github.com/google/certificate-transparency-go v1.0.21 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hyperledger/fabric-chaincode-go v0.0.0-20200424173110-d7076418f212 // indirect
 	github.com/hyperledger/fabric-config v0.0.5 // indirect
 	github.com/hyperledger/fabric-lib-go v1.0.0 // indirect
 	github.com/hyperledger/fabric-protos-go v0.0.0-20200707132912-fee30f3ccd23 // indirect

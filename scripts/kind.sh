@@ -1,27 +1,15 @@
 #!/bin/bash
 #
-# Copyright contributors to the Hyperledger Fabric Operator project
+# Copyright IBM Corp All Rights Reserved
 #
 # SPDX-License-Identifier: Apache-2.0
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at:
-#
-# 	  http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 #
 
 function kind_create() {
   push_fn  "Creating cluster \"${CLUSTER_NAME}\""
 
   # prevent the next kind cluster from using the previous Fabric network's enrollments.
-  rm -rf $PWD/temp
+  rm -rf "$PWD"/build
 
   # todo: always delete?  Maybe return no-op if the cluster already exists?
   kind delete cluster --name "$CLUSTER_NAME"
@@ -63,10 +51,25 @@ containerdConfigPatches:
 
 EOF
 
+  # workaround for https://github.com/hyperledger/fabric-samples/issues/550 - pods can not resolve external DNS
   for node in $(kind get nodes);
   do
     docker exec "$node" sysctl net.ipv4.conf.all.route_localnet=1;
   done
+
+  pop_fn
+}
+
+function kind_load_docker_images() {
+  push_fn "Loading docker images to KIND control plane"
+
+  kind load docker-image "${FABRIC_CONTAINER_REGISTRY}"/fabric-ca:"$FABRIC_CA_VERSION"
+  kind load docker-image "${FABRIC_CONTAINER_REGISTRY}"/fabric-orderer:"$FABRIC_VERSION"
+  kind load docker-image "${FABRIC_PEER_IMAGE}"
+  kind load docker-image couchdb:3.2.1
+
+  # kind load docker-image ghcr.io/hyperledger/fabric-rest-sample:latest
+  # kind load docker-image redis:6.2.5
 
   pop_fn
 }
@@ -125,24 +128,15 @@ function kind_delete() {
 
   kind delete cluster --name "$CLUSTER_NAME"
 
-  pop_fn 2
+  pop_fn
 }
 
 function kind_init() {
-  set -o errexit
-
   kind_create
-
-  if [ "${USE_LOCAL_REGISTRY}" == true ]; then
-    launch_docker_registry
-  fi
+  launch_docker_registry
 }
 
 function kind_unkind() {
-
   kind_delete
-
-  if [ "${USE_LOCAL_REGISTRY}" == true ]; then
-    stop_docker_registry
-  fi
+  stop_docker_registry
 }

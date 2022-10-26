@@ -51,3 +51,8 @@ organizations/fabric-ca/org2/*
 **/**/violations.json
 **/**/vru.json
 **/**/parts.json
+
+# Build
+build
+builders
+bin

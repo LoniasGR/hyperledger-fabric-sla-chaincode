@@ -1,5 +1,4 @@
-module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/chaincode_sla
-
+module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/ccas_parts
 go 1.17
 
 require (
