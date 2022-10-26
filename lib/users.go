@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
+	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
 
 type UserKeys struct {
@@ -24,7 +24,7 @@ type UserRequest struct {
 	Organization int    `json:"org"`
 }
 
-func UserExistsOrCreate(contract *gateway.Contract, name string, balance, org int) (bool, string, error) {
+func UserExistsOrCreate(contract *client.Contract, name string, balance, org int) (bool, string, error) {
 	result, err := contract.EvaluateTransaction("UserExists", name)
 	if err != nil {
 		err = fmt.Errorf(string(ColorRed)+"failed to submit transaction: %s\n"+string(ColorReset), err)
