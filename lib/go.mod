@@ -2,10 +2,7 @@ module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib
 
 go 1.18
 
-require (
-	github.com/hyperledger/fabric-gateway v1.1.1
-	github.com/hyperledger/fabric-sdk-go v1.0.0
-)
+require github.com/hyperledger/fabric-sdk-go v1.0.0
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
@@ -22,11 +19,9 @@ require (
 	github.com/hyperledger/fabric-config v0.0.5 // indirect
 	github.com/hyperledger/fabric-lib-go v1.0.0 // indirect
 	github.com/hyperledger/fabric-protos-go v0.0.0-20200707132912-fee30f3ccd23 // indirect
-	github.com/hyperledger/fabric-protos-go-apiv2 v0.0.0-20220615102044-467be1c7b2e7 // indirect
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/mitchellh/mapstructure v1.3.2 // indirect
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
