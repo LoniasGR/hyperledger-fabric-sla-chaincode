@@ -56,3 +56,7 @@ organizations/fabric-ca/org2/*
 build
 builders
 bin
+
+# Log files
+network.log
+network-debug.log
