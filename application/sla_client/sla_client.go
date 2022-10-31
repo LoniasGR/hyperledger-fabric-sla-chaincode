@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"path"
 	"syscall"
 	"time"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
-	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -24,32 +22,50 @@ import (
 
 type Config struct {
 	mspID         string
-	cryptoPath    string
-	certPath      string
-	keyPath       string
 	tlsCertPath   string
 	peerEndpoint  string
 	gatewayPeer   string
 	channelName   string
 	chaincodeName string
+	UserConf      *UserConfig
+}
+
+type userCredentials struct {
+	Certificate string `json:"certificate"`
+	PrivateKey  string `json:"privateKey"`
+}
+
+type UserConfig struct {
+	Credentials userCredentials `json:"credentials"`
+	MspID       string          `json:"mspId"`
+	Type        string          `json:"type"`
+	Version     string          `json:"version"`
 }
 
 func loadConfig() *Config {
 	conf := Config{}
 	conf.mspID = os.Getenv("MSP_ID")
-	conf.cryptoPath = os.Getenv("CRYPTO_PATH")
-	conf.certPath = conf.cryptoPath + os.Getenv("CERT_PATH")
-	conf.keyPath = conf.cryptoPath + os.Getenv("KEY_PATH")
-	conf.tlsCertPath = conf.cryptoPath + os.Getenv("TLS_CERT_PATH")
-	conf.peerEndpoint = os.Getenv("PEER_ENDPOINT")
-	conf.gatewayPeer = os.Getenv("GATEWAY_PEER")
-	conf.channelName = os.Getenv("CHANNEL_NAME")
-	conf.chaincodeName = os.Getenv("CC_NAME")
+	conf.tlsCertPath = "/fabric/tlscacerts/tlsca-signcert.pem"
+	conf.peerEndpoint = os.Getenv("fabric_gateway_hostport")
+	conf.gatewayPeer = os.Getenv("fabric_gateway_sslHostOverride")
+	conf.channelName = os.Getenv("fabric_channel")
+	conf.chaincodeName = os.Getenv("fabric_contract")
+	b, err := os.ReadFile("/fabric/application/wallet/appuser_org1.id")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+	var userConf UserConfig
+	err = json.Unmarshal(b, &userConf)
+	if err != nil {
+		log.Fatalf("failed to unmarsal userConf: %v", err)
+	}
+
+	conf.UserConf = &userConf
+
 	return &conf
 }
 
 func main() {
-	godotenv.Load()
 	conf := loadConfig()
 
 	// The topics that will be used
@@ -155,13 +171,13 @@ func main() {
 					log.Printf("%v", err)
 				}
 
-				_, _, err := lib.UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 1)
+				_, _, err := UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
 				}
 
-				_, _, err = lib.UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 1)
+				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
@@ -230,7 +246,7 @@ func newGrpcConnection(conf Config) *grpc.ClientConn {
 
 	certPool := x509.NewCertPool()
 	certPool.AddCert(certificate)
-	transportCredentials := credentials.NewClientTLSFromCert(certPool, conf.gatewayPeer)
+	transportCredentials := credentials.NewClientTLSFromCert(certPool, "")
 
 	connection, err := grpc.Dial(conf.peerEndpoint, grpc.WithTransportCredentials(transportCredentials))
 	if err != nil {
@@ -242,7 +258,7 @@ func newGrpcConnection(conf Config) *grpc.ClientConn {
 
 // newIdentity creates a client identity for this Gateway connection using an X.509 certificate.
 func newIdentity(conf Config) *identity.X509Identity {
-	certificate, err := loadCertificate(conf.certPath)
+	certificate, err := loadCertificate(conf.UserConf.Credentials.Certificate)
 	if err != nil {
 		panic(err)
 	}
@@ -255,25 +271,13 @@ func newIdentity(conf Config) *identity.X509Identity {
 	return id
 }
 
-func loadCertificate(filename string) (*x509.Certificate, error) {
-	certificatePEM, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read certificate file: %w", err)
-	}
-	return identity.CertificateFromPEM(certificatePEM)
+func loadCertificate(cert string) (*x509.Certificate, error) {
+	return identity.CertificateFromPEM([]byte(cert))
 }
 
 // newSign creates a function that generates a digital signature from a message digest using a private key.
 func newSign(conf Config) identity.Sign {
-	files, err := os.ReadDir(conf.keyPath)
-	if err != nil {
-		panic(fmt.Errorf("failed to read private key directory: %w", err))
-	}
-	privateKeyPEM, err := os.ReadFile(path.Join(conf.keyPath, files[0].Name()))
-
-	if err != nil {
-		panic(fmt.Errorf("failed to read private key file: %w", err))
-	}
+	privateKeyPEM := conf.UserConf.Credentials.PrivateKey
 
 	privateKey, err := identity.PrivateKeyFromPEM(privateKeyPEM)
 	if err != nil {

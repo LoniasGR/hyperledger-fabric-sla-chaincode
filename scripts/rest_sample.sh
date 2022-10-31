@@ -29,7 +29,7 @@ function construct_rest_sample_configmap() {
 
   ENROLLMENT_DIR=${TEMP_DIR}/enrollments
   CHANNEL_MSP_DIR=${TEMP_DIR}/channel-msp
-  CONFIG_DIR=${TEMP_DIR}/fabric-rest-sample-config 
+  CONFIG_DIR=${TEMP_DIR}/fabric-rest-sample-config
 
   mkdir -p $CONFIG_DIR
 
@@ -73,7 +73,7 @@ function launch_rest_sample() {
 
   log ""
   log "The fabric-rest-sample has started."
-  log "See https://github.com/hyperledger/fabric-samples/tree/main/asset-transfer-basic/rest-api-typescript for additional usage details."
+  log "See https://github.com/hyperled4ger/fabric-samples/tree/main/asset-transfer-basic/rest-api-typescript for additional usage details."
   log "To access the endpoint:"
   log ""
   log "export SAMPLE_APIKEY=97834158-3224-4CE7-95F9-A148C886653E"

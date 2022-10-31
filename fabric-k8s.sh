@@ -44,7 +44,7 @@ if [ "${MODE}" == "deploy" ]; then
 
     # Initialize the channel
     ./network-k8s.sh channel init
-
++
     log_line
 
     ./network-k8s.sh channel create "$SLA_CHANNEL_NAME" 1
@@ -68,8 +68,12 @@ if [ "${MODE}" == "deploy" ]; then
 
       export CHANNEL_NAME=${PARTS_CHANNEL_NAME}
     ./network-k8s.sh chaincode deploy 3 $PARTS_CHAINCODE_NAME "$PARTS_CC_SRC_PATH"
+
+    export CHANNEL_NAME=${SLA_CHANNEL_NAME}
+    export CHAINCODE_NAME=${SLA_CHAINCODE_NAME}
+    ./network-k8s.sh application
+
 else
     print_help
     exit 1
 fi
-git
