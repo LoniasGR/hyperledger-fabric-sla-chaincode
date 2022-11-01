@@ -25,7 +25,7 @@ type UserRequest struct {
 	Organization int    `json:"org"`
 }
 
-func UserExistsOrCreate(contract *client.Contract, name string, balance, org int) (bool, string, error) {
+func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string, balance, org int) (bool, string, error) {
 	result, err := contract.EvaluateTransaction("UserExists", name)
 	if err != nil {
 		err = fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
@@ -49,7 +49,7 @@ func UserExistsOrCreate(contract *client.Contract, name string, balance, org int
 		return false, "", err
 	}
 	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post(lib.CreateUserUrl, "application/json", responseBody)
+	resp, err := http.Post((identityEndpoint + "/create"), "application/json", responseBody)
 	if err != nil {
 		err = fmt.Errorf(string(lib.ColorRed)+"failed to send post request: %s\n"+string(lib.ColorReset), err)
 		return false, "", err

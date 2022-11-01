@@ -1,31 +1,74 @@
 package main
 
 import (
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils"
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
-	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
+	"github.com/hyperledger/fabric-gateway/pkg/client"
+	"github.com/hyperledger/fabric-gateway/pkg/identity"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
-var walletLocation = "wallet"
+type Config struct {
+	tlsCertPath      string
+	peerEndpoint     string
+	gatewayPeer      string
+	channelName      string
+	chaincodeName    string
+	identityEndpoint string
+	UserConf         *UserConfig
+}
 
-var orgID int = 3
-var userID int = 1
+type userCredentials struct {
+	Certificate string `json:"certificate"`
+	PrivateKey  string `json:"privateKey"`
+}
 
-var channelName string = "parts"
-var contractName string = "parts"
+type UserConfig struct {
+	Credentials userCredentials `json:"credentials"`
+	MspID       string          `json:"mspId"`
+	Type        string          `json:"type"`
+	Version     int             `json:"version"`
+}
+
+func loadConfig() *Config {
+	conf := Config{}
+	conf.tlsCertPath = "/fabric/tlscacerts/tlsca-signcert.pem"
+	conf.peerEndpoint = os.Getenv("fabric_gateway_hostport")
+	conf.gatewayPeer = os.Getenv("fabric_gateway_sslHostOverride")
+	conf.channelName = os.Getenv("fabric_channel")
+	conf.chaincodeName = os.Getenv("fabric_contract")
+	conf.identityEndpoint = os.Getenv("identity_endpoint")
+	b, err := os.ReadFile("/fabric/application/wallet/appuser_org3.id")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+	var userConf UserConfig
+	err = json.Unmarshal(b, &userConf)
+	if err != nil {
+		log.Fatalf("failed to unmarsal userConf: %v", err)
+	}
+
+	conf.UserConf = &userConf
+
+	log.Print(conf)
+	log.Print(userConf)
+
+	return &conf
+}
 
 func main() {
+	conf := loadConfig()
 
 	// The topics that will be used
 	topics := make([]string, 1)
@@ -39,33 +82,9 @@ func main() {
 
 	configFile := lib.ParseArgs()
 
-	ccpPath := filepath.Join(
-		"..",
-		"..",
-		"..",
-		"test-network",
-		"organizations",
-		"peerOrganizations",
-		fmt.Sprintf("org%d.example.com", orgID),
-		fmt.Sprintf("connection-org%d.yaml", orgID),
-	)
-
-	credPath := filepath.Join(
-		"..",
-		"..",
-		"..",
-		"test-network",
-		"organizations",
-		"peerOrganizations",
-		fmt.Sprintf("org%d.example.com", orgID),
-		"users",
-		fmt.Sprintf("User%d@org%d.example.com", userID, orgID),
-		"msp",
-	)
-
-	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], "queen-of-the-year")
+	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], "uc3-consumer-group")
 	if err != nil {
-		log.Fatalf("error in parts_go: %v", err)
+		log.Fatalf("failed to create consumer: %v", err)
 	}
 
 	// Subscribe to topic
@@ -78,41 +97,36 @@ func main() {
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
-	wallet, err := gateway.NewFileSystemWallet(walletLocation)
-	if err != nil {
-		log.Fatalf("Failed to create wallet: %v", err)
-	}
+	clientConnection := newGrpcConnection(*conf)
+	defer clientConnection.Close()
 
-	if !wallet.Exists("appUser") {
-		err = lib.PopulateWallet(wallet, credPath, orgID)
-		if err != nil {
-			log.Fatalf("Failed to populate wallet contents: %v", err)
-		}
-	}
+	id := newIdentity(*conf)
+	sign := newSign(*conf)
 
-	gw, err := gateway.Connect(
-		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
-		gateway.WithIdentity(wallet, "appUser"),
+	// Create a Gateway connection for a specific client identity
+	gw, err := client.Connect(
+		id,
+		client.WithSign(sign),
+		client.WithClientConnection(clientConnection),
+		// Default timeouts for different gRPC calls
+		client.WithEvaluateTimeout(5*time.Second),
+		client.WithEndorseTimeout(15*time.Second),
+		client.WithSubmitTimeout(5*time.Second),
+		client.WithCommitStatusTimeout(1*time.Minute),
 	)
 	if err != nil {
 		log.Fatalf("failed to connect to gateway: %v", err)
 	}
 	defer gw.Close()
 
-	network, err := gw.GetNetwork(channelName)
-	if err != nil {
-		log.Fatalf("failed to get network: %v", err)
-	}
-	log.Println("Channel connected")
-
-	contract := network.GetContract(contractName)
+	network := gw.GetNetwork(conf.channelName)
+	contract := network.GetContract(conf.chaincodeName)
 
 	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
-	result, err := contract.SubmitTransaction("InitLedger")
+	_, err = contract.SubmitTransaction("InitLedger")
 	if err != nil {
 		log.Fatalf("failed to submit transaction: %v", err)
 	}
-	log.Println(string(result))
 
 	// Open file for logging incoming json objects
 	f, err := lib.OpenJsonFile("parts.json")
@@ -156,7 +170,7 @@ func main() {
 			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
 				CreateContract, creates new parts entry with ID, Timestamp
 				and all Document details`, string(lib.ColorReset))
-			result, err = contract.SubmitTransaction("CreateContract",
+			result, err := contract.SubmitTransaction("CreateContract",
 				string(msg.Value),
 			)
 			if err != nil {
@@ -166,4 +180,64 @@ func main() {
 			fmt.Println(string(result))
 		}
 	}
+}
+
+// newGrpcConnection creates a gRPC connection to the Gateway server.
+func newGrpcConnection(conf Config) *grpc.ClientConn {
+	certificate, err := loadCertificate(conf.tlsCertPath)
+	if err != nil {
+		panic(err)
+	}
+
+	certPool := x509.NewCertPool()
+	certPool.AddCert(certificate)
+	transportCredentials := credentials.NewClientTLSFromCert(certPool, "")
+
+	connection, err := grpc.Dial(conf.peerEndpoint, grpc.WithTransportCredentials(transportCredentials))
+	if err != nil {
+		panic(fmt.Errorf("failed to create gRPC connection: %w", err))
+	}
+
+	return connection
+}
+
+// newIdentity creates a client identity for this Gateway connection using an X.509 certificate.
+func newIdentity(conf Config) *identity.X509Identity {
+	log.Print(conf.UserConf.Credentials.Certificate)
+	certificate, err := identity.CertificateFromPEM([]byte(conf.UserConf.Credentials.Certificate))
+	if err != nil {
+		panic(err)
+	}
+
+	id, err := identity.NewX509Identity(conf.UserConf.MspID, certificate)
+	if err != nil {
+		panic(err)
+	}
+
+	return id
+}
+
+func loadCertificate(filename string) (*x509.Certificate, error) {
+	certificatePEM, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read certificate file: %w", err)
+	}
+	return identity.CertificateFromPEM(certificatePEM)
+}
+
+// newSign creates a function that generates a digital signature from a message digest using a private key.
+func newSign(conf Config) identity.Sign {
+	privateKeyPEM := conf.UserConf.Credentials.PrivateKey
+
+	privateKey, err := identity.PrivateKeyFromPEM([]byte(privateKeyPEM))
+	if err != nil {
+		panic(err)
+	}
+
+	sign, err := identity.NewPrivateKeySign(privateKey)
+	if err != nil {
+		panic(err)
+	}
+
+	return sign
 }

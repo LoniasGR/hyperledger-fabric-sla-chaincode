@@ -12,22 +12,16 @@ async function enrollAdmin(org: number, ledger: string): Promise<void> {
   try {
     // load the network configuration
     const ccpPath = path.resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'test-network',
-      'organizations',
-      'peerOrganizations',
-      `org${org}.example.com`,
-      `connection-org${org}.json`,
+      `/fabric/application/gateways`,
+      `org${org}_ccp.json`,
     );
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
     // Create a new CA client for interacting with the CA.
-    const caInfo = ccp.certificateAuthorities[`ca.org${org}.example.com`];
+    const caInfo = ccp.certificateAuthorities[`org${org}-ca`];
     const caTLSCACerts = caInfo.tlsCACerts.pem;
+    console.log(caTLSCACerts);
+
     const ca = new FabricCAServices(
       caInfo.url,
       { trustedRoots: caTLSCACerts, verify: false },
@@ -35,19 +29,20 @@ async function enrollAdmin(org: number, ledger: string): Promise<void> {
     );
 
     // Create a new file system based wallet for managing identities.
-    const walletPath = path.join(process.cwd(), `wallet_${ledger}`);
+    const walletPath = path.join('/wallets', `wallet_${ledger}`);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.debug(`Wallet path: ${walletPath}`);
 
     // Check to see if we've already enrolled the admin user.
-    const identity = await wallet.get('admin');
+    const identity = await wallet.get(`admin${org}`);
     if (identity) {
       console.debug(`An identity for the admin user admin already exists in wallet ${ledger}`);
       return;
     }
+    console.debug("No registered admins")
 
     // Enroll the admin user, and import the new identity into the wallet.
-    const enrollment = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
+    const enrollment = await ca.enroll({ enrollmentID: `org${org}admin`, enrollmentSecret: `org${org}adminpw` });
     const x509Identity = {
       credentials: {
         certificate: enrollment.certificate,

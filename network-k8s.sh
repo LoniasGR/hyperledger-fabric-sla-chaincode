@@ -104,7 +104,6 @@ function print_help() {
 . scripts/test_network.sh
 . scripts/channel.sh
 . scripts/chaincode.sh
-. scripts/rest_sample.sh
 . scripts/application_connection.sh
 
 # check for kind, kubectl, etc.
@@ -154,14 +153,9 @@ elif [[ "${MODE}" == "chaincode" || "${MODE}" == "cc" ]]; then
 elif [ "${MODE}" == "anchor" ]; then
   update_anchor_peers "$@"
 
-elif [ "${MODE}" == "rest-easy" ]; then
-  log "Launching fabric-rest-sample application:"
-  launch_rest_sample
-  log "🏁 - Fabric REST sample is ready."
-
 elif [ "${MODE}" == "application" ]; then
   log "Getting application connection information:"
-  application_connection
+  application_command_group "$@"
   log "🏁 - Application connection information ready."
 
 else

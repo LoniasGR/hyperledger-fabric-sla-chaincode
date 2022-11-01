@@ -21,13 +21,13 @@ import (
 )
 
 type Config struct {
-	mspID         string
-	tlsCertPath   string
-	peerEndpoint  string
-	gatewayPeer   string
-	channelName   string
-	chaincodeName string
-	UserConf      *UserConfig
+	tlsCertPath      string
+	peerEndpoint     string
+	gatewayPeer      string
+	channelName      string
+	chaincodeName    string
+	identityEndpoint string
+	UserConf         *UserConfig
 }
 
 type userCredentials struct {
@@ -39,17 +39,17 @@ type UserConfig struct {
 	Credentials userCredentials `json:"credentials"`
 	MspID       string          `json:"mspId"`
 	Type        string          `json:"type"`
-	Version     string          `json:"version"`
+	Version     int             `json:"version"`
 }
 
 func loadConfig() *Config {
 	conf := Config{}
-	conf.mspID = os.Getenv("MSP_ID")
 	conf.tlsCertPath = "/fabric/tlscacerts/tlsca-signcert.pem"
 	conf.peerEndpoint = os.Getenv("fabric_gateway_hostport")
 	conf.gatewayPeer = os.Getenv("fabric_gateway_sslHostOverride")
 	conf.channelName = os.Getenv("fabric_channel")
 	conf.chaincodeName = os.Getenv("fabric_contract")
+	conf.identityEndpoint = os.Getenv("identity_endpoint")
 	b, err := os.ReadFile("/fabric/application/wallet/appuser_org1.id")
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
@@ -61,6 +61,9 @@ func loadConfig() *Config {
 	}
 
 	conf.UserConf = &userConf
+
+	log.Print(conf)
+	log.Print(userConf)
 
 	return &conf
 }
@@ -171,13 +174,13 @@ func main() {
 					log.Printf("%v", err)
 				}
 
-				_, _, err := UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 1)
+				_, _, err := UserExistsOrCreate(contract, sla.Details.Provider.Name, conf.identityEndpoint, 10000, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
 				}
 
-				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 1)
+				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, conf.identityEndpoint, 10000, 1)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
@@ -258,12 +261,13 @@ func newGrpcConnection(conf Config) *grpc.ClientConn {
 
 // newIdentity creates a client identity for this Gateway connection using an X.509 certificate.
 func newIdentity(conf Config) *identity.X509Identity {
-	certificate, err := loadCertificate(conf.UserConf.Credentials.Certificate)
+	log.Print(conf.UserConf.Credentials.Certificate)
+	certificate, err := identity.CertificateFromPEM([]byte(conf.UserConf.Credentials.Certificate))
 	if err != nil {
 		panic(err)
 	}
 
-	id, err := identity.NewX509Identity(conf.mspID, certificate)
+	id, err := identity.NewX509Identity(conf.UserConf.MspID, certificate)
 	if err != nil {
 		panic(err)
 	}
@@ -271,15 +275,19 @@ func newIdentity(conf Config) *identity.X509Identity {
 	return id
 }
 
-func loadCertificate(cert string) (*x509.Certificate, error) {
-	return identity.CertificateFromPEM([]byte(cert))
+func loadCertificate(filename string) (*x509.Certificate, error) {
+	certificatePEM, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read certificate file: %w", err)
+	}
+	return identity.CertificateFromPEM(certificatePEM)
 }
 
 // newSign creates a function that generates a digital signature from a message digest using a private key.
 func newSign(conf Config) identity.Sign {
 	privateKeyPEM := conf.UserConf.Credentials.PrivateKey
 
-	privateKey, err := identity.PrivateKeyFromPEM(privateKeyPEM)
+	privateKey, err := identity.PrivateKeyFromPEM([]byte(privateKeyPEM))
 	if err != nil {
 		panic(err)
 	}

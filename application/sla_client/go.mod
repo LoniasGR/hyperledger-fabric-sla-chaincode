@@ -7,7 +7,6 @@ require (
 	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221027112818-4d4cb5550deb
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/hyperledger/fabric-gateway v1.1.1
-	github.com/joho/godotenv v1.4.0
 	github.com/robfig/cron/v3 v3.0.0
 	google.golang.org/grpc v1.50.1
 )

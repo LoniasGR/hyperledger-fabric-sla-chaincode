@@ -33,22 +33,15 @@ function toPEMFormat(str: string): string {
 
 export async function prepareContext(org: number, ledger: string): Promise<void> {
   // load the network configuration
-  const ccpPath = resolve(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    '..',
-    'test-network',
-    'organizations',
-    'peerOrganizations',
-    `org${org}.example.com`,
-    `connection-org${org}.json`,
-  );
+    // load the network configuration
+    const ccpPath = resolve(
+      `/fabric/application/gateways`,
+      `org${org}_ccp.json`,
+    );
   const ccp = JSON.parse(readFileSync(ccpPath, 'utf8'));
 
   // Create a new CA client for interacting with the CA.
-  const caInfo = ccp.certificateAuthorities[`ca.org${org}.example.com`];
+  const caInfo = ccp.certificateAuthorities[`org${org}-ca`];
   const caTLSCACerts = caInfo.tlsCACerts.pem;
   ca[org - 1] = new FabricCAServices(
     caInfo.url,
@@ -57,7 +50,7 @@ export async function prepareContext(org: number, ledger: string): Promise<void>
   );
 
   // Create a new file system based wallet for managing identities.
-  const walletPath = join(process.cwd(), `wallet_${ledger}`);
+  const walletPath = join('/wallets', `wallet_${ledger}`);
   wallet[org - 1] = await Wallets.newFileSystemWallet(walletPath);
   console.debug(`Wallet path: ${walletPath}`);
 }
@@ -93,10 +86,14 @@ export async function createUser(
       enrollmentID: username,
       role: 'client',
     }, adminUser);
+    console.debug(`User ${username} registered`)
+
     const enrollment = await ca[org - 1].enroll({
       enrollmentID: username,
       enrollmentSecret: secret,
     });
+    console.debug(`User ${username} enrolled`)
+
     const userX509Identity = {
       credentials: {
         certificate: enrollment.certificate,
@@ -106,6 +103,8 @@ export async function createUser(
       type: 'X.509',
     };
     await wallet[org - 1].put(username, userX509Identity);
+    console.debug(`User ${username} added to wallet`)
+
     return {
       publicKey: enrollment.certificate,
       privateKey: enrollment.key.toBytes(),
