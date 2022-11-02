@@ -1,30 +1,25 @@
-FROM node:16-alpine as builder
+FROM node:16-alpine AS build
+
+RUN apk add --no-cache g++ make python3 dumb-init
 
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json",  "/app/"]
+COPY --chown=node:node . /app
 
-RUN npm install
+RUN npm ci
+RUN npm run build
+RUN npm prune --production
 
-COPY . /app/
-
-RUN npm run build-dist
-
-# step 2
 FROM node:16-alpine
-
-ENV NODE_ENV=production
-ARG EXPRESS_PORT=8001
-
+ENV NODE_ENV production
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json",  "/app/"]
+COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
+COPY --chown=node:node --from=build /app .
 
-RUN npm install --production
+EXPOSE 3000
 
-COPY --from=builder /app/build /app/build
-COPY .env .
+USER node
 
-EXPOSE ${EXPRESS_PORT}
-
-CMD [ "npm", "start" ]
+ENTRYPOINT [ "dumb-init", "--", "npm", "run"]
+CMD ["start"]

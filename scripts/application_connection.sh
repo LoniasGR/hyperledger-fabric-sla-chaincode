@@ -6,7 +6,7 @@
 #
 
 function app_one_line_pem {
-    echo "`awk 'NF {sub(/\\n/, ""); printf "%s\\\\\\\n",$0;}' $1`"
+  echo "$(awk 'NF {sub(/\\n/, ""); printf "%s\\\\\\\n",$0;}' $1)"
 }
 
 function app_json_ccp {
@@ -106,7 +106,7 @@ function construct_global_configmap() {
 function construct_application_configmap() {
   local org=$1
 
-  push_fn "Creating ConfigMap \"app-fabric-org1-v1-map\" with Organization ${org} information for the application"
+  push_fn "Creating ConfigMap \"app-fabric-org${org}-v1-map\" with Organization ${org} information for the application"
 
   cat <<EOF >"build/app-fabric-org${org}-v1-map.yaml"
 apiVersion: v1
@@ -129,23 +129,40 @@ EOF
   pop_fn
 }
 
-function application_connection() {
-  local org=$1
+function construct_api_configmap() {
+  push_fn "Creating ConfigMap \"app-fabric-api-v1-map\""
 
-  construct_application_configmap "${org}"
+  cat <<EOF >"build/app-fabric-api-v1-map.yaml"
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-fabric-api-v1-map
+data:
+  fabric_sla_channel: ${SLA_CHANNEL_NAME}
+  fabric_sla_contract: ${SLA_CHAINCODE_NAME}
+  fabric_vru_channel: ${VRU_CHANNEL_NAME}
+  fabric_vru_contract: ${VRU_CHAINCODE_NAME}
+  fabric_parts_channel: ${PARTS_CHANNEL_NAME}
+  fabric_parts_contract: ${PARTS_CHAINCODE_NAME}
+  fabric_wallet_dir: /fabric/application/wallet
+  fabric_org1_gateway_hostport: org1-peer-gateway-svc:7051
+  fabric_org2_gateway_hostport: org2-peer-gateway-svc:7051
+  fabric_org3_gateway_hostport: org3-peer-gateway-svc:7051
+  fabric_org1_gateway_sslHostOverride: org1-peer-gateway-svc
+  fabric_org2_gateway_sslHostOverride: org2-peer-gateway-svc
+  fabric_org3_gateway_sslHostOverride: org3-peer-gateway-svc
 
-  log
-  log "For k8s applications:"
-  log "Config Maps created for the application"
-  log "To deploy your application updated the image name and issue these commands"
-  log ""
-  log "kubectl -n $NS apply -f kube/application-deployment.yaml"
-  log "kubectl -n $NS rollout status deploy/application-deployment"
-  log
-  log "For non-k8s applications:"
-  log "ConnectionPrfiles are in ${PWD}/build/application/gateways"
-  log "Identities are in  ${PWD}/build/application/wallets"
-  log
+  identity_endpoint: http://identity-management:3000
+EOF
+
+  kubectl -n "$NS" apply -f "build/app-fabric-api-v1-map.yaml"
+}
+
+function deploy_api() {
+  construct_api_configmap
+  docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/api" application/api
+  docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/api"
+  envsubst < kube/api-deployment.yaml | kubectl -n "$NS" apply -f -
 }
 
 function application_command_group() {
@@ -165,9 +182,12 @@ function application_command_group() {
       exit 1
     fi
     log "Creating config for organisation \"$1\":"
-    application_connection "$1"
+    construct_application_configmap "$1"
     log "🏁 - Config is ready."
-
+  elif [ "${COMMAND}" == "api" ]; then
+    log "Deploying api: "
+    deploy_api
+    log "🏁 - Config is ready."
   else
     log "Uknown command"
     exit 1

@@ -28,7 +28,6 @@ export async function displayInputParameters(org: number): Promise<void> {
   if (org === 1) {
     console.debug('**          ORG 1              **');
     console.debug(`mspId:             ${constants.org1MSPId}`);
-    console.debug(`cryptoPath:        ${constants.org1CryptoPath}`);
     console.debug(`tlsCertPath:       ${constants.org1TlsCertPath}`);
     console.debug(`peerEndpoint:      ${constants.org1PeerEndpoint}`);
     console.debug(`peerHostAlias:     ${constants.org1PeerHostAlias}`);
@@ -36,7 +35,6 @@ export async function displayInputParameters(org: number): Promise<void> {
   if (org === 2) {
     console.debug('**          ORG 2              **');
     console.debug(`mspId:             ${constants.org2MSPId}`);
-    console.debug(`cryptoPath:        ${constants.org2CryptoPath}`);
     console.debug(`tlsCertPath:       ${constants.org2TlsCertPath}`);
     console.debug(`peerEndpoint:      ${constants.org2PeerEndpoint}`);
     console.debug(`peerHostAlias:     ${constants.org2PeerHostAlias}`);
@@ -44,7 +42,6 @@ export async function displayInputParameters(org: number): Promise<void> {
   if (org === 3) {
     console.debug('**          ORG 3              **');
     console.debug(`mspId:             ${constants.org3MSPId}`);
-    console.debug(`cryptoPath:        ${constants.org3CryptoPath}`);
     console.debug(`tlsCertPath:       ${constants.org3TlsCertPath}`);
     console.debug(`peerEndpoint:      ${constants.org3PeerEndpoint}`);
     console.debug(`peerHostAlias:     ${constants.org3PeerHostAlias}`);

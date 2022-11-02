@@ -52,7 +52,7 @@ data:
   CORE_OPERATIONS_LISTENADDRESS: 0.0.0.0:9443
   CORE_PEER_FILESYSTEMPATH: /var/hyperledger/fabric/data/org3-peer1.org3.example.com
   CORE_LEDGER_SNAPSHOTS_ROOTDIR: /var/hyperledger/fabric/data/org3-peer1.org3.example.com/snapshots
-  CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG: "{\"peername\":\"org3peer1\"}"
+  CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG: '{"peername":"org3peer1"}'
   CORE_LEDGER_STATE_STATEDATABASE: CouchDB
   CORE_LEDGER_STATE_COUCHDBCONFIG_MAXRETRIESONSTARTUP: "20"
   CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS: localhost:5984
@@ -102,7 +102,7 @@ spec:
             - name: "COUCHDB_PASSWORD"
               value: "adminpw"
           ports:
-              - containerPort: 5984
+            - containerPort: 5984
       volumes:
         - name: fabric-volume
           persistentVolumeClaim:
