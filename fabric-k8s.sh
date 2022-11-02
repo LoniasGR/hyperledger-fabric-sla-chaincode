@@ -151,13 +151,13 @@ else
 fi
 
 if [ "${MODE}" == "deploy" ]; then
-    # down
-    # deploy
-    # init_application_config
-    # identity_management
-    # sla_client
-    # vru_client
-    # parts_client
+    down
+    deploy
+    init_application_config
+    identity_management
+    sla_client
+    vru_client
+    parts_client
     api
 else
     log "Only valid mode is 'deploy'"

@@ -1,93 +1,9 @@
 # Hyperledger Fabric SLA Chaincode
 
-## Setup
+## Deploy on Kubernetes
 
-- Install fabric-samples
+1) Run `bash ./fabric-k8s.sh deploy`
 
-```bash
-mkdir -p $HOME/go/src/github.com/<your_github_userid>
-cd $HOME/go/src/github.com/<your_github_userid>
-curl -sSL https://bit.ly/2ysbOFE | bash -s
-```
+## Changes needed to run on services
 
-- Clone project into fabric-samples folder
-
-```bash
-cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples
-git clone https://github.com/LoniasGR/hyperledger-fabric-sla-chaincode.git
-```
-
-- Spin up the Kafka container
-
-```bash
-cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples/hyperledger-fabric-sla-chaincode/docker
-docker-compose up -d
-```
-
-- Start Fabric Network
-
-```bash
-cd ..
-bash startFabric.sh
-```
-
-- Run fabric application
-
-```bash
-cd ../../application
-bash runclient.sh
-```
-
-- Run kafka producer on another terminal
-
-```bash
-cd testers/producer
-go run sample-producer.go  -f ../../kafka-config/producer.properties.dev
-```
-
-## CouchDB
-
-Default credentials:
-URL: http://localhost:5984/\_utils/
-Username: admin
-Password: adminpw
-
-## Fabric Explorer
-
-Port: 8080
-Username: exploreradmin
-Password: exploreradminpw
-
-## TODO
-
-- [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" }.
-- [x] Rename `mychannel` to `SLA`.
-- [x] Rename `sla` chaincode to `sla_contracts` and `sla_violation` to `sla_violation`.
-- [x] When a violation happens there will be a transfer of tokens (ERC-20 style).
-- [x] `smartcontract.go` function SLAViolation Compensation scheme.
-- [x] Slides ~30 Hyperledger - Deadline: Start of January.
-- [x] Slides ~30 Etherium - Deadline: Start of January.
-- [x] `client.go` Wallet management (provider wallet, customer wallet).
-- [x] App that when given a user certificates connects to Hyperledger.
-- [x] Chrome Extension - fix formatting
-- [x] Use case 3 (see JSON) - create. channel name: "parts", topic: "uc3-dtl"
-- [x] Use case 2: Return number of JSONs in time-range.
-- [x] Get number of products based time range based on quality (total, quality 1, quality 0). [10/05]
-- [x] Extension buttons to pick Use Case. []
-- [x] Use case 2: We got the data - think how to do it.
-- [x] Check if UC2 client works w/ Partners. [05/05]
-- [x] Range queries for use case 2/3: new chaincode w/ name: vru/? - store & retrieve for a time range - use fabcar example
-- [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
-- [ ] Connect wallets, violation function and ERC-20
-
-- [x] UC2: High Risk/Low Risk/No Risk data on wallet []
-
-- [x] Different users/OUs to different channels. [priority 1]
-- [x] Time measurements of how long it takes to deploy SLAs.
-- [ ] SLA 1.1 -> Start chaincodes through the chaincodeapi. [priority 1]
-- [ ] Video wallet demo showing that one user cannot see stuff from other channels. [priority 1]
-- [ ] Trusted Execution Environment module (new git branch - in go from feature preview bracnh) -> https://github.com/hyperledger/fabric-private-chaincode. [priority 2]
-- [ ] Move to Kubernetes (SLASC bridge v.1). [priority 2]
-- [ ] Containerize the client. [priority 2]
-
-- [ ] Clients connect to our own status node. Check out how the client works. [priority 2]
+Override the corresponding variables from `network-k8s.sh` with the proper ones.
