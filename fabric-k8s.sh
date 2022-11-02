@@ -1,16 +1,19 @@
 #!/bin/bash
 
-SLA_CHANNEL_NAME=sla
-VRU_CHANNEL_NAME=vru
-PARTS_CHANNEL_NAME=parts
+export SLA_CHANNEL_NAME=sla
+export VRU_CHANNEL_NAME=vru
+export PARTS_CHANNEL_NAME=parts
 
-SLA_CHAINCODE_NAME=slasc-bridge
-VRU_CHAINCODE_NAME=vru-positions
-PARTS_CHAINCODE_NAME=parts
+export SLA_CHAINCODE_NAME=slasc-bridge
+export VRU_CHAINCODE_NAME=vru-positions
+export PARTS_CHAINCODE_NAME=parts
 
-SLA_CC_SRC_PATH="${PWD}/ccas_sla"
-VRU_CC_SRC_PATH="${PWD}/ccas_vru"
-PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
+export SLA_CC_SRC_PATH="${PWD}/ccas_sla"
+export VRU_CC_SRC_PATH="${PWD}/ccas_vru"
+export PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
+
+export TEST_NETWORK_NS=test-network
+export TEST_NETWORK_LOCAL_REGISTRY_DOMAIN=localhost:5000
 
 function log_line() {
     echo -e "==============================================" >>network-debug.log
@@ -66,10 +69,10 @@ function init_application_config() {
 function identity_management() {
     printf '' >network-debug.log
     log "Building identity management pod"
-    docker build -t localhost:5000/identity-management application/identity_management >>network-debug.log
-    docker push localhost:5000/identity-management >>network-debug.log
+    docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management application/identity_management >>network-debug.log
+    docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management >>network-debug.log
     # Maybe todo: change the namespace here
-    kubectl -n test-network apply -f kube/identity-management-client.yaml
+    kubectl -n ${TEST_NETWORK_NS} apply -f kube/identity-management-client.yaml
     log "🏁 Identity management pod built"
     log_line
 }
@@ -86,10 +89,10 @@ function sla_client() {
     cp config/kafka/server.cer.pem application/sla_client/
 
     ./network-k8s.sh application create 1
-    docker build -t localhost:5000/sla-client application/sla_client >>network-debug.log
-    docker push localhost:5000/sla-client >>network-debug.log
+    docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client application/sla_client >>network-debug.log
+    docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client >>network-debug.log
     # Maybe todo: change the namespace here
-    kubectl -n test-network apply -f kube/sla-client-deployment.yaml
+    kubectl -n ${TEST_NETWORK_NS} apply -f kube/sla-client-deployment.yaml
     log "🏁 SLA client pod built"
 }
 
@@ -105,10 +108,10 @@ function vru_client() {
     cp config/kafka/server.cer.pem application/vru_client/
 
     ./network-k8s.sh application create 2
-    docker build -t localhost:5000/vru-client application/vru_client
-    docker push localhost:5000/vru-client
+    docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client application/vru_client >>network-debug.log
+    docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client >>network-debug.log
     # Maybe todo: change the namespace here
-    kubectl -n test-network apply -f kube/vru-client-deployment.yaml
+    kubectl -n ${TEST_NETWORK_NS} apply -f kube/vru-client-deployment.yaml
     log "🏁 VRU client pod built"
 }
 
@@ -124,13 +127,20 @@ function parts_client() {
     cp config/kafka/server.cer.pem application/parts_client/
 
     ./network-k8s.sh application create 3
-    docker build -t localhost:5000/parts-client application/parts_client >>network-debug.log
-    docker push localhost:5000/parts-client >>network-debug.log
+    docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client application/parts_client >>network-debug.log
+    docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client >>network-debug.log
     # Maybe todo: change the namespace here
-    kubectl -n test-network apply -f kube/parts-client-deployment.yaml
+    kubectl -n ${TEST_NETWORK_NS} apply -f kube/parts-client-deployment.yaml
     log "🏁 Parts client pod built"
 }
 
+
+function api() {
+     printf '' >network-debug.log
+    log "Building API pod"
+    ./network-k8s.sh application api
+
+}
 ## Parse mode
 if [[ $# -lt 1 ]]; then
     log "Only valid mode is 'deploy'"
@@ -141,13 +151,14 @@ else
 fi
 
 if [ "${MODE}" == "deploy" ]; then
-    down
-    deploy
-    init_application_config
-    identity_management
-    sla_client
-    vru_client
-    parts_client
+    # down
+    # deploy
+    # init_application_config
+    # identity_management
+    # sla_client
+    # vru_client
+    # parts_client
+    api
 else
     log "Only valid mode is 'deploy'"
     exit 1
