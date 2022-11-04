@@ -9,5 +9,5 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-EXPOSE 9999
+EXPOSE 8999
 CMD ["vru_client", "-f", "consumer.properties"]

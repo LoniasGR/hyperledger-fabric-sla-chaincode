@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -20,6 +21,8 @@ import (
 )
 
 type Config struct {
+	dataFolder       string
+	dataJSONFile     string
 	tlsCertPath      string
 	peerEndpoint     string
 	gatewayPeer      string
@@ -49,6 +52,9 @@ func loadConfig() *Config {
 	conf.channelName = os.Getenv("fabric_channel")
 	conf.chaincodeName = os.Getenv("fabric_contract")
 	conf.identityEndpoint = os.Getenv("identity_endpoint")
+	conf.dataFolder = os.Getenv("data_folder")
+	conf.dataJSONFile = filepath.Join(conf.dataFolder, "vru.json")
+
 	b, err := os.ReadFile("/fabric/application/wallet/appuser_org2.id")
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
@@ -130,7 +136,7 @@ func main() {
 	}
 
 	// Open file for logging incoming json objects
-	f, err := lib.OpenJsonFile("vru.json")
+	f, err := lib.OpenJsonFile(conf.dataJSONFile)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -148,7 +154,8 @@ func main() {
 				if err.(kafka.Error).Code() == kafka.ErrTimedOut {
 					continue
 				}
-				log.Fatalf("consumer failed to read: %v", err)
+				log.Printf("consumer failed to read: %v", err)
+				continue
 			}
 			log.Println(string(msg.Value))
 			var vru_slice []lib.VRU

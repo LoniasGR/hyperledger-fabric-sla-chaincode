@@ -71,21 +71,21 @@ function print_help() {
   log
   log "--- Fabric Information"
   log "Fabric Version     \t\t: ${FABRIC_VERSION}"
-  log "Fabric CA Version    \t: ${FABRIC_CA_VERSION}"
-  log "Container Registry   \t: ${FABRIC_CONTAINER_REGISTRY}"
+  log "Fabric CA Version  \t\t: ${FABRIC_CA_VERSION}"
+  log "Container Registry \t\t: ${FABRIC_CONTAINER_REGISTRY}"
   log "Network name       \t\t: ${NETWORK_NAME}"
   log "Ingress domain     \t\t: ${DOMAIN}"
   log "Channel name       \t\t: ${CHANNEL_NAME}"
   log
   log "--- Cluster Information"
-  log "Cluster runtime      \t: ${CLUSTER_RUNTIME}"
+  log "Cluster runtime    \t\t: ${CLUSTER_RUNTIME}"
   log "Cluster name       \t\t: ${CLUSTER_NAME}"
-  log "Cluster namespace    \t: ${NS}"
-  log "Fabric Registry      \t: ${FABRIC_CONTAINER_REGISTRY}"
+  log "Cluster namespace  \t\t: ${NS}"
+  log "Fabric Registry    \t\t: ${FABRIC_CONTAINER_REGISTRY}"
   log "Local Registry     \t\t: ${LOCAL_REGISTRY_NAME}"
-  log "Local Registry port  \t: ${LOCAL_REGISTRY_PORT}"
-  log "nginx http port      \t: ${NGINX_HTTP_PORT}"
-  log "nginx https port     \t: ${NGINX_HTTPS_PORT}"
+  log "Local Registry port\t\t: ${LOCAL_REGISTRY_PORT}"
+  log "nginx http port    \t\t: ${NGINX_HTTP_PORT}"
+  log "nginx https port   \t\t: ${NGINX_HTTPS_PORT}"
   log
   log "--- Script Information"
   log "Log file           \t\t: ${LOG_FILE}"
@@ -101,7 +101,7 @@ function print_help() {
 . scripts/cluster.sh
 . scripts/fabric_config.sh
 . scripts/fabric_CAs.sh
-. scripts/test_network.sh
+. scripts/fabric_network.sh
 . scripts/channel.sh
 . scripts/chaincode.sh
 . scripts/application_connection.sh
@@ -123,6 +123,7 @@ fi
 
 if [ "${MODE}" == "kind" ]; then
   log "Creating KIND cluster \"${CLUSTER_NAME}\":"
+  print_help
   kind_init
   log "🏁 - KIND cluster is ready"
 

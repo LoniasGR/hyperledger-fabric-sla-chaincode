@@ -36,6 +36,8 @@ spec:
               mountPath: /fabric/application/gateways
             - name: tlscerts
               mountPath: /fabric/tlscacerts
+            - name: data
+              mountPath: /fabric/data
       volumes:
         - name: fabric-ccp
           configMap:
@@ -46,3 +48,6 @@ spec:
         - name: tlscerts
           configMap:
             name: app-fabric-org2-tls-v1-map
+        - name: data
+          persistentVolumeClaim:
+            claimName: fabric-vru

@@ -6,7 +6,7 @@
 #
 
 function kind_create() {
-  push_fn  "Creating cluster \"${CLUSTER_NAME}\""
+  push_fn "Creating cluster \"${CLUSTER_NAME}\""
 
   # prevent the next kind cluster from using the previous Fabric network's enrollments.
   rm -rf "$PWD"/build
@@ -40,6 +40,9 @@ nodes:
       - containerPort: 443
         hostPort: ${ingress_https_port}
         protocol: TCP
+    extraMounts:
+    - hostPath: /home/app-systems/hyperledger
+      containerPath: /var/hyperledger
 #networking:
 #  kubeProxyMode: "ipvs"
 
@@ -48,13 +51,11 @@ containerdConfigPatches:
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:${reg_port}"]
     endpoint = ["http://${reg_name}:${reg_port}"]
-
 EOF
 
   # workaround for https://github.com/hyperledger/fabric-samples/issues/550 - pods can not resolve external DNS
-  for node in $(kind get nodes);
-  do
-    docker exec "$node" sysctl net.ipv4.conf.all.route_localnet=1;
+  for node in $(kind get nodes); do
+    docker exec "$node" sysctl net.ipv4.conf.all.route_localnet=1
   done
 
   pop_fn
@@ -84,10 +85,10 @@ function launch_docker_registry() {
 
   running="$(docker inspect -f '{{.State.Running}}' "${reg_name}" 2>/dev/null || true)"
   if [ "${running}" != 'true' ]; then
-    docker run  \
-      --detach  \
+    docker run \
+      --detach \
       --restart always \
-      --name    "${reg_name}" \
+      --name "${reg_name}" \
       --publish "${reg_interface}:${reg_port}:5000" \
       registry:2
   fi
@@ -118,7 +119,7 @@ function stop_docker_registry() {
   push_fn "Deleting container registry \"${LOCAL_REGISTRY_NAME}\" at localhost:${LOCAL_REGISTRY_PORT}"
 
   docker kill kind-registry || true
-  docker rm kind-registry   || true
+  docker rm kind-registry || true
 
   pop_fn
 }

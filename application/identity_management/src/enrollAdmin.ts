@@ -12,7 +12,7 @@ async function enrollAdmin(org: number, ledger: string): Promise<void> {
   try {
     // load the network configuration
     const ccpPath = path.resolve(
-      `/fabric/application/gateways`,
+      '/fabric/application/gateways',
       `org${org}_ccp.json`,
     );
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
@@ -29,7 +29,7 @@ async function enrollAdmin(org: number, ledger: string): Promise<void> {
     );
 
     // Create a new file system based wallet for managing identities.
-    const walletPath = path.join('/wallets', `wallet_${ledger}`);
+    const walletPath = path.join('/fabric/data/wallets', `wallet_${ledger}`);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.debug(`Wallet path: ${walletPath}`);
 
@@ -39,7 +39,7 @@ async function enrollAdmin(org: number, ledger: string): Promise<void> {
       console.debug(`An identity for the admin user admin already exists in wallet ${ledger}`);
       return;
     }
-    console.debug("No registered admins")
+    console.debug('No registered admins');
 
     // Enroll the admin user, and import the new identity into the wallet.
     const enrollment = await ca.enroll({ enrollmentID: `org${org}admin`, enrollmentSecret: `org${org}adminpw` });

@@ -19,7 +19,5 @@ COPY --chown=node:node --from=build /app .
 
 EXPOSE 3000
 
-USER node
-
 ENTRYPOINT [ "dumb-init", "--", "npm", "run"]
 CMD ["start"]

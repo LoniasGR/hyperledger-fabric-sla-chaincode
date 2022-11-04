@@ -6,7 +6,7 @@
 #
 
 function app_one_line_pem {
-  echo "$(awk 'NF {sub(/\\n/, ""); printf "%s\\\\\\\n",$0;}' $1)"
+  echo "`awk 'NF {sub(/\\n/, ""); printf "%s\\\\\\\n",$0;}' $1`"
 }
 
 function app_json_ccp {
@@ -33,6 +33,25 @@ function app_id {
 }
 
 function construct_global_configmap() {
+  push_fn "Creating persistent volumes and mounts for applications"
+
+  # Both KIND and k3s use the Rancher local-path provider.  In KIND, this is installed
+  # as the 'standard' storage class, and in Rancher as the 'local-path' storage class.
+  if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
+      export STORAGE_CLASS="standard"
+
+  elif [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
+    export STORAGE_CLASS="local-path"
+  else
+    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
+    exit 1
+  fi
+
+  envsubst <kube/pv-fabric-applications.yaml | kubectl -n "$NS" create -f - || true
+  envsubst <kube/pvc-fabric-applications.yaml | kubectl -n "$NS" create -f - || true
+
+  pop_fn
+
   push_fn "Constructing application connection profiles"
 
   ENROLLMENT_DIR=${TEMP_DIR}/enrollments
@@ -117,11 +136,12 @@ data:
   fabric_channel: ${CHANNEL_NAME}
   fabric_contract: ${CHAINCODE_NAME}
   fabric_wallet_dir: /fabric/application/wallet
-  fabric_gateway_hostport: org${org}-peer-gateway-svc:7051
+  fabric_gateway_hostport: org${org}-peer-gateway-svc:8051
   fabric_gateway_sslHostOverride: org${org}-peer-gateway-svc
   fabric_user: appuser_org${org}
   fabric_gateway_tlsCertPath: /fabric/tlscacerts/tlsca-signcert.pem
   identity_endpoint: http://identity-management:3000
+  data_folder: /fabric/data
 EOF
 
   kubectl -n $NS apply -f "build/app-fabric-org${org}-v1-map.yaml"
@@ -145,9 +165,9 @@ data:
   fabric_parts_channel: ${PARTS_CHANNEL_NAME}
   fabric_parts_contract: ${PARTS_CHAINCODE_NAME}
   fabric_wallet_dir: /fabric/application/wallet
-  fabric_org1_gateway_hostport: org1-peer-gateway-svc:7051
-  fabric_org2_gateway_hostport: org2-peer-gateway-svc:7051
-  fabric_org3_gateway_hostport: org3-peer-gateway-svc:7051
+  fabric_org1_gateway_hostport: org1-peer-gateway-svc:8051
+  fabric_org2_gateway_hostport: org2-peer-gateway-svc:8051
+  fabric_org3_gateway_hostport: org3-peer-gateway-svc:8051
   fabric_org1_gateway_sslHostOverride: org1-peer-gateway-svc
   fabric_org2_gateway_sslHostOverride: org2-peer-gateway-svc
   fabric_org3_gateway_sslHostOverride: org3-peer-gateway-svc
@@ -162,7 +182,7 @@ function deploy_api() {
   construct_api_configmap
   docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/api" application/api
   docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/api"
-  envsubst < kube/api-deployment.yaml | kubectl -n "$NS" apply -f -
+  envsubst <kube/api-deployment.yaml | kubectl -n "$NS" apply -f -
 }
 
 function application_command_group() {

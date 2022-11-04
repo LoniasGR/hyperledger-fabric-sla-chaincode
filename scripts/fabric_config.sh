@@ -44,6 +44,12 @@ function init_storage_volumes() {
   fi
 
   # TODO: Add org here
+   envsubst < kube/pv-fabric-org0.yaml | kubectl -n "$ORG0_NS" create -f - || true
+   envsubst < kube/pv-fabric-org1.yaml | kubectl -n "$ORG1_NS" create -f - || true
+   envsubst < kube/pv-fabric-org2.yaml | kubectl -n "$ORG2_NS" create -f - || true
+   envsubst < kube/pv-fabric-org3.yaml | kubectl -n "$ORG3_NS" create -f - || true
+
+  # TODO: Add org here
    envsubst < kube/pvc-fabric-org0.yaml | kubectl -n "$ORG0_NS" create -f - || true
    envsubst < kube/pvc-fabric-org1.yaml | kubectl -n "$ORG1_NS" create -f - || true
    envsubst < kube/pvc-fabric-org2.yaml | kubectl -n "$ORG2_NS" create -f - || true

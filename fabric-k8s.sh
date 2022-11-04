@@ -12,7 +12,7 @@ export SLA_CC_SRC_PATH="${PWD}/ccas_sla"
 export VRU_CC_SRC_PATH="${PWD}/ccas_vru"
 export PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
 
-export TEST_NETWORK_NS=test-network
+export TEST_NETWORK_NETWORK_NAME=pledger-dlt
 export TEST_NETWORK_LOCAL_REGISTRY_DOMAIN=localhost:5000
 
 function log_line() {
@@ -72,7 +72,7 @@ function identity_management() {
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management application/identity_management >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management >>network-debug.log
     # Maybe todo: change the namespace here
-    kubectl -n ${TEST_NETWORK_NS} apply -f kube/identity-management-client.yaml
+    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/identity-management-client.yaml
     log "🏁 Identity management pod built"
     log_line
 }
@@ -92,7 +92,7 @@ function sla_client() {
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client application/sla_client >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client >>network-debug.log
     # Maybe todo: change the namespace here
-    kubectl -n ${TEST_NETWORK_NS} apply -f kube/sla-client-deployment.yaml
+    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/sla-client-deployment.yaml
     log "🏁 SLA client pod built"
 }
 
@@ -111,7 +111,7 @@ function vru_client() {
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client application/vru_client >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client >>network-debug.log
     # Maybe todo: change the namespace here
-    kubectl -n ${TEST_NETWORK_NS} apply -f kube/vru-client-deployment.yaml
+    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/vru-client-deployment.yaml
     log "🏁 VRU client pod built"
 }
 
@@ -130,7 +130,7 @@ function parts_client() {
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client application/parts_client >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client >>network-debug.log
     # Maybe todo: change the namespace here
-    kubectl -n ${TEST_NETWORK_NS} apply -f kube/parts-client-deployment.yaml
+    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/parts-client-deployment.yaml
     log "🏁 Parts client pod built"
 }
 
@@ -154,12 +154,14 @@ if [ "${MODE}" == "deploy" ]; then
     down
     deploy
     init_application_config
-    identity_management
     sla_client
     vru_client
     parts_client
+    identity_management
     api
+elif [ "${MODE}" == "down" ]; then
+    down
 else
-    log "Only valid mode is 'deploy'"
+    log "Only valid modes are 'deploy' and 'down'"
     exit 1
 fi

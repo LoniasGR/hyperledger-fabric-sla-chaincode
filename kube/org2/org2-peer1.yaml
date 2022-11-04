@@ -40,16 +40,16 @@ data:
   CORE_PEER_TLS_KEY_FILE: /var/hyperledger/fabric/config/tls/tls.key
   CORE_PEER_TLS_ROOTCERT_FILE: /var/hyperledger/fabric/config/tls/ca.crt
   CORE_PEER_ID: org2-peer1.org2.example.com
-  CORE_PEER_ADDRESS: org2-peer1:7051
-  CORE_PEER_LISTENADDRESS: 0.0.0.0:7051
-  CORE_PEER_CHAINCODEADDRESS: org2-peer1:7052
-  CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:7052
+  CORE_PEER_ADDRESS: org2-peer1:8051
+  CORE_PEER_LISTENADDRESS: 0.0.0.0:8051
+  CORE_PEER_CHAINCODEADDRESS: org2-peer1:8052
+  CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:8052
   # bootstrap peer is the other peer in the same org
-  CORE_PEER_GOSSIP_BOOTSTRAP: org2-peer2:7051
-  CORE_PEER_GOSSIP_EXTERNALENDPOINT: org2-peer1.${ORG2_NS}.svc.cluster.local:7051
+  CORE_PEER_GOSSIP_BOOTSTRAP: org2-peer2:8051
+  CORE_PEER_GOSSIP_EXTERNALENDPOINT: org2-peer1.${ORG2_NS}.svc.cluster.local:8051
   CORE_PEER_LOCALMSPID: Org2MSP
   CORE_PEER_MSPCONFIGPATH: /var/hyperledger/fabric/organizations/peerOrganizations/org2.example.com/peers/org2-peer1.org2.example.com/msp
-  CORE_OPERATIONS_LISTENADDRESS: 0.0.0.0:9443
+  CORE_OPERATIONS_LISTENADDRESS: 0.0.0.0:8543
   CORE_PEER_FILESYSTEMPATH: /var/hyperledger/fabric/data/org2-peer1.org2.example.com
   CORE_LEDGER_SNAPSHOTS_ROOTDIR: /var/hyperledger/fabric/data/org2-peer1.org2.example.com/snapshots
   CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG: "{\"peername\":\"org2peer1\"}"
@@ -82,9 +82,9 @@ spec:
             - configMapRef:
                 name: org2-peer1-config
           ports:
-            - containerPort: 7051
-            - containerPort: 7052
-            - containerPort: 9443
+            - containerPort: 8051
+            - containerPort: 8052
+            - containerPort: 8543
           volumeMounts:
             - name: fabric-volume
               mountPath: /var/hyperledger
@@ -98,7 +98,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: "COUCHDB_USER"
-              value: "admin" 
+              value: "admin"
             - name: "COUCHDB_PASSWORD"
               value: "adminpw"
           ports:
@@ -112,7 +112,7 @@ spec:
             name: org2-config
         - name: tls-cert-volume
           secret:
-            secretName: org2-peer1-tls-cert          
+            secretName: org2-peer1-tls-cert
 ---
 apiVersion: v1
 kind: Service
@@ -121,13 +121,13 @@ metadata:
 spec:
   ports:
     - name: grpc
-      port: 7051
+      port: 8051
       protocol: TCP
     - name: chaincode
-      port: 7052
+      port: 8052
       protocol: TCP
     - name: operations
-      port: 9443
+      port: 8543
       protocol: TCP
   selector:
     app: org2-peer1
@@ -139,7 +139,7 @@ metadata:
 spec:
   ports:
     - name: grpc
-      port: 7051
+      port: 8051
       protocol: TCP
   selector:
     org: org2

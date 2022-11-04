@@ -37,7 +37,7 @@ spec:
             - name: fabric-ccp
               mountPath: /fabric/application/gateways
             - name: wallets
-              mountPath: /wallets
+              mountPath: /fabric/data/wallets
 
       volumes:
         - name: fabric-ccp
@@ -47,7 +47,8 @@ spec:
           configMap:
             name: app-fabric-ids-v1-map
         - name: wallets
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: fabric-identity-management
 ---
 apiVersion: v1
 kind: Service

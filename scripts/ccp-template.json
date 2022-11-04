@@ -24,7 +24,7 @@
     },
     "peers": {
         "org${ORG}-peers": {
-            "url": "grpcs://org${ORG}-peer1.${NS}.svc.cluster.local:7051",
+            "url": "grpcs://org${ORG}-peer1.${NS}.svc.cluster.local:8051",
             "tlsCACerts": {
                 "pem": "${PEERPEM}"
             },

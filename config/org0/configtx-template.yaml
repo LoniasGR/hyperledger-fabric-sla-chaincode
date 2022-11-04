@@ -42,9 +42,9 @@ Organizations:
         Rule: "OR('OrdererMSP.admin')"
 
     OrdererEndpoints:
-      - org0-orderer1.${ORG0_NS}.svc.cluster.local:6050
-      - org0-orderer2.${ORG0_NS}.svc.cluster.local:6050
-      - org0-orderer3.${ORG0_NS}.svc.cluster.local:6050
+      - org0-orderer1.${ORG0_NS}.svc.cluster.local:8050
+      - org0-orderer2.${ORG0_NS}.svc.cluster.local:8050
+      - org0-orderer3.${ORG0_NS}.svc.cluster.local:8050
 
   - &Org1
     # DefaultOrg defines the organization which is used in the sampleconfig
@@ -79,7 +79,7 @@ Organizations:
       # for cross org gossip communication.  Note, this value is only
       # encoded in the genesis block in the Application section context
       - Host: org1-peer1.${ORG1_NS}.svc.cluster.local
-        Port: 7051
+        Port: 8051
 
   - &Org2
     # DefaultOrg defines the organization which is used in the sampleconfig
@@ -113,7 +113,7 @@ Organizations:
       # for cross org gossip communication.  Note, this value is only
       # encoded in the genesis block in the Application section context
       - Host: org2-peer1.${ORG2_NS}.svc.cluster.local
-        Port: 7051
+        Port: 8051
 
   - &Org3
     # DefaultOrg defines the organization which is used in the sampleconfig
@@ -147,7 +147,7 @@ Organizations:
       # for cross org gossip communication.  Note, this value is only
       # encoded in the genesis block in the Application section context
       - Host: org3-peer1.${ORG3_NS}.svc.cluster.local
-        Port: 7051
+        Port: 8051
 
 ################################################################################
 #
@@ -257,15 +257,15 @@ Orderer: &OrdererDefaults
   EtcdRaft:
     Consenters:
       - Host: org0-orderer1
-        Port: 6050
+        Port: 8050
         ClientTLSCert: ./channel-msp/ordererOrganizations/org0/orderers/org0-orderer1/tls/signcerts/tls-cert.pem
         ServerTLSCert: ./channel-msp/ordererOrganizations/org0/orderers/org0-orderer1/tls/signcerts/tls-cert.pem
       - Host: org0-orderer2
-        Port: 6050
+        Port: 8050
         ClientTLSCert: ./channel-msp/ordererOrganizations/org0/orderers/org0-orderer2/tls/signcerts/tls-cert.pem
         ServerTLSCert: ./channel-msp/ordererOrganizations/org0/orderers/org0-orderer2/tls/signcerts/tls-cert.pem
       - Host: org0-orderer3
-        Port: 6050
+        Port: 8050
         ClientTLSCert: ./channel-msp/ordererOrganizations/org0/orderers/org0-orderer3/tls/signcerts/tls-cert.pem
         ServerTLSCert: ./channel-msp/ordererOrganizations/org0/orderers/org0-orderer3/tls/signcerts/tls-cert.pem
 

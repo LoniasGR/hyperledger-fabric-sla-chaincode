@@ -17,7 +17,7 @@ General:
   ListenAddress: 0.0.0.0
 
   # Listen port: The port on which to bind to listen.
-  ListenPort: 6050
+  ListenPort: 8050
 
   # TLS: TLS settings for the GRPC server.
   TLS:
@@ -358,7 +358,7 @@ Metrics:
 ################################################################################
 Admin:
   # host and port for the admin server
-  ListenAddress: 0.0.0.0:9443
+  ListenAddress: 0.0.0.0:8543
 
   # TLS configuration for the admin endpoint
   TLS:

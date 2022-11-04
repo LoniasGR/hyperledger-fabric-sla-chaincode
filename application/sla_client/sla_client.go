@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -21,13 +22,16 @@ import (
 )
 
 type Config struct {
-	tlsCertPath      string
-	peerEndpoint     string
-	gatewayPeer      string
-	channelName      string
-	chaincodeName    string
-	identityEndpoint string
-	UserConf         *UserConfig
+	dataFolder         string
+	slaJSONFile        string
+	violationsJSONFile string
+	tlsCertPath        string
+	peerEndpoint       string
+	gatewayPeer        string
+	channelName        string
+	chaincodeName      string
+	identityEndpoint   string
+	UserConf           *UserConfig
 }
 
 type userCredentials struct {
@@ -50,6 +54,10 @@ func loadConfig() *Config {
 	conf.channelName = os.Getenv("fabric_channel")
 	conf.chaincodeName = os.Getenv("fabric_contract")
 	conf.identityEndpoint = os.Getenv("identity_endpoint")
+	conf.dataFolder = os.Getenv("data_folder")
+	conf.slaJSONFile = filepath.Join(conf.dataFolder, "sla.json")
+	conf.violationsJSONFile = filepath.Join(conf.dataFolder, "violations.json")
+
 	b, err := os.ReadFile("/fabric/application/wallet/appuser_org1.id")
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
@@ -133,13 +141,13 @@ func main() {
 	// Inspect the cron job entries' next and previous run times.
 	log.Println(c.Entries())
 
-	f_sla, err := lib.OpenJsonFile("slas.json")
+	f_sla, err := lib.OpenJsonFile(conf.slaJSONFile)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	defer lib.CloseJsonFile(f_sla)
 
-	f_vio, err := lib.OpenJsonFile("violations.json")
+	f_vio, err := lib.OpenJsonFile(conf.violationsJSONFile)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -157,7 +165,8 @@ func main() {
 				if err.(kafka.Error).Code() == kafka.ErrTimedOut {
 					continue
 				}
-				log.Fatalf("consumer failed to read: %v", err)
+				log.Printf("consumer failed to read: %v", err)
+				continue
 			}
 
 			if *msg.TopicPartition.Topic == topics[0] {
