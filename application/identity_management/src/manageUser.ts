@@ -33,11 +33,10 @@ function toPEMFormat(str: string): string {
 
 export async function prepareContext(org: number, ledger: string): Promise<void> {
   // load the network configuration
-    // load the network configuration
-    const ccpPath = resolve(
-      `/fabric/application/gateways`,
-      `org${org}_ccp.json`,
-    );
+  const ccpPath = resolve(
+    '/fabric/application/gateways',
+    `org${org}_ccp.json`,
+  );
   const ccp = JSON.parse(readFileSync(ccpPath, 'utf8'));
 
   // Create a new CA client for interacting with the CA.
@@ -50,7 +49,7 @@ export async function prepareContext(org: number, ledger: string): Promise<void>
   );
 
   // Create a new file system based wallet for managing identities.
-  const walletPath = join('/wallets', `wallet_${ledger}`);
+  const walletPath = join('/fabric/data/wallets', `wallet_${ledger}`);
   wallet[org - 1] = await Wallets.newFileSystemWallet(walletPath);
   console.debug(`Wallet path: ${walletPath}`);
 }
@@ -86,13 +85,13 @@ export async function createUser(
       enrollmentID: username,
       role: 'client',
     }, adminUser);
-    console.debug(`User ${username} registered`)
+    console.debug(`User ${username} registered`);
 
     const enrollment = await ca[org - 1].enroll({
       enrollmentID: username,
       enrollmentSecret: secret,
     });
-    console.debug(`User ${username} enrolled`)
+    console.debug(`User ${username} enrolled`);
 
     const userX509Identity = {
       credentials: {
@@ -103,7 +102,7 @@ export async function createUser(
       type: 'X.509',
     };
     await wallet[org - 1].put(username, userX509Identity);
-    console.debug(`User ${username} added to wallet`)
+    console.debug(`User ${username} added to wallet`);
 
     return {
       publicKey: enrollment.certificate,
