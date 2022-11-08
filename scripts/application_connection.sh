@@ -38,7 +38,7 @@ function construct_global_configmap() {
   # Both KIND and k3s use the Rancher local-path provider.  In KIND, this is installed
   # as the 'standard' storage class, and in Rancher as the 'local-path' storage class.
   if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
-      export STORAGE_CLASS="standard"
+    export STORAGE_CLASS="standard"
 
   elif [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
     export STORAGE_CLASS="local-path"
@@ -142,6 +142,7 @@ data:
   fabric_gateway_tlsCertPath: /fabric/tlscacerts/tlsca-signcert.pem
   identity_endpoint: http://identity-management:3000
   data_folder: /fabric/data
+  consumer_group: potato-potato-potato
 EOF
 
   kubectl -n $NS apply -f "build/app-fabric-org${org}-v1-map.yaml"
@@ -176,6 +177,7 @@ data:
 EOF
 
   kubectl -n "$NS" apply -f "build/app-fabric-api-v1-map.yaml"
+  pop_fn
 }
 
 function deploy_api() {
@@ -183,6 +185,80 @@ function deploy_api() {
   docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/api" application/api
   docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/api"
   envsubst <kube/api-deployment.yaml | kubectl -n "$NS" apply -f -
+}
+
+function explorer_config() {
+  push_fn "Create Config Maps and secrets"
+  export EXPLORER_CHANNEL_NAME=sla
+  export EXPLORER_ORG_MSP=Org1MSP
+  export EXPLORER_ORG_PEER_GATEWAY=org1-peer-gateway-svc
+  export EXPLORER_CA_CERT_PATH=/fabric/tlscacerts/tlsca-signcert.pem
+  export EXPLORER_ORG_GATEWAY_PORT=org1-peer-gateway-svc:8051
+  export EXPLORER_ADMIN_CERT=/fabric/keys/cert.pem
+  export EXPLORER_ADMIN_PK=/fabric/keys/key.pem
+
+  local PK="${TEMP_DIR}/enrollments/org1/users/org1admin/msp/keystore/key.pem"
+  local CERT="${TEMP_DIR}/enrollments/org1/users/org1admin/msp/signcerts/cert.pem"
+
+  kubectl -n $NS delete configmap app-fabric-explorer-pk-v1 || true
+  kubectl -n $NS create configmap app-fabric-explorer-pk-v1 --from-file=$PK
+
+  kubectl -n $NS delete configmap app-fabric-explorer-cert-v1 || true
+  kubectl -n $NS create configmap app-fabric-explorer-cert-v1 --from-file=$CERT
+
+  mkdir -p "${TEMP_DIR}/explorer-local"
+  envsubst <./explorer-local/connection-profile/test-network.json >${TEMP_DIR}/explorer-local/network.json
+
+  kubectl -n $NS delete configmap app-fabric-explorer-network-v1 || true
+  kubectl -n $NS create configmap app-fabric-explorer-network-v1 --from-file=${TEMP_DIR}/explorer-local/network.json
+
+  envsubst <./explorer-local/config.json >${TEMP_DIR}/explorer-local/config.json
+  kubectl -n $NS delete configmap app-fabric-explorer-config-v1 || true
+  kubectl -n $NS create configmap app-fabric-explorer-config-v1 --from-file=${TEMP_DIR}/explorer-local/config.json
+
+  cat <<EOF >build/app-fabric-explorer-v1-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-fabric-explorer-v1-map
+data:
+  DATABASE_HOST: explorerdb
+  DATABASE_DATABASE: fabricexplorer
+  DATABASE_USERNAME: hppoc
+  DATABASE_PASSWORD: password
+  LOG_LEVEL_APP: debug
+  LOG_LEVEL_DB: info
+  LOG_LEVEL_CONSOLE: debug
+  LOG_CONSOLE_STDOUT: "true"
+  DISCOVERY_AS_LOCALHOST: "false"
+  PORT: "8000"
+EOF
+
+  kubectl -n $NS apply -f "build/app-fabric-explorer-v1-map.yaml"
+
+  pop_fn
+
+  push_fn "Run deployment"
+
+  if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
+    export STORAGE_CLASS="standard"
+
+  elif [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
+    export STORAGE_CLASS="local-path"
+  else
+    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
+    exit 1
+  fi
+  envsubst <kube/explorer-db-deployment.yaml | kubectl -n $NS delete -f - || true
+  envsubst <kube/explorer-db-deployment.yaml | kubectl -n $NS apply -f -
+
+  sleep 10s
+
+  envsubst <kube/explorer-deployment.yaml | kubectl -n $NS delete -f - || true
+  envsubst <kube/explorer-deployment.yaml | kubectl -n $NS apply -f -
+
+  pop_fn
+
 }
 
 function application_command_group() {
@@ -208,6 +284,8 @@ function application_command_group() {
     log "Deploying api: "
     deploy_api
     log "🏁 - Config is ready."
+  elif [ "${COMMAND}" == "explorer" ]; then
+    explorer_config
   else
     log "Uknown command"
     exit 1

@@ -1,5 +1,5 @@
 {
-	"name": "test-network",
+	"name": "${NS}",
 	"version": "1.0.0",
 	"client": {
 		"tlsEnable": true,
@@ -8,7 +8,7 @@
 			"password": "exploreradminpw"
 		},
 		"enableAuthentication": true,
-		"organization": "Org1MSP",
+		"organization": "${EXPLORER_ORG_MSP}",
 		"connection": {
 			"timeout": {
 				"peer": {
@@ -19,30 +19,30 @@
 		}
 	},
 	"channels": {
-		"sla": {
+		"${EXPLORER_CHANNEL_NAME}": {
 			"peers": {
-				"peer0.org1.example.com": {}
+				"${EXPLORER_ORG_PEER_GATEWAY}": {}
 			}
 		}
 	},
 	"organizations": {
-		"Org1MSP": {
-			"mspid": "Org1MSP",
+		"${EXPLORER_ORG_MSP}": {
+			"mspid": "${EXPLORER_ORG_MSP}",
 			"adminPrivateKey": {
-				"path": "/tmp/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/921e7c33302ae50b0b0f43b7467d287ff9acfd74d3bb5ac79e74f8465a51a56e_sk"
+				"path": "${EXPLORER_ADMIN_PK}"
 			},
-			"peers": ["peer0.org1.example.com"],
+			"peers": ["${EXPLORER_ORG_PEER_GATEWAY}"],
 			"signedCert": {
-				"path": "/tmp/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/cert.pem"
+				"path": "${EXPLORER_ADMIN_CERT}"
 			}
 		}
 	},
 	"peers": {
-		"peer0.org1.example.com": {
+		"${EXPLORER_ORG_PEER_GATEWAY}": {
 			"tlsCACerts": {
-				"path": "/tmp/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
+				"path": "${EXPLORER_CA_CERT_PATH}"
 			},
-			"url": "grpcs://peer0.org1.example.com:7051"
+			"url": "grpcs://${EXPLORER_ORG_GATEWAY_PORT}"
 		}
 	}
 }

@@ -1,0 +1,51 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorerdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: explorerdb
+  template:
+    metadata:
+      labels:
+        app: explorerdb
+    spec:
+      containers:
+        - name: explorerdb
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "0.1"
+          image: hyperledger/explorer-db:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: app-fabric-explorer-v1-map
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: pgdata
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: explorerdb
+spec:
+  ports:
+    - name: db
+      port: 5432
+      protocol: TCP
+  selector:
+    app: explorerdb
+

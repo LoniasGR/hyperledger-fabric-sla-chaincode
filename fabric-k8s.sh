@@ -72,6 +72,7 @@ function identity_management() {
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management application/identity_management >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management >>network-debug.log
     # Maybe todo: change the namespace here
+    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete -f kube/identity-management-client.yaml
     kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/identity-management-client.yaml
     log "🏁 Identity management pod built"
     log_line
@@ -92,6 +93,7 @@ function sla_client() {
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client application/sla_client >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client >>network-debug.log
     # Maybe todo: change the namespace here
+    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete -f kube/sla-client-deployment.yaml
     kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/sla-client-deployment.yaml
     log "🏁 SLA client pod built"
 }
@@ -111,6 +113,7 @@ function vru_client() {
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client application/vru_client >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client >>network-debug.log
     # Maybe todo: change the namespace here
+    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete -f kube/vru-client-deployment.yaml
     kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/vru-client-deployment.yaml
     log "🏁 VRU client pod built"
 }
@@ -130,6 +133,7 @@ function parts_client() {
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client application/parts_client >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client >>network-debug.log
     # Maybe todo: change the namespace here
+    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete -f kube/parts-client-deployment.yaml
     kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/parts-client-deployment.yaml
     log "🏁 Parts client pod built"
 }
@@ -141,6 +145,14 @@ function api() {
     ./network-k8s.sh application api
 
 }
+
+function explorer() {
+    printf '' >network-debug.log
+    ./network-k8s.sh application explorer
+
+}
+
+
 ## Parse mode
 if [[ $# -lt 1 ]]; then
     log "Only valid mode is 'deploy'"
@@ -151,14 +163,15 @@ else
 fi
 
 if [ "${MODE}" == "deploy" ]; then
-    down
-    deploy
-    init_application_config
-    sla_client
+    # down
+    # deploy
+    # init_application_config
+    # sla_client
     vru_client
-    parts_client
-    identity_management
-    api
+    # parts_client
+    # identity_management
+    # api
+    # explorer
 elif [ "${MODE}" == "down" ]; then
     down
 else

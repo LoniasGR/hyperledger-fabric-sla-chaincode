@@ -39,7 +39,7 @@ services:
       - DATABASE_DATABASE=fabricexplorer
       - DATABASE_USERNAME=hppoc
       - DATABASE_PASSWD=password
-      - LOG_LEVEL_APP=info
+      - LOG_LEVEL_APP=
       - LOG_LEVEL_DB=info
       - LOG_LEVEL_CONSOLE=debug
       - LOG_CONSOLE_STDOUT=true
