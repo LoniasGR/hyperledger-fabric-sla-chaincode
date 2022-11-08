@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
@@ -56,7 +57,7 @@ func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		err = fmt.Errorf(string(lib.ColorRed)+"failed to get response body: %s\n"+string(lib.ColorReset), err)
 		return false, "", err

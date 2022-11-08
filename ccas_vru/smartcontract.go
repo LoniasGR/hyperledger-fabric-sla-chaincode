@@ -30,7 +30,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 
 	exists, err := s.ContractExists(ctx, strconv.FormatInt(vru.Timestamp, 10))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to check contract existence: %v", err)
 	}
 	if exists {
 		return fmt.Errorf("the Contract %v already exists", vru.Timestamp)

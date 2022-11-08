@@ -188,7 +188,7 @@ func main() {
 					string(vru_json),
 				)
 				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %v\n"+string(lib.ColorReset), err)
 					continue
 				}
 				fmt.Println(string(result))
