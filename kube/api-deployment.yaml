@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: app-fabric-org1-v1-map
+                name: app-fabric-api-v1-map
           ports:
             - containerPort: 3000
           resources:
