@@ -31,6 +31,7 @@ type Config struct {
 	channelName        string
 	chaincodeName      string
 	identityEndpoint   string
+	consumerGroup      string
 	UserConf           *UserConfig
 }
 
@@ -55,6 +56,7 @@ func loadConfig() *Config {
 	conf.chaincodeName = os.Getenv("fabric_contract")
 	conf.identityEndpoint = os.Getenv("identity_endpoint")
 	conf.dataFolder = os.Getenv("data_folder")
+	conf.consumerGroup = os.Getenv("consumer_group")
 	conf.slaJSONFile = filepath.Join(conf.dataFolder, "sla.json")
 	conf.violationsJSONFile = filepath.Join(conf.dataFolder, "violations.json")
 
@@ -88,7 +90,7 @@ func main() {
 
 	configFile := lib.ParseArgs()
 
-	c_sla, err := kafkaUtils.CreateConsumer(*configFile[0], "sla-client-group")
+	c_sla, err := kafkaUtils.CreateConsumer(*configFile[0], conf.consumerGroup)
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
@@ -174,7 +176,8 @@ func main() {
 				var sla lib.SLA
 				err = json.Unmarshal(msg.Value, &sla)
 				if err != nil {
-					log.Fatalf("failed to unmarshal: %s", err)
+					log.Printf("failed to unmarshal: %s", err)
+					continue
 				}
 				log.Println(sla)
 
@@ -213,7 +216,8 @@ func main() {
 				var v lib.Violation
 				err = json.Unmarshal(msg.Value, &v)
 				if err != nil {
-					log.Fatalf("Unmarshal failed: %s\n", err)
+					log.Printf("Unmarshal failed: %s\n", err)
+					continue
 				}
 				log.Println(v)
 

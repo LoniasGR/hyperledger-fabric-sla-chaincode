@@ -29,6 +29,7 @@ type Config struct {
 	channelName      string
 	chaincodeName    string
 	identityEndpoint string
+	consumerGroup    string
 	UserConf         *UserConfig
 }
 
@@ -52,6 +53,7 @@ func loadConfig() *Config {
 	conf.channelName = os.Getenv("fabric_channel")
 	conf.chaincodeName = os.Getenv("fabric_contract")
 	conf.identityEndpoint = os.Getenv("identity_endpoint")
+	conf.consumerGroup = os.Getenv("consumer_group")
 	conf.dataFolder = os.Getenv("data_folder")
 	conf.dataJSONFile = filepath.Join(conf.dataFolder, "parts.json")
 
@@ -88,7 +90,7 @@ func main() {
 
 	configFile := lib.ParseArgs()
 
-	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], "uc3-consumer-group")
+	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], conf.consumerGroup)
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
@@ -164,7 +166,8 @@ func main() {
 			// Unmarshal object and print it to stdout
 			err = json.Unmarshal(msg.Value, &part)
 			if err != nil {
-				log.Fatalf("failed to unmarshal: %s", err)
+				log.Printf("failed to unmarshal: %s", err)
+				continue
 			}
 			log.Println(part, '\n')
 

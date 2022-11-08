@@ -29,6 +29,7 @@ type Config struct {
 	channelName      string
 	chaincodeName    string
 	identityEndpoint string
+	consumerGroup    string
 	UserConf         *UserConfig
 }
 
@@ -53,6 +54,7 @@ func loadConfig() *Config {
 	conf.chaincodeName = os.Getenv("fabric_contract")
 	conf.identityEndpoint = os.Getenv("identity_endpoint")
 	conf.dataFolder = os.Getenv("data_folder")
+	conf.consumerGroup = os.Getenv("consumer_group")
 	conf.dataJSONFile = filepath.Join(conf.dataFolder, "vru.json")
 
 	b, err := os.ReadFile("/fabric/application/wallet/appuser_org2.id")
@@ -88,7 +90,7 @@ func main() {
 
 	configFile := lib.ParseArgs()
 
-	c_vru, err := kafkaUtils.CreateConsumer(*configFile[0], "vru-consumer-group")
+	c_vru, err := kafkaUtils.CreateConsumer(*configFile[0], conf.consumerGroup)
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
@@ -162,7 +164,8 @@ func main() {
 
 			err = json.Unmarshal(msg.Value, &vru_slice)
 			if err != nil {
-				log.Fatalf("failed to unmarshal: %s", err)
+				log.Printf("failed to unmarshal: %s", err)
+				continue
 			}
 			log.Println(vru_slice)
 
