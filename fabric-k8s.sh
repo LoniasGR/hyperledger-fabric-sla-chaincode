@@ -163,15 +163,15 @@ else
 fi
 
 if [ "${MODE}" == "deploy" ]; then
-    # down
-    # deploy
-    # init_application_config
-    # sla_client
+    down
+    deploy
+    init_application_config
+    sla_client
     vru_client
-    # parts_client
-    # identity_management
-    # api
-    # explorer
+    parts_client
+    identity_management
+    api
+    explorer
 elif [ "${MODE}" == "down" ]; then
     down
 else
