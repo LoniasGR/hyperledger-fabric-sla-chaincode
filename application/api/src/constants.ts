@@ -21,9 +21,9 @@ export const org2MSPId = envOrDefault('ORG2_MSP_ID', 'Org2MSP');
 export const org3MSPId = envOrDefault('ORG3_MSP_ID', 'Org3MSP');
 
 // Path to peer tls certificate.
-export const org1TlsCertPath = envOrDefault('ORG1_TLS_CERT_PATH', path.resolve('fabric/tlscacerts/org1/tlsca-signcert.pem'));
-export const org2TlsCertPath = envOrDefault('ORG2_TLS_CERT_PATH', path.resolve('fabric/tlscacerts/org2/tlsca-signcert.pem'));
-export const org3TlsCertPath = envOrDefault('ORG3_TLS_CERT_PATH', path.resolve('fabric/tlscacerts/org3/tlsca-signcert.pem'));
+export const org1TlsCertPath = envOrDefault('ORG1_TLS_CERT_PATH', '/fabric/tlscacerts/org1/tlsca-signcert.pem');
+export const org2TlsCertPath = envOrDefault('ORG2_TLS_CERT_PATH', '/fabric/tlscacerts/org2/tlsca-signcert.pem');
+export const org3TlsCertPath = envOrDefault('ORG3_TLS_CERT_PATH', '/fabric/tlscacerts/org3/tlsca-signcert.pem');
 // Gateway peer endpoint.
 export const org1PeerEndpoint = envOrDefault('fabric_org1_gateway_hostport', 'localhost:7051');
 export const org2PeerEndpoint = envOrDefault('fabric_org2_gateway_hostport', 'localhost:9051');
