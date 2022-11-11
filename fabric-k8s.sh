@@ -13,7 +13,8 @@ export VRU_CC_SRC_PATH="${PWD}/ccas_vru"
 export PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
 
 export TEST_NETWORK_NETWORK_NAME=pledger-dlt
-export TEST_NETWORK_LOCAL_REGISTRY_DOMAIN=localhost:5000
+export TEST_NETWORK_LOCAL_REGISTRY_DOMAIN=localhost:8080
+export TEST_NETWORK_LOCAL_REGISTRY_PORT=8080
 
 function log_line() {
     echo -e "==============================================" >>network-debug.log

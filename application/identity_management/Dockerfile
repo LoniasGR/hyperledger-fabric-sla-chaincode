@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
 COPY --chown=node:node --from=build /app .
 
-EXPOSE 3000
+EXPOSE 8000
 
 ENTRYPOINT [ "dumb-init", "--", "npm", "run"]
 CMD ["start"]

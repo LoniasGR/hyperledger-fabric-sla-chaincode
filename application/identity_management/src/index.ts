@@ -4,7 +4,7 @@ import { prepareContext, createUser, userExists } from './manageUser';
 import enrollAdmin from './enrollAdmin';
 
 dotenv.config();
-const port = process.env.EXPRESS_PORT || 3000;
+const port = process.env.EXPRESS_PORT || 8000;
 
 const ledgers: Array<string> = ['sla', 'vru', 'parts'];
 

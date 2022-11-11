@@ -140,7 +140,7 @@ data:
   fabric_gateway_sslHostOverride: org${org}-peer-gateway-svc
   fabric_user: appuser_org${org}
   fabric_gateway_tlsCertPath: /fabric/tlscacerts/tlsca-signcert.pem
-  identity_endpoint: http://identity-management:3000
+  identity_endpoint: http://identity-management:8000
   data_folder: /fabric/data
   consumer_group: potato-potato-potato
 EOF
@@ -173,7 +173,7 @@ data:
   fabric_org2_gateway_sslHostOverride: org2-peer-gateway-svc
   fabric_org3_gateway_sslHostOverride: org3-peer-gateway-svc
 
-  identity_endpoint: http://identity-management:3000
+  identity_endpoint: http://identity-management:8000
 EOF
 
   kubectl -n "$NS" apply -f "build/app-fabric-api-v1-map.yaml"

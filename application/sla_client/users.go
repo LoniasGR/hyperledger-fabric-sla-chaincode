@@ -116,7 +116,7 @@ func splitCertificate(certificate string) string {
 func saveCertificates(name, privateKey, publicKey string) error {
 	data := fmt.Sprintf("%v\n%v",
 		privateKey, publicKey)
-	filename := fmt.Sprintf(lib.KeysFolder+"%v.keys", name)
+	filename := fmt.Sprintf("./keys/%v.keys", name)
 	err := os.WriteFile(filename, []byte(data), 0644)
 	if err != nil {
 		return fmt.Errorf("failed to write keys: %v", err)

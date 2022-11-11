@@ -5,7 +5,7 @@ function envOrDefault(key: string, defaultValue: string): string {
 }
 
 export const expressPort = envOrDefault('EXPRESS_PORT', '8000');
-export const userManagementServiceURL = envOrDefault('identity_endpoint', 'http://localhost:3000');
+export const userManagementServiceURL = envOrDefault('identity_endpoint', 'http://localhost:8000');
 
 export const SLAChannelName = envOrDefault('fabric_sla_channel', 'sla');
 export const SLAChaincodeName = envOrDefault('fabric_sla_contract', 'slasc_bridge');

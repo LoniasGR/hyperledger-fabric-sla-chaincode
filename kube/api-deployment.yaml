@@ -26,7 +26,7 @@ spec:
             - configMapRef:
                 name: app-fabric-api-v1-map
           ports:
-            - containerPort: 3000
+            - containerPort: 8000
           resources:
             requests:
               memory: "50Mi"
