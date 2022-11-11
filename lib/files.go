@@ -14,7 +14,7 @@ func FileExists(path string) (bool, error) {
 	if errors.Is(err, os.ErrNotExist) {
 		exists = false
 	} else if err != nil {
-		return false, fmt.Errorf("%v", err)
+		return false, fmt.Errorf("%w", err)
 	} else {
 		exists = true
 	}
@@ -49,8 +49,8 @@ func OpenJsonFile(path string) (*os.File, error) {
 	stat, _ := f.Stat()
 	fsize := stat.Size()
 
-	// We seek the file to find where the array ends.
 	for {
+		// We seek the file to find where the array ends.
 		cursor -= 1
 		f.Seek(cursor, io.SeekEnd)
 
@@ -79,6 +79,11 @@ func OpenJsonFile(path string) (*os.File, error) {
 			}
 
 			f.WriteAt([]byte{' '}, fsize+cursor)
+			return f, nil
+		}
+
+		// The previous process may have died unexpectedly and not closed the file.
+		if char[0] == ',' {
 			return f, nil
 		}
 
