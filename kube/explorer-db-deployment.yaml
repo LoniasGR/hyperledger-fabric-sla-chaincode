@@ -44,7 +44,8 @@ metadata:
 spec:
   ports:
     - name: db
-      port: 5432
+      targetPort: 5432
+      port: 8432
       protocol: TCP
   selector:
     app: explorerdb

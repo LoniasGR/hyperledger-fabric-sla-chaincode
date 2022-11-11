@@ -224,6 +224,7 @@ metadata:
 data:
   DATABASE_HOST: explorerdb
   DATABASE_DATABASE: fabricexplorer
+  DATABASE_PORT: "8432"
   DATABASE_USERNAME: hppoc
   DATABASE_PASSWORD: password
   LOG_LEVEL_APP: debug
