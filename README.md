@@ -5,7 +5,7 @@
 
 To deploy the network, the kafka configuration is needed for the consumers. To create it:
 
-1. Install `sudo apt install openjdk-8-jre-headless` or similar (`keytool` is needed).
+1. Install `openjdk-8-jre-headless` or similar (`keytool` is needed) and `openssl`.
 2. Run `scripts/JKS2PEM.sh`.
    For example run:
    ```bash
