@@ -1,7 +1,7 @@
 github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220510101724-c3c41a5c26d6 h1:ehv6sYLPROlsd3EXNao7cxoKQVws8cYEr1yUnNRKlW4=
 github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220510101724-c3c41a5c26d6/go.mod h1:PsX9WK/+KPs3JcLckx9aN/pFLHv0MvoZWqFd/RpQzSo=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221027112818-4d4cb5550deb h1:0Ht0uo8LyG38xyOqJtIW0PrvCBpu/jcNhNSZ/GrAWII=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221027112818-4d4cb5550deb/go.mod h1:Oc8rb4DZmjYmKebSgzoZUYNswy0HeajHO8wfT8rQrmY=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221111104235-b1957acf1f81 h1:zUqDO06ULoh2gF+vBerisJZxPLYhMuZbjgHh3rq6s1s=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221111104235-b1957acf1f81/go.mod h1:Oc8rb4DZmjYmKebSgzoZUYNswy0HeajHO8wfT8rQrmY=
 github.com/confluentinc/confluent-kafka-go v1.8.2 h1:PBdbvYpyOdFLehj8j+9ba7FL4c4Moxn79gy9cYKxG5E=
 github.com/confluentinc/confluent-kafka-go v1.8.2/go.mod h1:u2zNLny2xq+5rWeTQjFHbDzzNuba4P1vo31r9r4uAdg=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
