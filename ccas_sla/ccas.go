@@ -24,7 +24,7 @@ func main() {
 	chaincode, err := contractapi.NewChaincode(&SmartContract{})
 
 	if err != nil {
-		log.Panicf("error create slasc_bridge chaincode: %w", err)
+		log.Panicf("error create slasc_bridge chaincode: %s", err)
 	}
 
 	server := &shim.ChaincodeServer{
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	if err := server.Start(); err != nil {
-		log.Panicf("error starting slasc_bridge chaincode: %w", err)
+		log.Panicf("error starting slasc_bridge chaincode: %s", err)
 	}
 }
 
@@ -54,18 +54,18 @@ func getTLSProperties() shim.TLSProperties {
 	if !tlsDisabled {
 		keyBytes, err = os.ReadFile(key)
 		if err != nil {
-			log.Panicf("error while reading the crypto file: %w", err)
+			log.Panicf("error while reading the crypto file: %s", err)
 		}
 		certBytes, err = os.ReadFile(cert)
 		if err != nil {
-			log.Panicf("error while reading the crypto file: %w", err)
+			log.Panicf("error while reading the crypto file: %s", err)
 		}
 	}
 	// Did not request for the peer cert verification
 	if clientCACert != "" {
 		clientCACertBytes, err = os.ReadFile(clientCACert)
 		if err != nil {
-			log.Panicf("error while reading the crypto file: %w", err)
+			log.Panicf("error while reading the crypto file: %s", err)
 		}
 	}
 

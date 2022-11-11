@@ -356,6 +356,7 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 	// If we don't know the type of guarantee
 	default:
 		contract.DailyViolations[0] += 1
+		contract.DailyValue = float64(contract.RefundValue) * float64(vio.Importance)
 	}
 	ContractJSON, err := json.Marshal(contract)
 	if err != nil {
