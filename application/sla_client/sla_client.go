@@ -132,7 +132,7 @@ func main() {
 	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
 	_, err = contract.SubmitTransaction("InitLedger")
 	if err != nil {
-		log.Fatalf("failed to submit transaction: %v", err)
+		log.Fatalf("failed to submit transaction: %w", err)
 	}
 
 	// Initialize the daily refunding process
@@ -167,7 +167,7 @@ func main() {
 				if err.(kafka.Error).Code() == kafka.ErrTimedOut {
 					continue
 				}
-				log.Printf("consumer failed to read: %v", err)
+				log.Printf("consumer failed to read: %w", err)
 				continue
 			}
 
@@ -176,7 +176,7 @@ func main() {
 				var sla lib.SLA
 				err = json.Unmarshal(msg.Value, &sla)
 				if err != nil {
-					log.Printf("failed to unmarshal: %s", err)
+					log.Printf("failed to unmarshal: %w", err)
 					continue
 				}
 				log.Println(sla)
@@ -205,7 +205,7 @@ func main() {
 					string(msg.Value),
 				)
 				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %w\n"+string(lib.ColorReset), err)
 					continue
 				}
 				log.Println("submitted")
@@ -216,7 +216,7 @@ func main() {
 				var v lib.Violation
 				err = json.Unmarshal(msg.Value, &v)
 				if err != nil {
-					log.Printf("Unmarshal failed: %s\n", err)
+					log.Printf("Unmarshal failed: %w\n", err)
 					continue
 				}
 				log.Println(v)
@@ -229,7 +229,7 @@ func main() {
 				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))
 				result, err := contract.SubmitTransaction("SLAViolated", string(msg.Value))
 				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %w\n"+string(lib.ColorReset), err)
 					continue
 				}
 				log.Println(string(result))
@@ -248,7 +248,7 @@ func runRefunds(contract client.Contract) error {
 
 	_, err := contract.SubmitTransaction("RefundAllSLAs")
 	if err != nil {
-		return fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+		return fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %w\n"+string(lib.ColorReset), err)
 	}
 	return nil
 }

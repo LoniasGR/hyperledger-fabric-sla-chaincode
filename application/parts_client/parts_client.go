@@ -59,12 +59,12 @@ func loadConfig() *Config {
 
 	b, err := os.ReadFile("/fabric/application/wallet/appuser_org3.id")
 	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+		log.Fatalf("failed to load config: %w", err)
 	}
 	var userConf UserConfig
 	err = json.Unmarshal(b, &userConf)
 	if err != nil {
-		log.Fatalf("failed to unmarsal userConf: %v", err)
+		log.Fatalf("failed to unmarsal userConf: %w", err)
 	}
 
 	conf.UserConf = &userConf
@@ -85,20 +85,20 @@ func main() {
 	log.Println("============ application-golang starts ============")
 	err := lib.SetDiscoveryAsLocalhost(true)
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("%w", err)
 	}
 
 	configFile := lib.ParseArgs()
 
 	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], conf.consumerGroup)
 	if err != nil {
-		log.Fatalf("failed to create consumer: %v", err)
+		log.Fatalf("failed to create consumer: %w", err)
 	}
 
 	// Subscribe to topic
 	err = c_parts.SubscribeTopics(topics, nil)
 	if err != nil {
-		log.Fatalf("failed to connect to topics: %v", err)
+		log.Fatalf("failed to connect to topics: %w", err)
 	}
 
 	// Cleanup for when the service terminates
@@ -123,7 +123,7 @@ func main() {
 		client.WithCommitStatusTimeout(1*time.Minute),
 	)
 	if err != nil {
-		log.Fatalf("failed to connect to gateway: %v", err)
+		log.Fatalf("failed to connect to gateway: %w", err)
 	}
 	defer gw.Close()
 
@@ -133,13 +133,13 @@ func main() {
 	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
 	_, err = contract.SubmitTransaction("InitLedger")
 	if err != nil {
-		log.Fatalf("failed to submit transaction: %v", err)
+		log.Fatalf("failed to submit transaction: %w", err)
 	}
 
 	// Open file for logging incoming json objects
 	f, err := lib.OpenJsonFile(conf.dataJSONFile)
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("%w", err)
 	}
 	defer lib.CloseJsonFile(f)
 
@@ -155,7 +155,7 @@ func main() {
 				if err.(kafka.Error).Code() == kafka.ErrTimedOut {
 					continue
 				}
-				log.Printf("consumer failed to read: %v", err)
+				log.Printf("consumer failed to read: %w", err)
 				continue
 			}
 			// Print object as json
@@ -166,7 +166,7 @@ func main() {
 			// Unmarshal object and print it to stdout
 			err = json.Unmarshal(msg.Value, &part)
 			if err != nil {
-				log.Printf("failed to unmarshal: %s", err)
+				log.Printf("failed to unmarshal: %w", err)
 				continue
 			}
 			log.Println(part, '\n')
@@ -174,7 +174,7 @@ func main() {
 			// Write json object to file
 			jsonToFile, _ := json.MarshalIndent(part, "", " ")
 			if err = lib.WriteJsonObjectToFile(f, jsonToFile); err != nil {
-				log.Printf("%v", err)
+				log.Printf("%w", err)
 			}
 
 			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
@@ -184,7 +184,7 @@ func main() {
 				string(msg.Value),
 			)
 			if err != nil {
-				log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+				log.Printf(string(lib.ColorRed)+"failed to submit transaction: %w\n"+string(lib.ColorReset), err)
 				continue
 			}
 			fmt.Println(string(result))

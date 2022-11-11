@@ -42,14 +42,14 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 func (s *SmartContract) UserBalance(ctx contractapi.TransactionContextInterface, id string) (float64, error) {
 	user, err := s.ReadUser(ctx, id)
 	if err != nil {
-		return 0, fmt.Errorf("could not read user: %v", err)
+		return 0, fmt.Errorf("could not read user: %w", err)
 	}
 
 	var currentBalance float64
 
 	currentBalance, err = strconv.ParseFloat(string(user.Balance), 64)
 	if err != nil {
-		return 0, fmt.Errorf("could not convert balance: %v", err)
+		return 0, fmt.Errorf("could not convert balance: %w", err)
 	}
 
 	return currentBalance, nil
@@ -72,7 +72,7 @@ func (s *SmartContract) CreateUser(ctx contractapi.TransactionContextInterface,
 
 	user, err := s.QueryUsersByPublicKey(ctx, pubkey)
 	if err != nil {
-		return fmt.Errorf("querying for public key failed: %v", err)
+		return fmt.Errorf("querying for public key failed: %w", err)
 	}
 	if (user != User{}) {
 		return fmt.Errorf("public key already exists")
@@ -86,7 +86,7 @@ func (s *SmartContract) CreateUser(ctx contractapi.TransactionContextInterface,
 	}
 	userBytes, err := json.Marshal(user)
 	if err != nil {
-		return fmt.Errorf("unable to marshal json: %v", err)
+		return fmt.Errorf("unable to marshal json: %w", err)
 	}
 	return ctx.GetStub().PutState(fmt.Sprintf("user_%v", name), userBytes)
 }
@@ -98,14 +98,14 @@ func (s *SmartContract) Mint(ctx contractapi.TransactionContextInterface, id str
 	}
 	currentBalance, err := s.UserBalance(ctx, id)
 	if err != nil {
-		return "", fmt.Errorf("failed to read minter account %s from world state: %v", id, err)
+		return "", fmt.Errorf("failed to read minter account %s from world state: %w", id, err)
 	}
 
 	updatedBalance := currentBalance + amount
 
 	err = s.updateUserBalance(ctx, id, updatedBalance)
 	if err != nil {
-		return "", fmt.Errorf("could not update user balance: %v", err)
+		return "", fmt.Errorf("could not update user balance: %w", err)
 	}
 
 	return fmt.Sprintf("New balance is: %f\n", updatedBalance), nil
@@ -119,7 +119,7 @@ func (s *SmartContract) transferTokens(ctx contractapi.TransactionContextInterfa
 
 	fromBalance, err := s.UserBalance(ctx, from)
 	if err != nil {
-		return fmt.Errorf("could not get balance of transferer during token transfer: %v", err)
+		return fmt.Errorf("could not get balance of transferer during token transfer: %w", err)
 	}
 	if fromBalance < amount {
 		return fmt.Errorf("transferer does not have enough tokens to complete transfer")
@@ -127,7 +127,7 @@ func (s *SmartContract) transferTokens(ctx contractapi.TransactionContextInterfa
 
 	toBalance, err := s.UserBalance(ctx, to)
 	if err != nil {
-		return fmt.Errorf("could not get balance of transferee during token transfer: %v", err)
+		return fmt.Errorf("could not get balance of transferee during token transfer: %w", err)
 	}
 
 	updatedFromBalance := fromBalance - amount
@@ -135,12 +135,12 @@ func (s *SmartContract) transferTokens(ctx contractapi.TransactionContextInterfa
 
 	err = s.updateUserBalance(ctx, from, updatedFromBalance)
 	if err != nil {
-		return fmt.Errorf("could not update sender's balance: %v", err)
+		return fmt.Errorf("could not update sender's balance: %w", err)
 	}
 
 	err = s.updateUserBalance(ctx, to, updatedToBalance)
 	if err != nil {
-		return fmt.Errorf("could not update receiver's balance: %v", err)
+		return fmt.Errorf("could not update receiver's balance: %w", err)
 	}
 	return nil
 }
@@ -163,7 +163,7 @@ func (s *SmartContract) CreateOrUpdateContract(ctx contractapi.TransactionContex
 
 	exists, err = s.UserExists(ctx, sla.Details.Client.Name)
 	if err != nil {
-		return fmt.Errorf("client account %s could not be read: %v", sla.Details.Client.ID, err)
+		return fmt.Errorf("client account %s could not be read: %w", sla.Details.Client.ID, err)
 	}
 	if !exists {
 		return fmt.Errorf("client does not exist")
@@ -210,7 +210,7 @@ func (s *SmartContract) CreateOrUpdateContract(ctx contractapi.TransactionContex
 func (s *SmartContract) ReadContract(ctx contractapi.TransactionContextInterface, id string) (*sla_contract, error) {
 	ContractJSON, err := ctx.GetStub().GetState(fmt.Sprintf("contract_%v", id))
 	if err != nil {
-		return nil, fmt.Errorf("failed to read from world state: %v", err)
+		return nil, fmt.Errorf("failed to read from world state: %w", err)
 	}
 	if ContractJSON == nil {
 		return nil, fmt.Errorf("the Contract %s does not exist", id)
@@ -228,12 +228,12 @@ func (s *SmartContract) ReadContract(ctx contractapi.TransactionContextInterface
 func (s *SmartContract) ReadUser(ctx contractapi.TransactionContextInterface, id string) (User, error) {
 	userBytes, err := ctx.GetStub().GetState(fmt.Sprintf("user_%v", id))
 	if err != nil {
-		return User{}, fmt.Errorf("user with id %v could not be read from world state: %v", id, err)
+		return User{}, fmt.Errorf("user with id %v could not be read from world state: %w", id, err)
 	}
 	var user User
 	err = json.Unmarshal(userBytes, &user)
 	if err != nil {
-		return User{}, fmt.Errorf("failed to unmarshal file: %v", err)
+		return User{}, fmt.Errorf("failed to unmarshal file: %w", err)
 	}
 	return user, nil
 }
@@ -256,13 +256,13 @@ func (s *SmartContract) QueryUsersByPublicKey(ctx contractapi.TransactionContext
 
 	queryResult, err := resultsIterator.Next()
 	if err != nil {
-		return User{}, fmt.Errorf("taking result from iterator failed: %v", err)
+		return User{}, fmt.Errorf("taking result from iterator failed: %w", err)
 	}
 
 	var user User
 	err = json.Unmarshal(queryResult.Value, &user)
 	if err != nil {
-		return User{}, fmt.Errorf("could not unmarshal user: %v", err)
+		return User{}, fmt.Errorf("could not unmarshal user: %w", err)
 	}
 
 	return user, nil
@@ -274,13 +274,13 @@ func (s *SmartContract) updateUserBalance(ctx contractapi.TransactionContextInte
 
 	user, err := s.ReadUser(ctx, id)
 	if err != nil {
-		return fmt.Errorf("failed to read user %v", err)
+		return fmt.Errorf("failed to read user %w", err)
 	}
 	user.Balance = fmt.Sprintf("%f", newBalance)
 
 	userBytes, err := json.Marshal(user)
 	if err != nil {
-		return fmt.Errorf("failed to marshall user: %v", err)
+		return fmt.Errorf("failed to marshall user: %w", err)
 	}
 	return ctx.GetStub().PutState(fmt.Sprintf("user_%v", id), userBytes)
 }
@@ -302,7 +302,7 @@ func (s *SmartContract) DeleteContract(ctx contractapi.TransactionContextInterfa
 func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	ContractJSON, err := ctx.GetStub().GetState(fmt.Sprintf("contract_%v", id))
 	if err != nil {
-		return false, fmt.Errorf("failed to read from world state: %v", err)
+		return false, fmt.Errorf("failed to read from world state: %w", err)
 	}
 
 	return ContractJSON != nil, nil
@@ -312,7 +312,7 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 func (s *SmartContract) UserExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	UserJSON, err := ctx.GetStub().GetState(fmt.Sprintf("user_%v", id))
 	if err != nil {
-		return false, fmt.Errorf("failed to read from world state: %v", err)
+		return false, fmt.Errorf("failed to read from world state: %w", err)
 	}
 
 	return UserJSON != nil, nil
@@ -323,7 +323,7 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 	var vio lib.Violation
 	err := json.Unmarshal([]byte(violation), &vio)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal json: %v", err)
+		return fmt.Errorf("failed to unmarshal json: %w", err)
 	}
 
 	contract, err := s.ReadContract(ctx, vio.SLAID)
@@ -363,7 +363,7 @@ func (s *SmartContract) SLAViolated(ctx contractapi.TransactionContextInterface,
 	}
 
 	if err != nil {
-		return fmt.Errorf("could not transfer tokens from violation: %v", err)
+		return fmt.Errorf("could not transfer tokens from violation: %w", err)
 	}
 
 	return ctx.GetStub().PutState(fmt.Sprintf("contract_%v", vio.SLAID), ContractJSON)

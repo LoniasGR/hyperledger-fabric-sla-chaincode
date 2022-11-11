@@ -34,7 +34,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 	var part lib.Part
 	err := json.Unmarshal([]byte(contractJSON), &part)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal json: %v", err)
+		return fmt.Errorf("failed to unmarshal json: %w", err)
 	}
 
 	exists, err := s.ContractExists(ctx, fmt.Sprintf("%v_%v", part.Timestamp, part.Id.Oid))
@@ -65,7 +65,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	ContractJSON, err := ctx.GetStub().GetState(fmt.Sprintf("contract_%v", id))
 	if err != nil {
-		return false, fmt.Errorf("failed to read from world state: %v", err)
+		return false, fmt.Errorf("failed to read from world state: %w", err)
 	}
 
 	return ContractJSON != nil, nil
