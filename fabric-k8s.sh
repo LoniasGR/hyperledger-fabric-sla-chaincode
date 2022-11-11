@@ -3,6 +3,7 @@
 export SLA_CHANNEL_NAME=sla
 export VRU_CHANNEL_NAME=vru
 export PARTS_CHANNEL_NAME=parts
+export SLA_2_CHANNEL_NAME=sla2.0
 
 export SLA_CHAINCODE_NAME=slasc-bridge
 export VRU_CHAINCODE_NAME=vru-positions
@@ -24,13 +25,17 @@ function log() {
     echo -e "$@"
 }
 
-function down() {
+function unkind() {
     ./network-k8s.sh unkind
 }
+
+function kind() {
+    ./network-k8s.sh kind
+}
+
 function deploy() {
     printf '' >network-debug.log
 
-    ./network-k8s.sh kind
     log_line
 
     ./network-k8s.sh cluster init
@@ -114,8 +119,9 @@ else
 fi
 
 if [ "${MODE}" == "deploy" ]; then
-    # down
-    # deploy
+    unkind
+    kind
+    deploy
     init_application_config
     sla_client
     vru_client
