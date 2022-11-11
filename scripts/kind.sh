@@ -41,7 +41,7 @@ nodes:
         hostPort: ${ingress_https_port}
         protocol: TCP
     extraMounts:
-    - hostPath: /home/app-systems/hyperledger
+    - hostPath: ${HOME}/hyperledger
       containerPath: /var/hyperledger
 #networking:
 #  kubeProxyMode: "ipvs"
