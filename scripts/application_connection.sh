@@ -113,12 +113,12 @@ function construct_global_configmap() {
 
   push_fn "Creating ConfigMap \"app-fabric-ids-v1-map\" with identities for the application"
   kubectl -n $NS delete configmap app-fabric-ids-v1-map || true
-  kubectl -n $NS create configmap app-fabric-ids-v1-map --from-file=./build/application/wallet
+  kubectl -n $NS create configmap app-fabric-ids-v1-map --from-file=${TEMP_DIR}/application/wallet
   pop_fn
 
   push_fn "Creating ConfigMap \"app-fabric-ccp-v1-map\" with ConnectionProfile for the application"
   kubectl -n $NS delete configmap app-fabric-ccp-v1-map || true
-  kubectl -n $NS create configmap app-fabric-ccp-v1-map --from-file=./build/application/gateways
+  kubectl -n $NS create configmap app-fabric-ccp-v1-map --from-file=${TEMP_DIR}/application/gateways
   pop_fn
 }
 
@@ -258,7 +258,63 @@ EOF
   envsubst <kube/explorer-deployment.yaml | kubectl -n $NS apply -f -
 
   pop_fn
+}
 
+function deploy_sla_client() {
+  push_fn "Deploying sla client"
+  export CHANNEL_NAME=${SLA_CHANNEL_NAME}
+  export CHAINCODE_NAME=${SLA_CHAINCODE_NAME}
+
+  cp config/kafka/consumer.properties application/sla_client/
+  cp config/kafka/kafka.client.keystore.jks application/sla_client/
+  cp config/kafka/kafka.client.truststore.jks application/sla_client/
+  cp config/kafka/server.cer.pem application/sla_client/
+
+  construct_application_configmap 1
+  docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client" application/sla_client
+  docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client"
+
+  kubectl -n "${NS}" delete -f kube/sla-client-deployment.yaml
+  kubectl -n "${NS}" apply -f kube/sla-client-deployment.yaml
+  pop_fn
+}
+
+function deploy_vru_client() {
+  push_fn "Deploying sla client"
+  export CHANNEL_NAME=${VRU_CHANNEL_NAME}
+  export CHAINCODE_NAME=${VRU_CHAINCODE_NAME}
+
+  cp config/kafka/consumer.properties application/vru_client/
+  cp config/kafka/kafka.client.keystore.jks application/vru_client/
+  cp config/kafka/kafka.client.truststore.jks application/vru_client/
+  cp config/kafka/server.cer.pem application/vru_client/
+
+  construct_application_configmap 2
+  docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client" application/vru_client
+  docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client"
+
+  kubectl -n "${NS}" delete -f kube/vru-client-deployment.yaml
+  kubectl -n "${NS}" apply -f kube/vru-client-deployment.yaml
+  pop_fn
+}
+
+function deploy_parts_client() {
+  push_fn "Deploying sla client"
+  export CHANNEL_NAME=${PARTS_CHANNEL_NAME}
+  export CHAINCODE_NAME=${PARTS_CHAINCODE_NAME}
+
+  cp config/kafka/consumer.properties application/parts_client/
+  cp config/kafka/kafka.client.keystore.jks application/parts_client/
+  cp config/kafka/kafka.client.truststore.jks application/parts_client/
+  cp config/kafka/server.cer.pem application/parts_client/
+
+  construct_application_configmap 3
+  docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client" application/parts_client
+  docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client"
+
+  kubectl -n "${NS}" delete -f kube/parts-client-deployment.yaml
+  kubectl -n "${NS}" apply -f kube/parts-client-deployment.yaml
+  pop_fn
 }
 
 function application_command_group() {
@@ -274,12 +330,24 @@ function application_command_group() {
 
   elif [ "${COMMAND}" == "create" ]; then
     if [ $# -ne 1 ]; then
-      log "Usage: create {org_nr}"
+      log "Usage: create ORG_NR"
       exit 1
     fi
     log "Creating config for organisation \"$1\":"
     construct_application_configmap "$1"
     log "🏁 - Config is ready."
+  elif [ "${COMMAND}" == "sla" ]; then
+    log "Deploying sla client:"
+    deploy_sla_client
+    log "🏁 - Client deployed"
+  elif [ "${COMMAND}" == "vru" ]; then
+    log "Deploying vru client:"
+    deploy_vru_client
+    log "🏁 - Client deployed"
+  elif [ "${COMMAND}" == "parts" ]; then
+    log "Deploying parts client:"
+    deploy_parts_client
+    log "🏁 - Client deployed"
   elif [ "${COMMAND}" == "api" ]; then
     log "Deploying api: "
     deploy_api

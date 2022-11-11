@@ -13,8 +13,8 @@ export VRU_CC_SRC_PATH="${PWD}/ccas_vru"
 export PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
 
 export TEST_NETWORK_NETWORK_NAME=pledger-dlt
-export TEST_NETWORK_LOCAL_REGISTRY_DOMAIN=localhost:8080
-export TEST_NETWORK_LOCAL_REGISTRY_PORT=8080
+export TEST_NETWORK_LOCAL_REGISTRY_DOMAIN=localhost:5000
+export TEST_NETWORK_LOCAL_REGISTRY_PORT=5000
 
 function log_line() {
     echo -e "==============================================" >>network-debug.log
@@ -80,68 +80,19 @@ function identity_management() {
 }
 
 function sla_client() {
-    printf '' >network-debug.log
-    log "Building SLA client pod"
-    export CHANNEL_NAME=${SLA_CHANNEL_NAME}
-    export CHAINCODE_NAME=${SLA_CHAINCODE_NAME}
-
-    cp config/kafka/consumer.properties application/sla_client/
-    cp config/kafka/kafka.client.keystore.jks application/sla_client/
-    cp config/kafka/kafka.client.truststore.jks application/sla_client/
-    cp config/kafka/server.cer.pem application/sla_client/
-
-    ./network-k8s.sh application create 1
-    docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client application/sla_client >>network-debug.log
-    docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client >>network-debug.log
-    # Maybe todo: change the namespace here
-    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete -f kube/sla-client-deployment.yaml
-    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/sla-client-deployment.yaml
-    log "🏁 SLA client pod built"
+    ./network-k8s.sh application sla
 }
 
 function vru_client() {
-    printf '' >network-debug.log
-    log "Building VRU client pod"
-    export CHANNEL_NAME=${VRU_CHANNEL_NAME}
-    export CHAINCODE_NAME=${VRU_CHAINCODE_NAME}
-
-    cp config/kafka/consumer.properties application/vru_client/
-    cp config/kafka/kafka.client.keystore.jks application/vru_client/
-    cp config/kafka/kafka.client.truststore.jks application/vru_client/
-    cp config/kafka/server.cer.pem application/vru_client/
-
-    ./network-k8s.sh application create 2
-    docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client application/vru_client >>network-debug.log
-    docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client >>network-debug.log
-    # Maybe todo: change the namespace here
-    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete -f kube/vru-client-deployment.yaml
-    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/vru-client-deployment.yaml
-    log "🏁 VRU client pod built"
+    ./network-k8s.sh application vru
 }
 
 function parts_client() {
-    printf '' >network-debug.log
-    log "Building Parts client pod"
-    export CHANNEL_NAME=${PARTS_CHANNEL_NAME}
-    export CHAINCODE_NAME=${PARTS_CHAINCODE_NAME}
-
-    cp config/kafka/consumer.properties application/parts_client/
-    cp config/kafka/kafka.client.keystore.jks application/parts_client/
-    cp config/kafka/kafka.client.truststore.jks application/parts_client/
-    cp config/kafka/server.cer.pem application/parts_client/
-
-    ./network-k8s.sh application create 3
-    docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client application/parts_client >>network-debug.log
-    docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client >>network-debug.log
-    # Maybe todo: change the namespace here
-    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete -f kube/parts-client-deployment.yaml
-    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/parts-client-deployment.yaml
-    log "🏁 Parts client pod built"
+    ./network-k8s.sh application parts
 }
 
-
 function api() {
-     printf '' >network-debug.log
+    printf '' >network-debug.log
     log "Building API pod"
     ./network-k8s.sh application api
 
@@ -153,7 +104,6 @@ function explorer() {
 
 }
 
-
 ## Parse mode
 if [[ $# -lt 1 ]]; then
     log "Only valid mode is 'deploy'"
@@ -164,8 +114,8 @@ else
 fi
 
 if [ "${MODE}" == "deploy" ]; then
-    down
-    deploy
+    # down
+    # deploy
     init_application_config
     sla_client
     vru_client

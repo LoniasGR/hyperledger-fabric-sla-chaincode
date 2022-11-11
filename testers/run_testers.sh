@@ -34,7 +34,7 @@ function warnln() {
 
 function runTesters() {
     TESTER=$1
-    COMMAND="go run . -f ../../kafka-config/producer.properties.dev"
+    COMMAND="go run . -f ../../config/kafka/producer.properties.dev"
 
     if [ "$TESTER" = "sla" ]; then
         infoln "Running SLA producer"
