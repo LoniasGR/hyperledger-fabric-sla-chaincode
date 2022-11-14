@@ -73,7 +73,6 @@ function init_application_config() {
     ./network-k8s.sh application init
 }
 function identity_management() {
-    printf '' >network-debug.log
     log "Building identity management pod"
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management application/identity_management >>network-debug.log
     docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management >>network-debug.log
@@ -97,14 +96,12 @@ function parts_client() {
 }
 
 function api() {
-    printf '' >network-debug.log
     log "Building API pod"
     ./network-k8s.sh application api
 
 }
 
 function explorer() {
-    printf '' >network-debug.log
     ./network-k8s.sh application explorer
 
 }
@@ -119,9 +116,9 @@ else
 fi
 
 if [ "${MODE}" == "deploy" ]; then
-    unkind
-    kind
-    deploy
+    # unkind
+    # kind
+    # deploy
     init_application_config
     sla_client
     vru_client

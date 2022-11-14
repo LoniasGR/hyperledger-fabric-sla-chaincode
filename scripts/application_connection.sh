@@ -262,7 +262,8 @@ EOF
 }
 
 function deploy_sla_client() {
-  push_fn "Deploying sla client"
+  log "Deploying sla client"
+  push_fn "Setting up files"
   export CHANNEL_NAME=${SLA_CHANNEL_NAME}
   export CHAINCODE_NAME=${SLA_CHAINCODE_NAME}
 
@@ -271,17 +272,27 @@ function deploy_sla_client() {
   cp config/kafka/kafka.client.truststore.jks application/sla_client/
   cp config/kafka/server.cer.pem application/sla_client/
 
+  pop_fn
+
   construct_application_configmap 1
+  push_fn "Creating and deploying container"
+
   docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client" application/sla_client
   docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client"
 
-  kubectl -n "${NS}" delete -f kube/sla-client-deployment.yaml
+  kubectl -n "${NS}" delete -f kube/sla-client-deployment.yaml || true
   kubectl -n "${NS}" apply -f kube/sla-client-deployment.yaml
   pop_fn
+
+  rm application/sla_client/consumer.properties
+  rm application/sla_client/kafka.client.keystore.jks
+  rm application/sla_client/kafka.client.truststore.jks
+  rm application/sla_client/server.cer.pem
 }
 
 function deploy_vru_client() {
-  push_fn "Deploying sla client"
+  log "Deploying vru client"
+  push_fn "Setting up files"
   export CHANNEL_NAME=${VRU_CHANNEL_NAME}
   export CHAINCODE_NAME=${VRU_CHAINCODE_NAME}
 
@@ -290,17 +301,27 @@ function deploy_vru_client() {
   cp config/kafka/kafka.client.truststore.jks application/vru_client/
   cp config/kafka/server.cer.pem application/vru_client/
 
+  pop_fn
   construct_application_configmap 2
+
+  push_fn "Creating and deploying container"
+
   docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client" application/vru_client
   docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client"
 
-  kubectl -n "${NS}" delete -f kube/vru-client-deployment.yaml
+  kubectl -n "${NS}" delete -f kube/vru-client-deployment.yaml || true
   kubectl -n "${NS}" apply -f kube/vru-client-deployment.yaml
   pop_fn
+
+  rm application/vru_client/consumer.properties
+  rm application/vru_client/kafka.client.keystore.jks
+  rm application/vru_client/kafka.client.truststore.jks
+  rm application/vru_client/server.cer.pem
 }
 
 function deploy_parts_client() {
-  push_fn "Deploying sla client"
+  log "Deploying parts client"
+  push_fn "Setting up files"
   export CHANNEL_NAME=${PARTS_CHANNEL_NAME}
   export CHAINCODE_NAME=${PARTS_CHAINCODE_NAME}
 
@@ -309,13 +330,24 @@ function deploy_parts_client() {
   cp config/kafka/kafka.client.truststore.jks application/parts_client/
   cp config/kafka/server.cer.pem application/parts_client/
 
+  pop_fn
+
   construct_application_configmap 3
+
+  push_fn "Creating and deploying container"
+
   docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client" application/parts_client
   docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client"
 
-  kubectl -n "${NS}" delete -f kube/parts-client-deployment.yaml
+  kubectl -n "${NS}" delete -f kube/parts-client-deployment.yaml || true
   kubectl -n "${NS}" apply -f kube/parts-client-deployment.yaml
   pop_fn
+
+  rm application/parts_client/consumer.properties
+  rm application/parts_client/kafka.client.keystore.jks
+  rm application/parts_client/kafka.client.truststore.jks
+  rm application/parts_client/server.cer.pem
+
 }
 
 function application_command_group() {
