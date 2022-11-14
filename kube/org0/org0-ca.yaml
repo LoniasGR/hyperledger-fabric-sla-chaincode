@@ -91,7 +91,8 @@ metadata:
 spec:
   ports:
     - name: https
-      port: 443
+      port: 8443
+      targetPort: 443
       protocol: TCP
   selector:
     app: org0-ca
@@ -116,7 +117,7 @@ spec:
               service:
                 name: org0-ca
                 port:
-                  name: https
+                  number: 8443
             path: /
             pathType: ImplementationSpecific
   tls:

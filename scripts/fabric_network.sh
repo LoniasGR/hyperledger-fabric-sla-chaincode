@@ -76,9 +76,12 @@ function create_node_local_MSP() {
   export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/hyperledger/fabric/config/tls/ca.crt
 
   fabric-ca-client enroll \
-    --url https://${id_name}:${id_secret}@${ca_name} \
+    --url https://${id_name}:${id_secret}@${ca_name}:8443 \
     --csr.hosts ${csr_hosts} \
     --mspdir /var/hyperledger/fabric/organizations/${node_type}Organizations/${org}.example.com/${node_type}s/${id_name}.${org}.example.com/msp
+
+  mv /var/hyperledger/fabric/organizations/${node_type}Organizations/${org}.example.com/${node_type}s/${id_name}.${org}.example.com/msp/cacerts/${org}-ca* \
+    /var/hyperledger/fabric/organizations/${node_type}Organizations/${org}.example.com/${node_type}s/${id_name}.${org}.example.com/msp/cacerts/${org}-ca.pem \
 
   # Create local MSP config.yaml
   echo "NodeOUs:
