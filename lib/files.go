@@ -83,7 +83,7 @@ func OpenJsonFile(path string) (*os.File, error) {
 		}
 
 		// The previous process may have died unexpectedly and not closed the file.
-		if char[0] == ',' {
+		if char[0] == ',' || char[0] == '[' {
 			return f, nil
 		}
 
