@@ -130,7 +130,7 @@ if [ "${MODE}" == "deploy" ]; then
     api
     explorer
 elif [ "${MODE}" == "down" ]; then
-    down
+    unkind
 else
     log "Only valid modes are 'deploy' and 'down'"
     exit 1
