@@ -33,18 +33,16 @@ function kind() {
     ./network-k8s.sh kind
 }
 
-function deploy() {
-    printf '' >network-debug.log
-
-    log_line
-
+function init_cluster() {
     ./network-k8s.sh cluster init
-    log_line
+}
 
+function up() {
     ./network-k8s.sh up
     log_line
+}
 
-    # Initialize the channel
+function set_channels() {
     ./network-k8s.sh channel init
     log_line
 
@@ -56,6 +54,9 @@ function deploy() {
 
     ./network-k8s.sh channel create "$PARTS_CHANNEL_NAME" 3
     log_line
+}
+
+function deploy_chaincodes() {
 
     export CHANNEL_NAME=${SLA_CHANNEL_NAME}
     ./network-k8s.sh chaincode deploy 1 $SLA_CHAINCODE_NAME "$SLA_CC_SRC_PATH"
@@ -72,6 +73,7 @@ function deploy() {
 function init_application_config() {
     ./network-k8s.sh application init
 }
+
 function identity_management() {
     log "Building identity management pod"
     docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management application/identity_management >>network-debug.log
@@ -106,6 +108,10 @@ function explorer() {
 
 }
 
+function print_help() {
+    log "Only valid modes are 'deploy' and 'down'"
+}
+
 ## Parse mode
 if [[ $# -lt 1 ]]; then
     log "Only valid mode is 'deploy'"
@@ -116,9 +122,9 @@ else
 fi
 
 if [ "${MODE}" == "deploy" ]; then
-    # unkind
-    # kind
-    # deploy
+    # up
+    set_channels
+    deploy_chaincodes
     init_application_config
     sla_client
     vru_client
@@ -126,9 +132,13 @@ if [ "${MODE}" == "deploy" ]; then
     identity_management
     api
     explorer
+elif [ "${MODE}" == "kind" ]; then
+    kind
+elif [ "${MODE}" == "cluster" ]; then
+    cluster_init
 elif [ "${MODE}" == "down" ]; then
     unkind
 else
-    log "Only valid modes are 'deploy' and 'down'"
+    print_help
     exit 1
 fi

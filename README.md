@@ -13,9 +13,16 @@ To deploy the network, the kafka configuration is needed for the consumers. To c
    ```
 3. Copy all kafka configuration files to `config/kafka`.
 
-## Deploy on Kubernetes
+## Deploy on Kubernetes (KIND)
 
-1. Run `bash ./fabric-k8s.sh deploy`
+1. Run `bash ./fabric-k8s.sh kind`
+2. Run `bash ./fabric-k8s.sh cluster`
+3. Run `bash ./fabric-k8s.sh deploy`
+
+## Teardown
+
+Run `bash ./fabric-k8s.sh unkind`
+
 
 ## Changes needed to run on cloud
 
