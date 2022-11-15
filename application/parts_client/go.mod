@@ -1,13 +1,12 @@
-module github.com/LoniasGR/fabric-samples/hyperledger-fabric-sla-chaincode/application/parts_client
+module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/application/parts_client
 
 go 1.18
 
 require (
 	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils v0.0.0-20220808134520-5f069a3850a4
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221114125451-cd6a7ee36309
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221115121042-97e7a79b6884
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/hyperledger/fabric-gateway v1.1.1
-	google.golang.org/grpc v1.50.1
 )
 
 require (
@@ -18,5 +17,6 @@ require (
 	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20221018160656-63c7b68cfc55 // indirect
+	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
