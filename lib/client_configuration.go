@@ -1,16 +1,16 @@
 package lib
 
 type Config struct {
-	dataFolder         string
+	DataFolder         string
 	JSONFiles          []string
-	contractNamePrefix string
-	tlsCertPath        string
-	peerEndpoint       string
-	gatewayPeer        string
-	channelName        string
-	chaincodeName      string
-	identityEndpoint   string
-	consumerGroup      string
+	ContractNamePrefix string
+	TlsCertPath        string
+	PeerEndpoint       string
+	GatewayPeer        string
+	ChannelName        string
+	ChaincodeName      string
+	IdentityEndpoint   string
+	ConsumerGroup      string
 	UserConf           *UserConfig
 }
 
