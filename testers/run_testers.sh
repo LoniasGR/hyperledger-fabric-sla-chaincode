@@ -33,24 +33,34 @@ function warnln() {
 
 
 function runTesters() {
-    TESTER=$1
-    COMMAND="go run . -f ../../config/kafka/producer.properties.dev"
+    ENV=$1
+    TESTER=$2
+    local COMMAND
+
+    if [ "$ENV" == "dev" ];  then
+        COMMAND="go run . -f ../../config/kafka/producer.properties.dev"
+    elif [ "$ENV" == "prod" ]; then
+        COMMAND="go run . -f ../../config/kafka/producer.properties"
+    else
+        print_help
+        exit 1
+    fi
 
     if [ "$TESTER" = "sla" ]; then
         infoln "Running SLA producer"
-        pushd ./sla_producer
+        pushd ./sla_producer || println "Did not find sla tester folder"
         eval "$COMMAND"
-        popd
+        popd || true
     elif [ "$TESTER" = "vru" ]; then
         infoln "Running VRU producer"
-        pushd ./vru_producer
+        pushd ./vru_producer || println "Did not find sla tester folder"
         eval "$COMMAND"
-        popd
+        popd || true
     elif [ "$TESTER" = "parts" ]; then
         infoln "Running Parts producer"
-        pushd ./parts_producer
+        pushd ./parts_producer || println "Did not find sla tester folder"
         eval "$COMMAND"
-        popd
+        popd || true
     else
         errorln "Tester ${TESTER} does not exist."
         exit 1
@@ -58,12 +68,13 @@ function runTesters() {
 }
 
 function printHelp() {
+    local file=$1
     println "USAGE:"
     println
-    println "./run_testers.sh {testers}"
-    # println "ENVIRONMENT:"
-    # println "    dev (default): Development environment"
-    # println "    prod: "
+    println "$file {env} {testers}"
+    println "ENVIRONMENT:"
+    println "    dev: Development environment"
+    println "    prod: Production environment"
     println "TESTERS:"
     println "    all: Run all testers [sla, vru, parts]"
     println "    sla: Run sla tester"
@@ -71,15 +82,20 @@ function printHelp() {
     println "    parts: Run parts tester"
 }
 
-if [ $# -lt 1 ] || [ $# -gt 3 ]; then
-    printHelp
-    exit 0
-elif [ "${1}" = "all" ]; then
-    runTesters "sla"
-    runTesters "vru"
-    runTesters "parts"
+if [ $# -lt 2 ] || [ $# -gt 4 ]; then
+    printHelp "$0"
+    exit 1
+fi
+
+ENV=$1
+shift
+
+if [ "$1" = "all" ]; then
+    runTesters "$ENV" "sla"
+    runTesters "$ENV" "vru"
+    runTesters "$ENV" "parts"
 else
     for var in "$@"; do
-        runTesters "$var"
+        runTesters "$ENV" "$var"
     done
 fi

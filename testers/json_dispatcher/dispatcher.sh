@@ -37,16 +37,27 @@ function runDispatcher() {
     ENV=${3}
 
     if [ "$ENV" = "prod" ]; then
-        FILE="../../kafka-config/producer.properties"
+        cp ../../config/kafka/producer.properties ${PWD}
+        cp ../../config/kafka/server.cer.pem ${PWD}
+        cp ../../config/kafka/kafka.client.keystore.jks ${PWD}
+        cp ../../config/kafka/kafka.client.truststore.jks ${PWD}
+
     elif [ "$ENV" = "dev" ]; then
-            FILE="../../kafka-config/producer.properties.dev"
+            cp ../../config/kafka/producer.properties.dev ${PWD}/producer.properties
     else
         errorln "Unknown environment provided"
         printHelp
         exit 1
     fi
     COMMAND="go run ."
-    eval "$COMMAND -f $FILE -json $JSON -type $CHANNEL"
+    eval "$COMMAND -f producer.properties -json $JSON -type $CHANNEL"
+
+    rm producer.properties
+    rm server.cer.pem || true
+    rm kafka.client.keystore.jks || true
+    rm kafka.client.truststore.jks || true
+
+
 }
 
 function printHelp() {
