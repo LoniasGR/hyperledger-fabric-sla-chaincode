@@ -15,9 +15,14 @@ To deploy the network, the kafka configuration is needed for the consumers. To c
 
 ## Deploy on Kubernetes (KIND)
 
-1. Run `bash ./fabric-k8s.sh kind`
-2. Run `bash ./fabric-k8s.sh cluster`
-3. Run `bash ./fabric-k8s.sh deploy`
+1. Run `./fabric-k8s.sh kind`.
+   This creates the KIND cluster and the registry
+2. Run `./fabric-k8s.sh cluster`.
+   Sets up ingress and other important containers
+3. Run `./fabric-k8s.sh up`.
+   Brings up the CAs, orderers, peers and channels.
+3. Run `./fabric-k8s.sh deploy`.
+   Deploys chaincodes and clients.
 
 ## Teardown
 

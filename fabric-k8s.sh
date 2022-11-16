@@ -3,7 +3,7 @@
 export SLA_CHANNEL_NAME=sla
 export VRU_CHANNEL_NAME=vru
 export PARTS_CHANNEL_NAME=parts
-export SLA_2_CHANNEL_NAME=sla2.0
+export SLA2_CHANNEL_NAME=sla2.0
 
 export SLA_CHAINCODE_NAME=slasc-bridge
 export VRU_CHAINCODE_NAME=vru-positions
@@ -53,6 +53,9 @@ function set_channels() {
     log_line
 
     ./network-k8s.sh channel create "$PARTS_CHANNEL_NAME" 3
+    log_line
+
+    ./network-k8s.sh channel create "$SLA2_CHANNEL_NAME" 4
     log_line
 }
 
@@ -114,16 +117,22 @@ function print_help() {
 
 ## Parse mode
 if [[ $# -lt 1 ]]; then
-    log "Only valid mode is 'deploy'"
+    log "USAGE:"
+    log "    kind: Set up the the KIND cluster and the container registry"
+    log "    cluster: Initialize the cluster"
+    log "    up: Bring up all the peers, CAs and orderers of the network, as well as the channels"
+    log "    deploy: Bring up the chaincodes and the clients."
+
     exit 0
 else
     MODE=$1
     shift
 fi
 
-if [ "${MODE}" == "deploy" ]; then
-    # up
+if [ "${MODE}" == "up" ]; then
+    up
     set_channels
+elif [ "${MODE}" == "deploy" ]; then
     deploy_chaincodes
     init_application_config
     sla_client
@@ -135,8 +144,8 @@ if [ "${MODE}" == "deploy" ]; then
 elif [ "${MODE}" == "kind" ]; then
     kind
 elif [ "${MODE}" == "cluster" ]; then
-    cluster_init
-elif [ "${MODE}" == "down" ]; then
+    init_cluster
+elif [ "${MODE}" == "unkind" ]; then
     unkind
 else
     print_help

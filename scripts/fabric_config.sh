@@ -8,7 +8,7 @@
 function init_namespace() {
   local namespaces
   # TODO: Add org here
-  namespaces=$(echo "$ORG0_NS $ORG1_NS $ORG2_NS $ORG3_NS" | xargs -n1 | sort -u)
+  namespaces=$(echo "$ORG0_NS $ORG1_NS $ORG2_NS $ORG3_NS $ORG4_NS" | xargs -n1 | sort -u)
   for ns in $namespaces; do
     push_fn "Creating namespace \"$ns\""
     kubectl create namespace "$ns" || true
@@ -19,7 +19,7 @@ function init_namespace() {
 function delete_namespace() {
   local namespaces
   # TODO: Add org here
-  namespaces=$(echo "$ORG0_NS $ORG1_NS $ORG2_NS $ORG3_NS" | xargs -n1 | sort -u)
+  namespaces=$(echo "$ORG0_NS $ORG1_NS $ORG2_NS $ORG3_NS $ORG4_NS" | xargs -n1 | sort -u)
   for ns in $namespaces; do
     push_fn "Deleting namespace \"$ns\""
     kubectl delete namespace "$ns" || true
@@ -48,12 +48,14 @@ function init_storage_volumes() {
    envsubst < kube/pv-fabric-org1.yaml | kubectl -n "$ORG1_NS" create -f - || true
    envsubst < kube/pv-fabric-org2.yaml | kubectl -n "$ORG2_NS" create -f - || true
    envsubst < kube/pv-fabric-org3.yaml | kubectl -n "$ORG3_NS" create -f - || true
+   envsubst < kube/pv-fabric-org4.yaml | kubectl -n "$ORG4_NS" create -f - || true
 
   # TODO: Add org here
    envsubst < kube/pvc-fabric-org0.yaml | kubectl -n "$ORG0_NS" create -f - || true
    envsubst < kube/pvc-fabric-org1.yaml | kubectl -n "$ORG1_NS" create -f - || true
    envsubst < kube/pvc-fabric-org2.yaml | kubectl -n "$ORG2_NS" create -f - || true
    envsubst < kube/pvc-fabric-org3.yaml | kubectl -n "$ORG3_NS" create -f - || true
+   envsubst < kube/pvc-fabric-org4.yaml | kubectl -n "$ORG4_NS" create -f - || true
 
 
   pop_fn
@@ -66,6 +68,7 @@ function load_org_config() {
   kubectl -n "$ORG1_NS" delete configmap org1-config || true
   kubectl -n "$ORG2_NS" delete configmap org2-config || true
   kubectl -n "$ORG3_NS" delete configmap org3-config || true
+  kubectl -n "$ORG4_NS" delete configmap org4-config || true
 
   push_fn "Creating fabric config maps"
   # TODO: Add org here
@@ -73,6 +76,7 @@ function load_org_config() {
   kubectl -n "$ORG1_NS" create configmap org1-config --from-file=config/org1
   kubectl -n "$ORG2_NS" create configmap org2-config --from-file=config/org2
   kubectl -n "$ORG3_NS" create configmap org3-config --from-file=config/org3
+  kubectl -n "$ORG4_NS" create configmap org4-config --from-file=config/org4
 
   pop_fn
 }

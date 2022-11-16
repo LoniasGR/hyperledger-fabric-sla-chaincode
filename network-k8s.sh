@@ -45,6 +45,7 @@ context ORG0_NS                       "${NS}"
 context ORG1_NS                       "${NS}"
 context ORG2_NS                       "${NS}"
 context ORG3_NS                       "${NS}"
+context ORG4_NS                       "${NS}"
 context DOMAIN                        localho.st
 context ORDERER_TIMEOUT               10s                   # see https://github.com/hyperledger/fabric/issues/3372
 context TEMP_DIR                      "${PWD}"/build

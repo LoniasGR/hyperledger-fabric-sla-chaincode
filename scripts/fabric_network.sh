@@ -29,14 +29,16 @@ function launch_peers() {
   apply_template kube/org2/org2-peer2.yaml "$ORG2_NS"
   apply_template kube/org3/org3-peer1.yaml "$ORG3_NS"
   apply_template kube/org3/org3-peer2.yaml "$ORG3_NS"
+  apply_template kube/org4/org4-peer1.yaml "$ORG4_NS"
+  apply_template kube/org4/org4-peer2.yaml "$ORG4_NS"
 
   # TODO: Add org here
   kubectl -n "$ORG1_NS" rollout status deploy/org1-peer1
   kubectl -n "$ORG1_NS" rollout status deploy/org1-peer2
   kubectl -n "$ORG2_NS" rollout status deploy/org2-peer1
   kubectl -n "$ORG2_NS" rollout status deploy/org2-peer2
-  kubectl -n "$ORG3_NS" rollout status deploy/org3-peer1
-  kubectl -n "$ORG3_NS" rollout status deploy/org3-peer2
+  kubectl -n "$ORG4_NS" rollout status deploy/org4-peer1
+  kubectl -n "$ORG4_NS" rollout status deploy/org4-peer2
 
   pop_fn
 }
@@ -135,6 +137,9 @@ function create_local_MSP() {
   create_peer_local_MSP org3 peer1 "$ORG3_NS"
   create_peer_local_MSP org3 peer2 "$ORG3_NS"
 
+
+  create_peer_local_MSP org4 peer1 "$ORG4_NS"
+  create_peer_local_MSP org4 peer2 "$ORG4_NS"
   pop_fn
 }
 

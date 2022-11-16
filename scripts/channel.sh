@@ -54,6 +54,7 @@ function register_org_admins() {
   register_org_admin org1 org1admin org1adminpw
   register_org_admin org2 org2admin org2adminpw
   register_org_admin org3 org3admin org3adminpw
+  register_org_admin org4 org4admin org4adminpw
 
   pop_fn
 }
@@ -78,14 +79,15 @@ function register_org_admin() {
     --id.attrs "hf.Registrar.Roles=client,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert"
 }
 
-function enroll_org_admins() {
   push_fn "Enrolling org Admin users"
+function enroll_org_admins() {
 
   # TODO: Add org here.
   enroll_org_admin orderer org0 org0admin org0adminpw
   enroll_org_admin peer org1 org1admin org1adminpw
   enroll_org_admin peer org2 org2admin org2adminpw
   enroll_org_admin peer org3 org3admin org3adminpw
+  enroll_org_admin peer org4 org4admin org4adminpw
 
   pop_fn
 }
@@ -164,6 +166,7 @@ function create_channel_MSP() {
 
   create_channel_org_MSP org0 orderer "$ORG0_NS"
 
+  # TODO: If we want to change ns
   create_channel_org_MSP "org${ORG_NR}" peer "$ORG1_NS"
 
   extract_orderer_tls_cert org0 orderer1
