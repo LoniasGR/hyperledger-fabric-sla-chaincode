@@ -103,7 +103,7 @@ function prepare_chaincode_image() {
     export CHAINCODE_IMAGE=${cc_name}
   else
     # For KIND and k8s-builder environments, publish the image to a local docker registry
-    export CHAINCODE_IMAGE=localhost:${LOCAL_REGISTRY_PORT}/${cc_name}
+    export CHAINCODE_IMAGE=${CONTAINER_REGISTRY_ADDRESS}/${cc_name}
     publish_chaincode_image "${cc_name}" "${CHAINCODE_IMAGE}"
   fi
 }

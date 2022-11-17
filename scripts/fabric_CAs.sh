@@ -80,8 +80,9 @@ function enroll_bootstrap_ECert_CA_user() {
     > "${CA_DIR}"/tlsca-cert.pem
 
   # Enroll the root CA user
+  # TODO: Added port here
   fabric-ca-client enroll \
-    --url https://"${RCAADMIN_USER}:${RCAADMIN_PASS}@${CA_NAME}.${DOMAIN}" \
+    --url https://"${RCAADMIN_USER}:${RCAADMIN_PASS}@${CA_NAME}.${DOMAIN}:${NGINX_HTTPS_PORT}" \
     --tls.certfiles "$TEMP_DIR/cas/${CA_NAME}/tlsca-cert.pem" \
     --mspdir "$TEMP_DIR/enrollments/${org}/users/${RCAADMIN_USER}/msp"
 }

@@ -37,7 +37,7 @@ context CONTAINER_NAMESPACE           ""                    # or "--namespace k8
 
 context FABRIC_CONTAINER_REGISTRY     hyperledger
 context FABRIC_PEER_IMAGE             "${FABRIC_CONTAINER_REGISTRY}"/fabric-peer:"${FABRIC_VERSION}"
-context NETWORK_NAME                  test-network
+context NETWORK_NAME                  pledger-dlt
 context CLUSTER_NAME                  kind
 context KUBE_NAMESPACE                "${NETWORK_NAME}"
 context NS                            "${KUBE_NAMESPACE}"
@@ -56,12 +56,10 @@ context K8S_CHAINCODE_BUILDER_VERSION v0.7.2
 context LOG_FILE                      network.log
 context DEBUG_FILE                    network-debug.log
 context LOG_ERROR_LINES               2
-context LOCAL_REGISTRY_NAME           kind-registry
-context LOCAL_REGISTRY_INTERFACE      127.0.0.1
-context LOCAL_REGISTRY_PORT           5000
-context STAGE_DOCKER_IMAGES           false
-context NGINX_HTTP_PORT               80
-context NGINX_HTTPS_PORT              443
+context CONTAINER_REGISTRY_HOSTNAME   147.102.19.6
+context CONTAINER_REGISTRY_ADDRESS    147.102.19.6/pledger
+context NGINX_HTTP_PORT               8080
+context NGINX_HTTPS_PORT              8443
 
 context RCAADMIN_USER                 rcaadmin
 context RCAADMIN_PASS                 rcaadminpw
@@ -73,18 +71,15 @@ function print_help() {
   log "--- Fabric Information"
   log "Fabric Version     \t\t: ${FABRIC_VERSION}"
   log "Fabric CA Version  \t\t: ${FABRIC_CA_VERSION}"
-  log "Container Registry \t\t: ${FABRIC_CONTAINER_REGISTRY}"
   log "Network name       \t\t: ${NETWORK_NAME}"
   log "Ingress domain     \t\t: ${DOMAIN}"
-  log "Channel name       \t\t: ${CHANNEL_NAME}"
   log
   log "--- Cluster Information"
   log "Cluster runtime    \t\t: ${CLUSTER_RUNTIME}"
   log "Cluster name       \t\t: ${CLUSTER_NAME}"
   log "Cluster namespace  \t\t: ${NS}"
   log "Fabric Registry    \t\t: ${FABRIC_CONTAINER_REGISTRY}"
-  log "Local Registry     \t\t: ${LOCAL_REGISTRY_NAME}"
-  log "Local Registry port\t\t: ${LOCAL_REGISTRY_PORT}"
+  log "Container Registry \t\t: ${CONTAINER_REGISTRY_ADDRESS}"
   log "nginx http port    \t\t: ${NGINX_HTTP_PORT}"
   log "nginx https port   \t\t: ${NGINX_HTTPS_PORT}"
   log
@@ -122,7 +117,11 @@ else
   shift
 fi
 
-if [ "${MODE}" == "kind" ]; then
+if [ "${MODE}" == "docker" ]; then
+    log "Logging in to container registry ${CONTAINER_REGISTRY_HOSTNAME}"
+    docker_login
+    log "🏁 - Logged in"
+elif [ "${MODE}" == "kind" ]; then
   log "Creating KIND cluster \"${CLUSTER_NAME}\":"
   print_help
   kind_init

@@ -13,9 +13,10 @@ export SLA_CC_SRC_PATH="${PWD}/ccas_sla"
 export VRU_CC_SRC_PATH="${PWD}/ccas_vru"
 export PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
 
-export TEST_NETWORK_NETWORK_NAME=pledger-dlt
-export TEST_NETWORK_LOCAL_REGISTRY_DOMAIN=localhost:5000
-export TEST_NETWORK_LOCAL_REGISTRY_PORT=5000
+export TEST_NETWORK_LOCAL_REGISTRY_HOSTNAME=147.102.19.6
+export TEST_NETWORK_LOCAL_REGISTRY_PORT=443
+
+
 
 function log_line() {
     echo -e "==============================================" >>network-debug.log
@@ -23,6 +24,10 @@ function log_line() {
 
 function log() {
     echo -e "$@"
+}
+
+function login() {
+    ./network-k8s.sh docker
 }
 
 function unkind() {
@@ -40,6 +45,10 @@ function init_cluster() {
 function up() {
     ./network-k8s.sh up
     log_line
+}
+
+function down() {
+    ./network-k8s.sh down
 }
 
 function set_channels() {
@@ -100,6 +109,10 @@ function parts_client() {
     ./network-k8s.sh application parts
 }
 
+function sla2_client() {
+    ./network-k8s.sh application sla2
+}
+
 function api() {
     log "Building API pod"
     ./network-k8s.sh application api
@@ -131,13 +144,18 @@ fi
 
 if [ "${MODE}" == "up" ]; then
     up
+elif [ "${MODE}" == "channels" ]; then
     set_channels
-elif [ "${MODE}" == "deploy" ]; then
+elif [ "${MODE}" == "login" ]; then
+    login
+elif [ "${MODE}" == "chaincodes" ]; then
     deploy_chaincodes
+elif [ "${MODE}" == "applications" ]; then
     init_application_config
     sla_client
     vru_client
     parts_client
+    sla2_client
     identity_management
     api
     explorer
@@ -145,8 +163,19 @@ elif [ "${MODE}" == "kind" ]; then
     kind
 elif [ "${MODE}" == "cluster" ]; then
     init_cluster
+elif [ "${MODE}" == "down" ]; then
+    down
 elif [ "${MODE}" == "unkind" ]; then
     unkind
+elif [ "${MODE}" == "everything" ]; then
+    down
+    unkind
+    kind
+    init_cluster
+    up
+    set_channels
+    login
+    deploy_chaincodes
 else
     print_help
     exit 1

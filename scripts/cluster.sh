@@ -27,29 +27,10 @@ function cluster_command_group() {
     cluster_clean
     log "🏁 - Cluster is cleaned"
 
-  elif [ "${COMMAND}" == "load-images" ]; then
-    log "Loading Docker images"
-    load_images
-    log "🏁 - Images are loaded"
-
   else
     print_help
     exit 1
   fi
-}
-
-function pull_docker_images() {
-  push_fn "Pulling docker images for Fabric ${FABRIC_VERSION}"
-
-  $CONTAINER_CLI pull "${CONTAINER_NAMESPACE}" "${FABRIC_CONTAINER_REGISTRY}"/fabric-ca:"$FABRIC_CA_VERSION"
-  $CONTAINER_CLI pull "${CONTAINER_NAMESPACE}" "${FABRIC_CONTAINER_REGISTRY}"/fabric-orderer:"$FABRIC_VERSION"
-  $CONTAINER_CLI pull "${CONTAINER_NAMESPACE}" "${FABRIC_PEER_IMAGE}"
-  $CONTAINER_CLI pull "${CONTAINER_NAMESPACE}" couchdb:3.2.1
-
-  # $CONTAINER_CLI pull "${CONTAINER_NAMESPACE}" ghcr.io/hyperledger/fabric-rest-sample:latest
-  # $CONTAINER_CLI pull "${CONTAINER_NAMESPACE}" redis:6.2.5
-
-  pop_fn
 }
 
 function cluster_init() {
@@ -62,10 +43,6 @@ function cluster_init() {
   wait_for_cert_manager
   wait_for_nginx_ingress
 
-  if [ "${STAGE_DOCKER_IMAGES}" == true ]; then
-    pull_docker_images
-    load_images
-  fi
 }
 
 function apply_nginx() {
@@ -136,10 +113,4 @@ function wait_for_cert_manager() {
 function cluster_clean() {
   delete_nginx_ingress
   delete_cert_manager
-}
-
-function load_images() {
-  if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
-    kind_load_docker_images
-  fi
 }

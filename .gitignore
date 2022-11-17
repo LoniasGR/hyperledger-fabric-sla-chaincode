@@ -60,3 +60,6 @@ bin
 # Log files
 network.log
 network-debug.log
+
+# Docker credentials file
+.docker_credentials.json

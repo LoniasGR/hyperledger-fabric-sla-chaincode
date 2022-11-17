@@ -7,7 +7,7 @@
 
 function logging_init() {
   # Reset the output and debug log files
-  printf '' | tee "${LOG_FILE}" >> "${DEBUG_FILE}"
+  printf '' | tee "${LOG_FILE}" "${DEBUG_FILE}"
 
   # Write all output to the control flow log to STDOUT
   tail -f "${LOG_FILE}" &
@@ -38,53 +38,53 @@ function exit_fn() {
 function push_fn() {
   #echo -ne "   - entering ${FUNCNAME[1]} with arguments $@"
 
-  echo -ne "   - $* ..." >> "${LOG_FILE}"
+  echo -ne "   - $* ..." >>"${LOG_FILE}"
 }
 
 function log() {
-  echo -e "$@" >> "${LOG_FILE}"
+  echo -e "$@" >>"${LOG_FILE}"
 }
 
 function pop_fn() {
-#  echo exiting ${FUNCNAME[1]}
+  #  echo exiting ${FUNCNAME[1]}
 
   if [ $# -eq 0 ]; then
-    echo -ne "\r✅"  >> "${LOG_FILE}"
-    echo "" >> "${LOG_FILE}"
+    echo -ne "\r✅" >>"${LOG_FILE}"
+    echo "" >>"${LOG_FILE}"
     return
   fi
 
   local res=$1
   if [ "$res" -eq 0 ]; then
-    echo -ne "\r✅\n"  >> "${LOG_FILE}"
+    echo -ne "\r✅\n" >>"${LOG_FILE}"
 
   elif [ "$res" -eq 1 ]; then
-    echo -ne "\r⚠️\n" >> "${LOG_FILE}"
+    echo -ne "\r⚠️\n" >>"${LOG_FILE}"
 
   elif [ "$res" -eq 2 ]; then
-    echo -ne "\r☠️\n" >> "${LOG_FILE}"
+    echo -ne "\r☠️\n" >>"${LOG_FILE}"
 
   elif [ "$res" -eq 127 ]; then
-    echo -ne "\r☠️\n" >> "${LOG_FILE}"
+    echo -ne "\r☠️\n" >>"${LOG_FILE}"
 
   else
-    echo -ne "\r\n" >> "${LOG_FILE}"
+    echo -ne "\r\n" >>"${LOG_FILE}"
   fi
 
   if [ "$res" -ne 0 ]; then
-    tail -"${LOG_ERROR_LINES}" network-debug.log >> "${LOG_FILE}"
+    tail -"${LOG_ERROR_LINES}" network-debug.log >>"${LOG_FILE}"
   fi
 
-  #echo "" >> ${LOG_FILE}
+  #echo "" >> "${LOG_FILE}"
 }
 
 # Apply the current environment to a k8s template and apply to the cluster.
 function apply_template() {
 
   echo "Applying template $1:"
-  envsubst < "$1"
+  cat $1 | envsubst
 
-  envsubst < "$1" | kubectl -n "$2" apply -f -
+  cat $1 | envsubst | kubectl -n $2 apply -f -
 }
 
 # Set the calling context to refer the peer binary to the correct org / peer instance
@@ -107,8 +107,19 @@ function export_peer_context() {
 
 function absolute_path() {
   local relative_path=$1
+
   local abspath
-  abspath="$( cd "${relative_path}" && pwd )"
+
+  abspath="$(cd "${relative_path}" && pwd)"
 
   echo "$abspath"
+}
+
+function docker_login() {
+  local cred_file=${PWD}/config/docker/.docker_credentials.json
+  # We use xargs to remove quotations from the stirngs
+  jq .password <"${cred_file}" | xargs | docker login --username "$(jq .username <"${cred_file}" | xargs)" --password-stdin "${CONTAINER_REGISTRY_HOSTNAME}"
+  kubectl create secret generic docker-secret -n ${NS} \
+    --from-file=.dockerconfigjson=${HOME}/.docker/config.json \
+    --type=kubernetes.io/dockerconfigjson
 }

@@ -20,6 +20,19 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: fabric-sla-2
+spec:
+  volumeName: fabric-sla-2
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ${STORAGE_CLASS}
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: fabric-vru
 spec:
   volumeName: fabric-vru
