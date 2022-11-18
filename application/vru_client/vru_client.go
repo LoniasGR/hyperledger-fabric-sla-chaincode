@@ -44,6 +44,14 @@ func loadConfig() *lib.Config {
 }
 
 func main() {
+
+	logf, err := os.OpenFile("logs.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer logf.Close()
+	log.SetOutput(logf)
+
 	conf := loadConfig()
 
 	// The topics that will be used
@@ -51,10 +59,6 @@ func main() {
 	topics[0] = "vru_positions"
 
 	log.Println("============ application-golang starts ============")
-	err := lib.SetDiscoveryAsLocalhost(true)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
 
 	configFile := lib.ParseArgs()
 
@@ -125,7 +129,7 @@ func main() {
 	err = c_vru.Assign([]kafka.TopicPartition{{
 		Topic:     &topics[0],
 		Partition: 0,
-		Offset:    238200,
+		Offset:    314390, // TODO
 	}})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to assign offset: %s\n", err)
@@ -148,12 +152,18 @@ func main() {
 				continue
 			}
 			log.Printf("New message recieved on partition: %v", msg.TopicPartition)
+			log.Println(string(msg.Value))
 			var vru_slice []lib.VRU
 
 			err = json.Unmarshal(msg.Value, &vru_slice)
 			if err != nil {
-				log.Printf("failed to unmarshal: %v", err)
-				continue
+				var vru lib.VRU
+				err = json.Unmarshal(msg.Value, &vru)
+				if err != nil {
+					log.Printf("failed to unmarshal: %v", err)
+					continue
+				}
+				vru_slice = append(vru_slice, vru)
 			}
 			log.Println(vru_slice)
 
