@@ -87,14 +87,8 @@ function init_application_config() {
 }
 
 function identity_management() {
-    log "Building identity management pod"
-    docker build -t ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management application/identity_management >>network-debug.log
-    docker push ${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/identity-management >>network-debug.log
-    # Maybe todo: change the namespace here
-    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete -f kube/identity-management-client.yaml
-    kubectl -n "${TEST_NETWORK_NETWORK_NAME}" apply -f kube/identity-management-client.yaml
-    log "🏁 Identity management pod built"
-    log_line
+    ./network-k8s.sh application identity_management
+
 }
 
 function sla_client() {
@@ -124,18 +118,28 @@ function explorer() {
 
 }
 
-function print_help() {
-    log "Only valid modes are 'deploy' and 'down'"
+function applications() {
+    init_application_config
+    sla_client
+    vru_client
+    parts_client
+    sla2_client
+    identity_management
+    api
+    explorer
 }
 
-## Parse mode
-if [[ $# -lt 1 ]]; then
+function print_help() {
     log "USAGE:"
     log "    kind: Set up the the KIND cluster and the container registry"
     log "    cluster: Initialize the cluster"
     log "    up: Bring up all the peers, CAs and orderers of the network, as well as the channels"
     log "    deploy: Bring up the chaincodes and the clients."
+}
 
+## Parse mode
+if [[ $# -lt 1 ]]; then
+    print_help
     exit 0
 else
     MODE=$1
@@ -151,14 +155,7 @@ elif [ "${MODE}" == "login" ]; then
 elif [ "${MODE}" == "chaincodes" ]; then
     deploy_chaincodes
 elif [ "${MODE}" == "applications" ]; then
-    init_application_config
-    sla_client
-    vru_client
-    parts_client
-    sla2_client
-    identity_management
-    api
-    explorer
+    applications
 elif [ "${MODE}" == "kind" ]; then
     kind
 elif [ "${MODE}" == "cluster" ]; then
@@ -176,6 +173,7 @@ elif [ "${MODE}" == "everything" ]; then
     set_channels
     login
     deploy_chaincodes
+    applications
 else
     print_help
     exit 1
