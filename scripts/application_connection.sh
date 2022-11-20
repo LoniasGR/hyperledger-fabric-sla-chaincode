@@ -75,6 +75,11 @@ function construct_global_configmap() {
 
   echo "$(app_json_ccp 3 $peer_pem $ca_pem)" >build/application/gateways/org3_ccp.json
 
+  peer_pem=$CHANNEL_MSP_DIR/peerOrganizations/org4/msp/tlscacerts/tlsca-signcert.pem
+  ca_pem=$CHANNEL_MSP_DIR/peerOrganizations/org4/msp/cacerts/ca-signcert.pem
+
+  echo "$(app_json_ccp 4 $peer_pem $ca_pem)" >build/application/gateways/org4_ccp.json
+
   pop_fn
 
   push_fn "Getting Application Identities"
@@ -94,6 +99,11 @@ function construct_global_configmap() {
 
   echo "$(app_id Org3MSP $cert $pk)" >build/application/wallet/appuser_org3.id
 
+  local cert=$ENROLLMENT_DIR/org4/users/org4admin/msp/signcerts/cert.pem
+  local pk=$ENROLLMENT_DIR/org4/users/org4admin/msp/keystore/key.pem
+
+  echo "$(app_id Org4MSP $cert $pk)" >build/application/wallet/appuser_org4.id
+
   pop_fn
 
   push_fn "Creating ConfigMap \"app-fabric-org1-tls-v1-map\" with TLS certificates for the application"
@@ -109,6 +119,11 @@ function construct_global_configmap() {
   push_fn "Creating ConfigMap \"app-fabric-org3-tls-v1-map\" with TLS certificates for the application"
   kubectl -n $NS delete configmap app-fabric-org3-tls-v1-map || true
   kubectl -n $NS create configmap app-fabric-org3-tls-v1-map --from-file=$CHANNEL_MSP_DIR/peerOrganizations/org3/msp/tlscacerts
+  pop_fn
+
+  push_fn "Creating ConfigMap \"app-fabric-org4-tls-v1-map\" with TLS certificates for the application"
+  kubectl -n $NS delete configmap app-fabric-org4-tls-v1-map || true
+  kubectl -n $NS create configmap app-fabric-org4-tls-v1-map --from-file=$CHANNEL_MSP_DIR/peerOrganizations/org4/msp/tlscacerts
   pop_fn
 
   push_fn "Creating ConfigMap \"app-fabric-ids-v1-map\" with identities for the application"
@@ -142,7 +157,7 @@ data:
   fabric_gateway_tlsCertPath: /fabric/tlscacerts/tlsca-signcert.pem
   identity_endpoint: http://identity-management:8000
   data_folder: /fabric/data
-  consumer_group: potato-potato-potato
+  consumer_group: org${org}-consumer-group
 EOF
 
   kubectl -n $NS apply -f "build/app-fabric-org${org}-v1-map.yaml"
@@ -182,23 +197,24 @@ EOF
 
 function deploy_api() {
   construct_api_configmap
-  docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/api" application/api
-  docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/api"
+  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/api" application/api
+  docker push "${CONTAINER_REGISTRY_ADDRESS}/api"
   envsubst <kube/api-deployment.yaml | kubectl -n "$NS" apply -f -
 }
 
 function explorer_config() {
   push_fn "Create Config Maps and secrets"
-  export EXPLORER_CHANNEL_NAME=sla
-  export EXPLORER_ORG_MSP=Org1MSP
-  export EXPLORER_ORG_PEER_GATEWAY=org1-peer-gateway-svc
+  export orgNr=2
+  export EXPLORER_CHANNEL_NAME=vru
+  export EXPLORER_ORG_MSP=Org${orgNr}MSP
+  export EXPLORER_ORG_PEER_GATEWAY=org${orgNr}-peer-gateway-svc
   export EXPLORER_CA_CERT_PATH=/fabric/tlscacerts/tlsca-signcert.pem
-  export EXPLORER_ORG_GATEWAY_PORT=org1-peer-gateway-svc:8051
+  export EXPLORER_ORG_GATEWAY_PORT=org${orgNr}-peer-gateway-svc:8051
   export EXPLORER_ADMIN_CERT=/fabric/keys/cert.pem
   export EXPLORER_ADMIN_PK=/fabric/keys/key.pem
 
-  local PK="${TEMP_DIR}/enrollments/org1/users/org1admin/msp/keystore/key.pem"
-  local CERT="${TEMP_DIR}/enrollments/org1/users/org1admin/msp/signcerts/cert.pem"
+  local PK="${TEMP_DIR}/enrollments/org${orgNr}/users/org${orgNr}admin/msp/keystore/key.pem"
+  local CERT="${TEMP_DIR}/enrollments/org${orgNr}/users/org${orgNr}admin/msp/signcerts/cert.pem"
 
   kubectl -n $NS delete configmap app-fabric-explorer-pk-v1 || true
   kubectl -n $NS create configmap app-fabric-explorer-pk-v1 --from-file=$PK
@@ -241,15 +257,6 @@ EOF
 
   push_fn "Run deployment"
 
-  if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
-    export STORAGE_CLASS="standard"
-
-  elif [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    export STORAGE_CLASS="local-path"
-  else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
-  fi
   envsubst <kube/explorer-db-deployment.yaml | kubectl -n $NS delete -f - || true
   envsubst <kube/explorer-db-deployment.yaml | kubectl -n $NS apply -f -
 
@@ -262,7 +269,6 @@ EOF
 }
 
 function deploy_sla_client() {
-  log "Deploying sla client"
   push_fn "Setting up files"
   export CHANNEL_NAME=${SLA_CHANNEL_NAME}
   export CHAINCODE_NAME=${SLA_CHAINCODE_NAME}
@@ -277,11 +283,11 @@ function deploy_sla_client() {
   construct_application_configmap 1
   push_fn "Creating and deploying container"
 
-  docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client" application/sla_client
-  docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/sla-client"
+  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla-client" application/sla_client
+  docker push "${CONTAINER_REGISTRY_ADDRESS}/sla-client"
 
-  kubectl -n "${NS}" delete -f kube/sla-client-deployment.yaml || true
-  kubectl -n "${NS}" apply -f kube/sla-client-deployment.yaml
+  envsubst <kube/sla-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
+  envsubst <kube/sla-client-deployment.yaml | kubectl -n "${NS}" apply -f -
   pop_fn
 
   rm application/sla_client/consumer.properties
@@ -291,7 +297,6 @@ function deploy_sla_client() {
 }
 
 function deploy_vru_client() {
-  log "Deploying vru client"
   push_fn "Setting up files"
   export CHANNEL_NAME=${VRU_CHANNEL_NAME}
   export CHAINCODE_NAME=${VRU_CHAINCODE_NAME}
@@ -306,11 +311,11 @@ function deploy_vru_client() {
 
   push_fn "Creating and deploying container"
 
-  docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client" application/vru_client
-  docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/vru-client"
+  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/vru-client" application/vru_client
+  docker push "${CONTAINER_REGISTRY_ADDRESS}/vru-client"
 
-  kubectl -n "${NS}" delete -f kube/vru-client-deployment.yaml || true
-  kubectl -n "${NS}" apply -f kube/vru-client-deployment.yaml
+  envsubst <kube/vru-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
+  envsubst <kube/vru-client-deployment.yaml | kubectl -n "${NS}" apply -f -
   pop_fn
 
   rm application/vru_client/consumer.properties
@@ -320,7 +325,6 @@ function deploy_vru_client() {
 }
 
 function deploy_parts_client() {
-  log "Deploying parts client"
   push_fn "Setting up files"
   export CHANNEL_NAME=${PARTS_CHANNEL_NAME}
   export CHAINCODE_NAME=${PARTS_CHAINCODE_NAME}
@@ -336,17 +340,74 @@ function deploy_parts_client() {
 
   push_fn "Creating and deploying container"
 
-  docker build -t "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client" application/parts_client
-  docker push "${TEST_NETWORK_LOCAL_REGISTRY_DOMAIN}/parts-client"
+  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/parts-client" application/parts_client
+  docker push "${CONTAINER_REGISTRY_ADDRESS}/parts-client"
 
-  kubectl -n "${NS}" delete -f kube/parts-client-deployment.yaml || true
-  kubectl -n "${NS}" apply -f kube/parts-client-deployment.yaml
+  envsubst <kube/parts-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
+  envsubst <kube/parts-client-deployment.yaml | kubectl -n "${NS}" apply -f -
   pop_fn
 
   rm application/parts_client/consumer.properties
   rm application/parts_client/kafka.client.keystore.jks
   rm application/parts_client/kafka.client.truststore.jks
   rm application/parts_client/server.cer.pem
+
+}
+
+function deploy_sla_2_client() {
+  push_fn "Setting up files"
+  export CHANNEL_NAME=${SLA2_CHANNEL_NAME}
+  export CHAINCODE_NAME=sla-version-2
+
+  cp config/kafka/consumer.properties application/sla_2.0_client/
+  cp config/kafka/kafka.client.keystore.jks application/sla_2.0_client/
+  cp config/kafka/kafka.client.truststore.jks application/sla_2.0_client/
+  cp config/kafka/server.cer.pem application/sla_2.0_client/
+
+  cp -r config/org4/ application/sla_2.0_client/config
+
+  cp -r ${TEMP_DIR}/enrollments/org4/users/org4admin/msp application/sla_2.0_client/msp
+
+  cp ${TEMP_DIR}/channel-msp/ordererOrganizations/org0/orderers/org0-orderer1/tls/signcerts/tls-cert.pem application/sla_2.0_client/orderer-cert.pem
+
+  pop_fn
+
+  construct_application_configmap 4
+  push_fn "Creating and deploying container"
+
+  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla2-client" application/sla_2.0_client
+  docker push "${CONTAINER_REGISTRY_ADDRESS}/sla2-client"
+
+  envsubst <kube/deploy-permissions-rbac.yaml | kubectl -n "${NS}" delete -f - || true
+  envsubst <kube/deploy-permissions-rbac.yaml | kubectl -n "${NS}" apply -f -
+
+  envsubst <kube/sla2-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
+  envsubst <kube/sla2-client-deployment.yaml | kubectl -n "${NS}" apply -f -
+
+
+  pop_fn
+
+  # Cleanup
+
+  rm -r application/sla_2.0_client/config
+  rm -r application/sla_2.0_client/msp
+
+  rm application/sla_2.0_client/consumer.properties
+  rm application/sla_2.0_client/kafka.client.keystore.jks
+  rm application/sla_2.0_client/kafka.client.truststore.jks
+  rm application/sla_2.0_client/server.cer.pem
+  rm application/sla_2.0_client/orderer-cert.pem
+}
+
+
+function identity_management() {
+    push_fn "Building identity management pod"
+    docker build -t ${CONTAINER_REGISTRY_ADDRESS}/identity-management application/identity_management
+    docker push ${CONTAINER_REGISTRY_ADDRESS}/identity-management
+    # Maybe todo: change the namespace here
+    envsubst <kube/identity-management-client.yaml | kubectl -n "${NS}" delete -f - || true
+    envsubst <kube/identity-management-client.yaml | kubectl -n "${NS}" apply -f -
+    pop_fn "Identity management pod built"
 
 }
 
@@ -381,12 +442,22 @@ function application_command_group() {
     log "Deploying parts client:"
     deploy_parts_client
     log "🏁 - Client deployed"
+  elif [ "${COMMAND}" == "sla2" ]; then
+    log "Deploying sla 2 client:"
+    deploy_sla_2_client
+    log "🏁 - Client deployed"
   elif [ "${COMMAND}" == "api" ]; then
     log "Deploying api: "
     deploy_api
-    log "🏁 - Config is ready."
+    log "🏁 - API is ready."
+    elif [ "${COMMAND}" == "identity_management" ]; then
+    log "Deploying identity management API: "
+    identity_management
+    log "🏁 - Identity Management is ready."
   elif [ "${COMMAND}" == "explorer" ]; then
+    log "Deploying explorer"
     explorer_config
+    log "🏁 explorer deployed"
   else
     log "Uknown command"
     exit 1

@@ -57,7 +57,7 @@ spec:
             name: app-fabric-explorer-cert-v1
         - name: tlscerts
           configMap:
-            name: app-fabric-org1-tls-v1-map
+            name: app-fabric-org${orgNr}-tls-v1-map
         - name: walletstore
           emptyDir: {}
         - name: network-config
