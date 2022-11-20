@@ -73,6 +73,8 @@ spec:
         app: org4-peer2
         org: org4
     spec:
+      imagePullSecrets:
+      - name: docker-secret
       containers:
         - name: main
           image: ${FABRIC_PEER_IMAGE}
