@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: localhost:5000/identity-management
+          image: ${CONTAINER_REGISTRY_ADDRESS}/identity-management
           imagePullPolicy: Always
           envFrom:
             - configMapRef:

@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: localhost:5000/parts-client
+          image: ${CONTAINER_REGISTRY_ADDRESS}/parts-client
           imagePullPolicy: Always
           envFrom:
             - configMapRef:

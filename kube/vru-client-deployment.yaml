@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: localhost:5000/vru-client
+          image: ${CONTAINER_REGISTRY_ADDRESS}/vru-client
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
