@@ -44,12 +44,12 @@ func loadConfig() *lib.Config {
 
 func main() {
 
-	logf, err := os.OpenFile("logs.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	defer logf.Close()
-	log.SetOutput(logf)
+	// logf, err := os.OpenFile("logs.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	log.Fatalf("error opening file: %v", err)
+	// }
+	// defer logf.Close()
+	// log.SetOutput(logf)
 
 	conf := loadConfig()
 
