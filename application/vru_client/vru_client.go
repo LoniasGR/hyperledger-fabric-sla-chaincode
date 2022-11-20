@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -126,15 +125,15 @@ func main() {
 	}
 	defer lib.CloseJsonFile(f)
 
-	err = c_vru.Assign([]kafka.TopicPartition{{
-		Topic:     &topics[0],
-		Partition: 0,
-		Offset:    314390, // TODO
-	}})
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to assign offset: %s\n", err)
-		os.Exit(1)
-	}
+	// err = c_vru.Assign([]kafka.TopicPartition{{
+	// 	Topic:     &topics[0],
+	// 	Partition: 0,
+	// 	Offset:    363295, // TODO
+	// }})
+	// if err != nil {
+	// 	fmt.Fprintf(os.Stderr, "Failed to assign offset: %s\n", err)
+	// 	os.Exit(1)
+	// }
 
 	var run bool = true
 	for run {
