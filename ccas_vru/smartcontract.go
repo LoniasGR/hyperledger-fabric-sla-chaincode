@@ -14,6 +14,12 @@ type SmartContract struct {
 	contractapi.Contract
 }
 
+type vru_st struct {
+	Timestamp int64        `json:"timestamp"`
+	Trams     []lib.Tram_s `json:"trams"`
+	OBUs      []lib.OBU_s  `json:"obus"`
+}
+
 // InitLedger is just a template for now.
 // Used to test the connection and verify that applications can connect to the chaincode.
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
@@ -23,6 +29,8 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterface, contractJSON string) error {
 	var vru lib.VRU
+	var vruCC vru_st
+
 	err := json.Unmarshal([]byte(contractJSON), &vru)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal json: %v", err)
@@ -33,10 +41,21 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("failed to check contract existence: %v", err)
 	}
 	if exists {
-		return fmt.Errorf("the Contract %v already exists", vru.Timestamp)
+		vruCC.Trams = append(vruCC.Trams, vru.Tram)
+		vruCC.OBUs = append(vruCC.OBUs, vru.OBUs...)
+	} else {
+		vruCC.Timestamp = vru.Timestamp
+		vruCC.Trams = make([]lib.Tram_s, 1)
+		vruCC.Trams[0] = vru.Tram
+		vruCC.OBUs = vru.OBUs
 	}
 
-	return ctx.GetStub().PutState(fmt.Sprintf("%v", vru.Timestamp), []byte(contractJSON))
+	vruCCJson, err := json.Marshal(vruCC)
+	if err != nil {
+		return fmt.Errorf("could not marshal vru chaincode struct: %v", err)
+	}
+
+	return ctx.GetStub().PutState(fmt.Sprintf("%v", vru.Timestamp), []byte(vruCCJson))
 }
 
 // ContractExists returns true when Contract with given ID exists in world state
@@ -49,20 +68,20 @@ func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterfa
 	return ContractJSON != nil, nil
 }
 
-func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*lib.VRU, error) {
+func (s *SmartContract) getAssetByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*vru_st, error) {
 	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
 	if err != nil {
 		return nil, err
 	}
 	defer resultsIterator.Close()
 
-	var assets []*lib.VRU
+	var assets []*vru_st
 	for resultsIterator.HasNext() {
 		queryResult, err := resultsIterator.Next()
 		if err != nil {
 			return nil, err
 		}
-		var asset lib.VRU
+		var asset vru_st
 		err = json.Unmarshal(queryResult.Value, &asset)
 		if err != nil {
 			return nil, err
@@ -74,7 +93,7 @@ func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterf
 }
 
 func (s *SmartContract) GetAssetRiskInRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) (lib.Risk, error) {
-	assets, err := s.GetAssetByRange(ctx, startKey, endKey)
+	assets, err := s.getAssetByRange(ctx, startKey, endKey)
 	if err != nil {
 		return lib.Risk{}, err
 	}
