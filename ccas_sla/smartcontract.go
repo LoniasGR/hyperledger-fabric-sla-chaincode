@@ -150,12 +150,12 @@ func (s *SmartContract) CreateOrUpdateContract(ctx contractapi.TransactionContex
 	var sla lib.SLA
 	err := json.Unmarshal([]byte(contractJSON), &sla)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal json: %v", err)
+		return fmt.Errorf("failed to unmarshal json: %w", err)
 	}
 
 	exists, err := s.UserExists(ctx, sla.Details.Provider.Name)
 	if err != nil {
-		return fmt.Errorf("provider account %s could not be read: %v", sla.Details.Provider.ID, err)
+		return fmt.Errorf("provider account %s could not be read: %w", sla.Details.Provider.ID, err)
 	}
 	if !exists {
 		return fmt.Errorf("provider does not exist")
@@ -246,7 +246,7 @@ func (s *SmartContract) QueryUsersByPublicKey(ctx contractapi.TransactionContext
 
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
 	if err != nil {
-		return User{}, fmt.Errorf("query failed: %v", err)
+		return User{}, fmt.Errorf("query failed: %w", err)
 	}
 	defer resultsIterator.Close()
 
