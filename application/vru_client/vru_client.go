@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils"
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/hyperledger/fabric-gateway/pkg/client"
@@ -61,7 +60,7 @@ func main() {
 
 	configFile := lib.ParseArgs()
 
-	c_vru, err := kafkaUtils.CreateConsumer(*configFile[0], conf.ConsumerGroup)
+	c_vru, err := lib.CreateConsumer(*configFile[0], conf.ConsumerGroup, "earliest")
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
@@ -128,7 +127,7 @@ func main() {
 	// err = c_vru.Assign([]kafka.TopicPartition{{
 	// 	Topic:     &topics[0],
 	// 	Partition: 0,
-	// 	Offset:    363295, // TODO
+	// 	Offset:    37000, // TODO
 	// }})
 	// if err != nil {
 	// 	fmt.Fprintf(os.Stderr, "Failed to assign offset: %s\n", err)
@@ -150,7 +149,7 @@ func main() {
 				log.Printf("consumer failed to read: %v", err)
 				continue
 			}
-			log.Printf("New message recieved on partition: %v", msg.TopicPartition)
+			log.Printf("New message received on partition: %v", msg.TopicPartition)
 			log.Println(string(msg.Value))
 			var vru_slice []lib.VRU
 

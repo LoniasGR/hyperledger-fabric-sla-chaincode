@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils"
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/hyperledger/fabric-gateway/pkg/client"
@@ -61,7 +60,7 @@ func main() {
 
 	configFile := lib.ParseArgs()
 
-	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], conf.ConsumerGroup)
+	c_parts, err := lib.CreateConsumer(*configFile[0], conf.ConsumerGroup, "beginning")
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
@@ -86,7 +85,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create new identity: %v", err)
 	}
-	
+
 	sign, err := lib.NewSign(*conf)
 	if err != nil {
 		log.Fatalf("failed to create new signature: %v", err)
