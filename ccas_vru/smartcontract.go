@@ -101,6 +101,12 @@ func (s *SmartContract) GetAssetRiskInRange(ctx contractapi.TransactionContextIn
 
 	for _, asset := range assets {
 		for _, OBU := range asset.OBUs {
+			if OBU.Risk == "CRITICAL" {
+				risk.Critical += 1
+			}
+			if OBU.Risk == "WARNING" {
+				risk.Warning += 1
+			}
 			if OBU.Risk == "HIGHRISK" {
 				risk.HighRisk += 1
 			}

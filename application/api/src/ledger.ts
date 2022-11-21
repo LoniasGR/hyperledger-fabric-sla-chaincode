@@ -15,9 +15,11 @@ type PartsData = {
 };
 
 type VRUData = {
-  HighRisk: number,
-  LowRisk: number,
-  NoRisk: number,
+  critical: number,
+  warning: number,
+  highRisk: number,
+  lowRisk: number,
+  noRisk: number,
 }
 
 const utf8Decoder = new TextDecoder();
