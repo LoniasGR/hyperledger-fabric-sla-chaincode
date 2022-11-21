@@ -76,13 +76,13 @@ func CreateProducer(configFile string) (*kafka.Producer, error) {
 	return producer, nil
 }
 
-func CreateConsumer(configFile, groupId string) (*kafka.Consumer, error) {
+func CreateConsumer(configFile, groupId, offset string) (*kafka.Consumer, error) {
 	kafkaConfig, err := GetKafkaConfiguration(configFile)
 	if err != nil {
 		return nil, err
 	}
 	kafkaConfig.SetKey("group.id", groupId)
-	kafkaConfig.SetKey("auto.offset.reset", "beginning")
+	kafkaConfig.SetKey("auto.offset.reset", offset)
 
 	consumer, err := kafka.NewConsumer(&kafkaConfig)
 	if err != nil {
