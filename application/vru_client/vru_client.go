@@ -60,7 +60,7 @@ func main() {
 
 	configFile := lib.ParseArgs()
 
-	c_vru, err := lib.CreateConsumer(*configFile[0], conf.ConsumerGroup, "earliest")
+	c_vru, err := lib.CreateConsumer(*configFile[0], conf.ConsumerGroup, "beginning")
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
