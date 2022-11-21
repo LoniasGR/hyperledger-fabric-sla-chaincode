@@ -1,0 +1,55 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sla-2-client-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sla-2-client-deployment
+  template:
+    metadata:
+      labels:
+        app: sla-2-client-deployment
+    spec:
+      serviceAccountName: deployer
+      containers:
+        - name: main
+          image: ${CONTAINER_REGISTRY_ADDRESS}/sla2-client
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: app-fabric-org4-v1-map
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "0.1"
+          volumeMounts:
+            - name: fabricids
+              mountPath: /fabric/application/wallet
+            - name: fabric-ccp
+              mountPath: /fabric/application/gateways
+            - name: tlscerts
+              mountPath: /fabric/tlscacerts
+            - name: data
+              mountPath: /fabric/data
+      volumes:
+        - name: fabric-ccp
+          configMap:
+            name: app-fabric-ccp-v1-map
+        - name: fabricids
+          configMap:
+            name: app-fabric-ids-v1-map
+        - name: tlscerts
+          configMap:
+            name: app-fabric-org4-tls-v1-map
+        - name: data
+          persistentVolumeClaim:
+            claimName: fabric-sla-2
