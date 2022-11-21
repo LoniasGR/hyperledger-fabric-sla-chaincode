@@ -20,6 +20,7 @@ type VRU struct {
 }
 
 type Risk struct {
+	Critical int `json:"critical"`
 	HighRisk int `json:"highRisk"`
 	LowRisk  int `json:"lowRisk"`
 	NoRisk   int `json:"noRisk"`
