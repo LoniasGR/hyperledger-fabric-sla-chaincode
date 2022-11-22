@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
-
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
 
@@ -26,15 +25,13 @@ type UserRequest struct {
 	Organization int    `json:"org"`
 }
 
-func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string, balance, org int) (bool, string, error) {
+func UserExistsOrCreate(contract *client.Contract, name string, balance, org int, conf lib.Config) (bool, string, error) {
 	result, err := contract.EvaluateTransaction("UserExists", name)
 	if err != nil {
-		err = fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
 		return false, "", err
 	}
 	result_bool, err := strconv.ParseBool(string(result))
 	if err != nil {
-		err = fmt.Errorf(string(lib.ColorRed)+"failed to parse boolean: %s\n"+string(lib.ColorReset), err)
 		return false, "", err
 	}
 	if result_bool {
@@ -46,20 +43,17 @@ func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string
 		Organization: org,
 	})
 	if err != nil {
-		err = fmt.Errorf(string(lib.ColorRed)+"failed to marshall post request: %s\n"+string(lib.ColorReset), err)
-		return false, "", err
+		return false, "", fmt.Errorf("%w", err)
 	}
 	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post((identityEndpoint + "/create"), "application/json", responseBody)
+	resp, err := http.Post((conf.IdentityEndpoint + "/create"), "application/json", responseBody)
 	if err != nil {
-		err = fmt.Errorf(string(lib.ColorRed)+"failed to send post request: %s\n"+string(lib.ColorReset), err)
 		return false, "", err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		err = fmt.Errorf(string(lib.ColorRed)+"failed to get response body: %s\n"+string(lib.ColorReset), err)
 		return false, "", err
 	}
 
@@ -67,20 +61,18 @@ func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string
 	var responseBodyJSON map[string]interface{}
 	err = json.Unmarshal(body, &responseBodyJSON)
 	if err != nil {
-		err = fmt.Errorf(string(lib.ColorRed)+"failed to unmarshal response body: %s\n"+string(lib.ColorReset), err)
 		return false, "", err
 	}
 	if responseBodyJSON["success"] == false {
 		if responseBodyJSON["error"] == "User already exists" {
 			return false, "", fmt.Errorf("user does not exist on ledger, but exists on user service")
 		}
-		return false, "", fmt.Errorf(string(lib.ColorRed)+"response failure: %v"+string(lib.ColorReset), responseBodyJSON["error"])
+		return false, "", fmt.Errorf("response failure: %v", responseBodyJSON["error"])
 	}
 	// get the data of the internal JSON
 	data, ok := responseBodyJSON["data"].(map[string]interface{})
 	if !ok {
-		err = fmt.Errorf(string(lib.ColorRed) + "failed to convert interface to struct\n" + string(lib.ColorReset))
-		return false, "", err
+		return false, "", fmt.Errorf("failed to convert interface to struct")
 	}
 	// convert interface{} to string
 	privateKey := fmt.Sprintf("%v", data["privateKey"])
@@ -89,20 +81,16 @@ func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string
 	publicKeyStripped := splitCertificate(publicKey)
 	// privateKeyStripped := splitCertificate(privateKey)
 
-	err = saveCertificates(name, privateKey, publicKey)
+	err = saveCertificates(name, privateKey, publicKey, conf)
 	if err != nil {
-		err = fmt.Errorf(string(lib.ColorRed)+"failed to save certificates: %s"+string(lib.ColorReset), err)
-		return false, "", err
+		return false, "", fmt.Errorf("failed to save certificates: %s", err)
 	}
 
 	publicKeyOneLine := strings.ReplaceAll(publicKeyStripped, "\n", "")
-	log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-					CreateUser, creates new user with name, ID, publickey and an initial balance`, string(lib.ColorReset))
-	_, err = contract.SubmitTransaction("CreateUser", name, publicKeyOneLine, strconv.Itoa(balance))
+	err = CreateUser(contract, name, publicKeyOneLine, balance)
 	if err != nil {
-		return false, "", fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+		return false, "", err
 	}
-
 	return false, publicKeyOneLine, nil
 }
 
@@ -113,13 +101,14 @@ func splitCertificate(certificate string) string {
 }
 
 // Save the certificates of the user
-func saveCertificates(name, privateKey, publicKey string) error {
+func saveCertificates(name, privateKey, publicKey string, conf lib.Config) error {
 	data := fmt.Sprintf("%v\n%v",
 		privateKey, publicKey)
-	filename := fmt.Sprintf("./keys/%v.keys", name)
-	err := os.WriteFile(filename, []byte(data), 0644)
+	filename := name + ".keys"
+	path := filepath.Join(conf.DataFolder, "/keys/", filename)
+	err := os.WriteFile(path, []byte(data), 0644)
 	if err != nil {
-		return fmt.Errorf("failed to write keys: %v", err)
+		return fmt.Errorf("failed to write keys: %w", err)
 	}
 	return nil
 }

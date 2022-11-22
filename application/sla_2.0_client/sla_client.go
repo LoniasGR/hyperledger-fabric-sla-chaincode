@@ -50,6 +50,7 @@ func loadConfig() *lib.Config {
 
 func main() {
 	conf := loadConfig()
+	createKeysFolder(*conf)
 
 	// The topics that will be used
 	topics := make([]string, 2)
@@ -149,50 +150,54 @@ func main() {
 				// Generate the name of the contract
 				contractName := fmt.Sprintf("%v-%v", conf.ContractNamePrefix, sla.ID)
 
-				err := DeployCC(contractName, 4, *conf)
+				// Check if the contract exists and otherwise create it
+				ok, err := QueryInstalled(4, contractName, *conf)
 				if err != nil {
-					log.Printf("failed to deploy cc: %v", err)
+					log.Println(red("%v", err))
+					continue
 				}
-				continue
+				if !ok {
+					err = DeployCC(contractName, 4, *conf)
+					if err != nil {
+						log.Println(red("%v", err))
+						continue
+					}
+					contract := network.GetContract(contractName)
+					// Init ledger
+					err = InitLedger(contract)
+					if err != nil {
+						handleError(err)
+						continue
+					}
+					// Initialize the daily refunding process
+					c := cron.New()
+					c.AddFunc("@midnight", func() { runRefunds(*contract) })
+					c.Start()
+				}
 
 				contract := network.GetContract(contractName)
 
-				log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
-				_, err = contract.SubmitTransaction("InitLedger")
-				if err != nil {
-					log.Fatalf("failed to submit transaction: %v", err)
-				}
-
-				// Initialize the daily refunding process
-				c := cron.New()
-				c.AddFunc("@midnight", func() { runRefunds(*contract) })
-				c.Start()
-
 				jsonToFile, _ := json.MarshalIndent(sla, "", " ")
 				if err = lib.WriteJsonObjectToFile(f_sla, jsonToFile); err != nil {
-					log.Printf("%v", err)
+					handleError(err)
 				}
+				log.Println("Creating users and contract")
 
-				_, _, err = UserExistsOrCreate(contract, sla.Details.Provider.Name, conf.IdentityEndpoint, 10000, 1)
+				_, _, err = UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 4, *conf)
 				if err != nil {
-					log.Printf("%v", err)
+					handleError(err)
 					continue
 				}
 
-				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, conf.IdentityEndpoint, 10000, 1)
+				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 4, *conf)
 				if err != nil {
-					log.Printf("%v", err)
+					handleError(err)
 					continue
 				}
 
-				log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-				CreateOrUpdateContract, creates new contract or updates existing one with SLA`, string(lib.ColorReset))
-
-				_, err = contract.SubmitTransaction("CreateOrUpdateContract",
-					string(msg.Value),
-				)
+				err = CreateOrUpdateContract(contract, string(msg.Value))
 				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %v\n"+string(lib.ColorReset), err)
+					handleError(err)
 					continue
 				}
 				log.Println("submitted")
@@ -214,11 +219,14 @@ func main() {
 				}
 				contractName := fmt.Sprintf("%v-%v", conf.ContractNamePrefix, v.SLAID)
 				contract := network.GetContract(contractName)
+				if contract == nil {
+					log.Printf("failed to find contract %s", contractName)
+					continue
+				}
 
-				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))
-				result, err := contract.SubmitTransaction("SLAViolated", string(msg.Value))
+				result, err := SLAViolated(contract, string(msg.Value))
 				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %v\n"+string(lib.ColorReset), err)
+					handleError(err)
 					continue
 				}
 				log.Println(string(result))

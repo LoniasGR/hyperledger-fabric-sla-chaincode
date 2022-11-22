@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -245,7 +246,7 @@ func ActivateCC(orgNr int, ccName, ccPackage, ccID string, conf lib.Config) erro
 		return err
 	}
 
-	queryInstalled(orgNr, conf)
+	//QueryInstalled(orgNr, ccName, conf)
 	log.Printf("Installed chaincodes")
 	log.Printf("Approving chaincodes")
 
@@ -355,7 +356,7 @@ func queryMetadata(orgNr int, ccName string, conf lib.Config) error {
 	return nil
 }
 
-func queryInstalled(orgNr int, conf lib.Config) error {
+func QueryInstalled(orgNr int, ccName string, conf lib.Config) (bool, error) {
 
 	args := []string{
 		"./scripts/cc.sh",
@@ -365,12 +366,14 @@ func queryInstalled(orgNr int, conf lib.Config) error {
 		conf.TlsCertPath,
 	}
 
-	_, err := runCommand(args, nil, nil)
+	res, err := runCommand(args, nil, nil)
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	return nil
+	match, _ := regexp.MatchString(ccName, res.String())
+
+	return match, nil
 }
 
 func checkCommitReadiness(orgNr int, ccName string, conf lib.Config) error {

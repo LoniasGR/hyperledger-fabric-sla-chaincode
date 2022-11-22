@@ -14,13 +14,17 @@ RUN rm config/configtx.yaml && \
     rm config/core.yaml && \
     rm config/orderer.yaml
 
+ENV PATH=bin:$PATH
+EXPOSE 8999
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
 COPY . .
 RUN chmod +x scripts/cc.sh
-
-ENV PATH=bin:$PATH
-
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-EXPOSE 8999
 CMD ["sla_2.0_client", "-f", "consumer.properties"]

@@ -130,7 +130,6 @@ query_cc_metadata() {
   orgNr=$2
   tlsCertPath=$3
 
-  set -x
   args='{"Args":["org.hyperledger.fabric:GetMetadata"]}'
 
   echo ''
