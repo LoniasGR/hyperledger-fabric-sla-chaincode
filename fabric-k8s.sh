@@ -16,35 +16,26 @@ export PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
 export TEST_NETWORK_LOCAL_REGISTRY_HOSTNAME=147.102.19.6
 export TEST_NETWORK_LOCAL_REGISTRY_PORT=443
 
-
-
-function log_line() {
-    echo -e "==============================================" >>network-debug.log
-}
-
-function log() {
-    echo -e "$@"
-}
-
 function login() {
     ./network-k8s.sh docker
 }
 
-function unkind() {
-    ./network-k8s.sh unkind
-}
-
-function kind() {
-    ./network-k8s.sh kind
-}
-
-function init_cluster() {
+function init() {
+    if [ "${RUNTIME}" == "kind" ]; then
+        ./network-k8s.sh kind
+    fi
     ./network-k8s.sh cluster init
+}
+
+function destroy() {
+    ./network-k8s.sh cluster clean
+    if [ "${RUNTIME}" == "kind" ]; then
+        ./network-k8s.sh unkind
+    fi
 }
 
 function up() {
     ./network-k8s.sh up
-    log_line
 }
 
 function down() {
@@ -53,30 +44,23 @@ function down() {
 
 function set_channels() {
     ./network-k8s.sh channel init
-    log_line
 
     ./network-k8s.sh channel create "$SLA_CHANNEL_NAME" 1
-    log_line
 
     ./network-k8s.sh channel create "$VRU_CHANNEL_NAME" 2
-    log_line
 
     ./network-k8s.sh channel create "$PARTS_CHANNEL_NAME" 3
-    log_line
 
     ./network-k8s.sh channel create "$SLA2_CHANNEL_NAME" 4
-    log_line
 }
 
 function deploy_chaincodes() {
 
     export CHANNEL_NAME=${SLA_CHANNEL_NAME}
     ./network-k8s.sh chaincode deploy 1 $SLA_CHAINCODE_NAME "$SLA_CC_SRC_PATH"
-    log_line
 
     export CHANNEL_NAME=${VRU_CHANNEL_NAME}
     ./network-k8s.sh chaincode deploy 2 $VRU_CHAINCODE_NAME "$VRU_CC_SRC_PATH"
-    log_line
 
     export CHANNEL_NAME=${PARTS_CHANNEL_NAME}
     ./network-k8s.sh chaincode deploy 3 $PARTS_CHAINCODE_NAME "$PARTS_CC_SRC_PATH"
@@ -88,7 +72,6 @@ function init_application_config() {
 
 function identity_management() {
     ./network-k8s.sh application identity_management
-
 }
 
 function sla_client() {
@@ -108,45 +91,71 @@ function sla2_client() {
 }
 
 function api() {
-    log "Building API pod"
     ./network-k8s.sh application api
-
 }
 
 function explorer() {
     ./network-k8s.sh application explorer
-
 }
 
 function applications() {
     init_application_config
     sla_client
-    vru_client
-    parts_client
+    # vru_client
+    # parts_client
     sla2_client
     identity_management
     api
-    explorer
+    # explorer
 }
 
 function print_help() {
-    log "USAGE:"
-    log "    kind: Set up the the KIND cluster and the container registry"
-    log "    cluster: Initialize the cluster"
-    log "    up: Bring up all the peers, CAs and orderers of the network, as well as the channels"
-    log "    deploy: Bring up the chaincodes and the clients."
+    echo "USAGE:"
+    echo "$0 RUNTIME COMMAND"
+    echo ""
+    echo "RUNTIME:"
+    echo "    kind: Kubernetes-in-Docker cluster"
+    echo "    microk8s: Microk8s cluster"
+    echo ""
+    echo "COMMAND:"
+    echo "    init: Set up the the cluster, the ingress and cert-manager"
+    echo "    destroy: Bring down the cluster"
+    echo "    up: Bring up all the peers, CAs and orderers of the network, as well as the channels"
+    echo "    deploy: Bring up the chaincodes and the clients."
 }
 
 ## Parse mode
-if [[ $# -lt 1 ]]; then
-    print_help
+if [[ $# -lt 2 ]]; then
+    print_help "$@"
     exit 0
 else
-    MODE=$1
-    shift
+    RUNTIME=$1
+    MODE=$2
+    shift 2
 fi
 
-if [ "${MODE}" == "up" ]; then
+if [ "${RUNTIME}" == "kind" ]; then
+    kubectl config use-context kind-kind
+    export TEST_NETWORK_CLUSTER_RUNTIME=kind
+    export TEST_NETWORK_CLUSTER_NAME=kind
+    export TEST_NETWORK_NGINX_HTTP_PORT=8080
+    export TEST_NETWORK_NGINX_HTTPS_PORT=8443
+elif [ "${RUNTIME}" == "microk8s" ]; then
+    kubectl config use-context microk8s
+    export TEST_NETWORK_CLUSTER_RUNTIME=microk8s
+    export TEST_NETWORK_CLUSTER_NAME=microk8s
+    export TEST_NETWORK_NGINX_HTTP_PORT=9080
+    export TEST_NETWORK_NGINX_HTTPS_PORT=9443
+else
+    print_help
+    exit 1
+fi
+
+if [ "${MODE}" == "init" ]; then
+    init
+elif [ "${MODE}" == "destroy" ]; then
+    destroy
+elif [ "${MODE}" == "up" ]; then
     up
 elif [ "${MODE}" == "channels" ]; then
     set_channels
@@ -156,19 +165,12 @@ elif [ "${MODE}" == "chaincodes" ]; then
     deploy_chaincodes
 elif [ "${MODE}" == "applications" ]; then
     applications
-elif [ "${MODE}" == "kind" ]; then
-    kind
-elif [ "${MODE}" == "cluster" ]; then
-    init_cluster
 elif [ "${MODE}" == "down" ]; then
     down
-elif [ "${MODE}" == "unkind" ]; then
-    unkind
-elif [ "${MODE}" == "everything" ]; then
+elif [ "${MODE}" == "full" ]; then
     down
-    unkind
-    kind
-    init_cluster
+    destroy
+    init
     up
     set_channels
     login
