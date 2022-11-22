@@ -49,8 +49,12 @@ function pop_fn() {
   #  echo exiting ${FUNCNAME[1]}
 
   if [ $# -eq 0 ]; then
-    echo -ne "\r✅" >>"${LOG_FILE}"
-    echo "" >>"${LOG_FILE}"
+    {
+      echo -ne "\r✅"
+      echo ""
+    } >>"${LOG_FILE}"
+    echo "==============================================" >>"${DEBUG_FILE}"
+
     return
   fi
 

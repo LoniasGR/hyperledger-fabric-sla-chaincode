@@ -56,14 +56,14 @@ function create_node_local_MSP() {
 
   # Register the node admin
   rc=0
-  fabric-ca-client  register \
-    --id.name       "${id_name}" \
-    --id.secret     "${id_secret}" \
-    --id.type       "${node_type}" \
-    --url           https://"${ca_name}.${DOMAIN}:${NGINX_HTTPS_PORT}" \
+  fabric-ca-client register \
+    --id.name "${id_name}" \
+    --id.secret "${id_secret}" \
+    --id.type "${node_type}" \
+    --url https://"${ca_name}.${DOMAIN}:${NGINX_HTTPS_PORT}" \
     --tls.certfiles "$TEMP_DIR/cas/${ca_name}/tlsca-cert.pem" \
-    --mspdir        "$TEMP_DIR/enrollments/${org}/users/${RCAADMIN_USER}/msp" \
-    || rc=$?        # trap error code from registration without exiting the network driver script"
+    --mspdir "$TEMP_DIR/enrollments/${org}/users/${RCAADMIN_USER}/msp" ||
+    rc=$? # trap error code from registration without exiting the network driver script"
 
   if [ $rc -eq 1 ]; then
     echo "CA admin was (probably) previously registered - continuing"
@@ -137,7 +137,6 @@ function create_local_MSP() {
   create_peer_local_MSP org3 peer1 "$ORG3_NS"
   create_peer_local_MSP org3 peer2 "$ORG3_NS"
 
-
   create_peer_local_MSP org4 peer1 "$ORG4_NS"
   create_peer_local_MSP org4 peer2 "$ORG4_NS"
   pop_fn
@@ -189,17 +188,28 @@ function stop_services() {
 
 function scrub_org_volumes() {
   push_fn "Scrubbing Fabric volumes"
-  # TODO: Add org here
-  for org in org0 org1 org2 org3; do
-    # clean job to make this function can be rerun
-    local namespace_variable=${org^^}_NS
-    kubectl -n ${!namespace_variable} delete jobs --all
+  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
+    # TODO: Add org here
+    for org in org0 org1 org2 org3; do
+      # clean job to make this function can be rerun
+      local namespace_variable=${org^^}_NS
+      kubectl -n ${!namespace_variable} delete jobs --all
 
-    # scrub all pv contents
-    kubectl -n ${!namespace_variable} create -f kube/${org}/${org}-job-scrub-fabric-volumes.yaml
-    kubectl -n ${!namespace_variable} wait --for=condition=complete --timeout=60s job/job-scrub-fabric-volumes
-    kubectl -n ${!namespace_variable} delete jobs --all
-  done
+      # scrub all pv contents
+      kubectl -n ${!namespace_variable} create -f kube/${org}/${org}-job-scrub-fabric-volumes.yaml
+      kubectl -n ${!namespace_variable} wait --for=condition=complete --timeout=60s job/job-scrub-fabric-volumes
+      kubectl -n ${!namespace_variable} delete jobs --all
+    done
+  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
+    # TODO: Add org here
+    export STORAGE_CLASS="local-path"
+    envsubst <kube/pv-fabric-org0.yaml | kubectl -n "$ORG0_NS" delete -f - || true
+    envsubst <kube/pv-fabric-org1.yaml | kubectl -n "$ORG1_NS" delete -f - || true
+    envsubst <kube/pv-fabric-org2.yaml | kubectl -n "$ORG2_NS" delete -f - || true
+    envsubst <kube/pv-fabric-org3.yaml | kubectl -n "$ORG3_NS" delete -f - || true
+    envsubst <kube/pv-fabric-org4.yaml | kubectl -n "$ORG4_NS" delete -f - || true
+  fi
+
   pop_fn
 }
 
@@ -208,7 +218,7 @@ function network_down() {
   set +e
   # TODO: Add org here
   for ns in $ORG0_NS $ORG1_NS $ORG2_NS $ORG3_NS; do
-    kubectl get namespace "$ns" > /dev/null
+    kubectl get namespace "$ns" >/dev/null
     if [[ $? -ne 0 ]]; then
       echo "No namespace $ns found - nothing to do."
       return

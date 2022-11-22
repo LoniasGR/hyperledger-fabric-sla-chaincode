@@ -35,7 +35,7 @@ function init_storage_volumes() {
   if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
     export STORAGE_CLASS="standard"
 
-  elif [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
+  elif [ "${CLUSTER_RUNTIME}" == "k3s" ] || [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
     export STORAGE_CLASS="local-path"
 
   else
