@@ -180,13 +180,16 @@ data:
   fabric_vru_contract: ${VRU_CHAINCODE_NAME}
   fabric_parts_channel: ${PARTS_CHANNEL_NAME}
   fabric_parts_contract: ${PARTS_CHAINCODE_NAME}
+  fabric_sla2_channel: ${SLA2_CHANNEL_NAME}
   fabric_wallet_dir: /fabric/application/wallet
   fabric_org1_gateway_hostport: org1-peer-gateway-svc:8051
   fabric_org2_gateway_hostport: org2-peer-gateway-svc:8051
   fabric_org3_gateway_hostport: org3-peer-gateway-svc:8051
+  fabric_org4_gateway_hostport: org4-peer-gateway-svc:8051
   fabric_org1_gateway_sslHostOverride: org1-peer-gateway-svc
   fabric_org2_gateway_sslHostOverride: org2-peer-gateway-svc
   fabric_org3_gateway_sslHostOverride: org3-peer-gateway-svc
+  fabric_org4_gateway_sslHostOverride: org4-peer-gateway-svc
 
   identity_endpoint: http://identity-management:8000
 EOF
