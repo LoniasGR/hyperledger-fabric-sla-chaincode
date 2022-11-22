@@ -163,7 +163,7 @@ spec:
         paths:
           - backend:
               service:
-                name: org4-peer1
+                name: org4-peer-gateway-svc
                 port:
                   name: grpc
             path: /
