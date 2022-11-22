@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -26,7 +27,7 @@ type UserRequest struct {
 	Organization int    `json:"org"`
 }
 
-func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string, balance, org int) (bool, string, error) {
+func UserExistsOrCreate(contract *client.Contract, name string, balance, org int, conf lib.Config) (bool, string, error) {
 	result, err := contract.EvaluateTransaction("UserExists", name)
 	if err != nil {
 		err = fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
@@ -50,7 +51,7 @@ func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string
 		return false, "", err
 	}
 	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post((identityEndpoint + "/create"), "application/json", responseBody)
+	resp, err := http.Post((conf.IdentityEndpoint + "/create"), "application/json", responseBody)
 	if err != nil {
 		err = fmt.Errorf(string(lib.ColorRed)+"failed to send post request: %s\n"+string(lib.ColorReset), err)
 		return false, "", err
@@ -89,7 +90,7 @@ func UserExistsOrCreate(contract *client.Contract, name, identityEndpoint string
 	publicKeyStripped := splitCertificate(publicKey)
 	// privateKeyStripped := splitCertificate(privateKey)
 
-	err = saveCertificates(name, privateKey, publicKey)
+	err = saveCertificates(name, privateKey, publicKey, conf)
 	if err != nil {
 		err = fmt.Errorf(string(lib.ColorRed)+"failed to save certificates: %s"+string(lib.ColorReset), err)
 		return false, "", err
@@ -113,11 +114,11 @@ func splitCertificate(certificate string) string {
 }
 
 // Save the certificates of the user
-func saveCertificates(name, privateKey, publicKey string) error {
-	data := fmt.Sprintf("%v\n%v",
-		privateKey, publicKey)
-	filename := fmt.Sprintf("./keys/%v.keys", name)
-	err := os.WriteFile(filename, []byte(data), 0644)
+func saveCertificates(name, privateKey, publicKey string, conf lib.Config) error {
+	data := fmt.Sprintf("%v\n%v", privateKey, publicKey)
+	filename := name + ".keys"
+	path := filepath.Join(conf.DataFolder, "/keys/", filename)
+	err := os.WriteFile(path, []byte(data), 0644)
 	if err != nil {
 		return fmt.Errorf("failed to write keys: %v", err)
 	}

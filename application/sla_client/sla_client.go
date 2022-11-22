@@ -50,6 +50,7 @@ func loadConfig() *lib.Config {
 
 func main() {
 	conf := loadConfig()
+	createKeysFolder(*conf)
 
 	// The topics that will be used
 	topics := make([]string, 2)
@@ -165,13 +166,13 @@ func main() {
 					log.Printf("%v", err)
 				}
 
-				_, _, err := UserExistsOrCreate(contract, sla.Details.Provider.Name, conf.IdentityEndpoint, 10000, 1)
+				_, _, err := UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 1, *conf)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
 				}
 
-				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, conf.IdentityEndpoint, 10000, 1)
+				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 1, *conf)
 				if err != nil {
 					log.Printf("%v", err)
 					continue
@@ -228,6 +229,15 @@ func runRefunds(contract client.Contract) error {
 	_, err := contract.SubmitTransaction("RefundAllSLAs")
 	if err != nil {
 		return fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %w\n"+string(lib.ColorReset), err)
+	}
+	return nil
+}
+
+func createKeysFolder(conf lib.Config) error {
+	path := filepath.Join(conf.DataFolder, "/keys")
+	err := os.MkdirAll(path, os.ModeDir)
+	if err != nil {
+		return err
 	}
 	return nil
 }
