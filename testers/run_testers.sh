@@ -13,58 +13,78 @@ function println() {
 
 # errorln echos i red color
 function errorln() {
-  println "${C_RED}${1}${C_RESET}"
+    println "${C_RED}${1}${C_RESET}"
 }
 
 # successln echos in green color
 function successln() {
-  println "${C_GREEN}${1}${C_RESET}"
+    println "${C_GREEN}${1}${C_RESET}"
 }
 
 # infoln echos in blue color
 function infoln() {
-  println "${C_BLUE}${1}${C_RESET}"
+    println "${C_BLUE}${1}${C_RESET}"
 }
 
 # warnln echos in yellow color
 function warnln() {
-  println "${C_YELLOW}${1}${C_RESET}"
+    println "${C_YELLOW}${1}${C_RESET}"
 }
 
+function getFiles() {
+    ENV=$1
+    if [ "$ENV" == "prod" ]; then
+        cp ../../config/kafka/producer.properties ${PWD}
+        cp ../../config/kafka/server.cer.pem ${PWD}
+        cp ../../config/kafka/kafka.client.keystore.jks ${PWD}
+        cp ../../config/kafka/kafka.client.truststore.jks ${PWD}
+    elif [ "$ENV" == "dev" ]; then
+        cp ../config/kafka/producer.properties.dev ${PWD}/producer.properties
+    else
+        errorln "Unknown environment provided"
+        printHelp
+        exit 1
+    fi
+}
+
+function removeFiles() {
+    rm producer.properties
+    rm server.cer.pem || true
+    rm kafka.client.keystore.jks || true
+    rm kafka.client.truststore.jks || true
+}
 
 function runTesters() {
     ENV=$1
     TESTER=$2
-    local COMMAND
-
-    if [ "$ENV" == "dev" ];  then
-        COMMAND="go run . -f ../../config/kafka/producer.properties.dev"
-    elif [ "$ENV" == "prod" ]; then
-        COMMAND="go run . -f ../../config/kafka/producer.properties"
-    else
-        print_help
-        exit 1
-    fi
+    local COMMAND="go run . -f ./producer.properties"
 
     if [ "$TESTER" = "sla" ]; then
         infoln "Running SLA producer"
         pushd ./sla_producer || println "Did not find sla tester folder"
+        getFiles "$ENV"
         eval "$COMMAND"
+        removeFiles
         popd || true
     elif [ "$TESTER" = "vru" ]; then
         infoln "Running VRU producer"
         pushd ./vru_producer || println "Did not find sla tester folder"
+        getFiles "$ENV"
         eval "$COMMAND"
+        removeFiles
         popd || true
     elif [ "$TESTER" = "parts" ]; then
         infoln "Running Parts producer"
         pushd ./parts_producer || println "Did not find sla tester folder"
+        getFiles "$ENV"
         eval "$COMMAND"
+        removeFiles
         popd || true
     else
         errorln "Tester ${TESTER} does not exist."
         exit 1
     fi
+
 }
 
 function printHelp() {
