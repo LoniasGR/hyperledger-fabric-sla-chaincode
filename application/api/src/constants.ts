@@ -16,23 +16,31 @@ export const VRUChaincodeName = envOrDefault('fabric_vru_contract', 'vru_positio
 export const PartsChannelName = envOrDefault('fabric_parts_channel', 'parts');
 export const PartsChaincodeName = envOrDefault('fabric_parts_contract', 'parts');
 
+export const SLA2ChannelName = envOrDefault('fabric_sla_channel', 'parts');
+
+
 export const org1MSPId = envOrDefault('ORG1_MSP_ID', 'Org1MSP');
 export const org2MSPId = envOrDefault('ORG2_MSP_ID', 'Org2MSP');
 export const org3MSPId = envOrDefault('ORG3_MSP_ID', 'Org3MSP');
+export const org4MSPId = envOrDefault('ORG3_MSP_ID', 'Org4MSP');
 
 // Path to peer tls certificate.
 export const org1TlsCertPath = envOrDefault('ORG1_TLS_CERT_PATH', '/fabric/tlscacerts/org1/tlsca-signcert.pem');
 export const org2TlsCertPath = envOrDefault('ORG2_TLS_CERT_PATH', '/fabric/tlscacerts/org2/tlsca-signcert.pem');
 export const org3TlsCertPath = envOrDefault('ORG3_TLS_CERT_PATH', '/fabric/tlscacerts/org3/tlsca-signcert.pem');
+export const org4TlsCertPath = envOrDefault('ORG3_TLS_CERT_PATH', '/fabric/tlscacerts/org4/tlsca-signcert.pem');
+
 // Gateway peer endpoint.
 export const org1PeerEndpoint = envOrDefault('fabric_org1_gateway_hostport', 'localhost:7051');
 export const org2PeerEndpoint = envOrDefault('fabric_org2_gateway_hostport', 'localhost:9051');
 export const org3PeerEndpoint = envOrDefault('fabric_org3_gateway_hostport', 'localhost:11051');
+export const org4PeerEndpoint = envOrDefault('fabric_org4_gateway_hostport', 'localhost:13051');
 
 // Gateway peer SSL host name override.
 export const org1PeerHostAlias = envOrDefault('fabric_org1_gateway_sslHostOverride', 'peer0.org1.example.com');
 export const org2PeerHostAlias = envOrDefault('fabric_org2_gateway_sslHostOverride', 'peer0.org2.example.com');
 export const org3PeerHostAlias = envOrDefault('fabric_org3_gateway_sslHostOverride', 'peer0.org3.example.com');
+export const org4PeerHostAlias = envOrDefault('fabric_org4_gateway_sslHostOverride', 'peer0.org4.example.com');
 
 export const org1Constants = {
   mspId: org1MSPId,
@@ -55,8 +63,16 @@ export const org3Constants = {
   peerHostAlias: org3PeerHostAlias,
 };
 
+export const org4Constants = {
+  mspId: org4MSPId,
+  tlsCertPath: org4TlsCertPath,
+  peerEndpoint: org4PeerEndpoint,
+  peerHostAlias: org4PeerHostAlias,
+};
+
 export const orgConstants = [
   org1Constants,
   org2Constants,
   org3Constants,
+  org4Constants,
 ];

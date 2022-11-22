@@ -6,15 +6,17 @@ import enrollAdmin from './enrollAdmin';
 dotenv.config();
 const port = process.env.EXPRESS_PORT || 8000;
 
-const ledgers: Array<string> = ['sla', 'vru', 'parts'];
+const ledgers: Array<string> = ['sla', 'vru', 'parts', 'sla2.0'];
 
 enrollAdmin(1, ledgers[0]);
 enrollAdmin(2, ledgers[1]);
 enrollAdmin(3, ledgers[2]);
+enrollAdmin(4, ledgers[3]);
 
 prepareContext(1, ledgers[0]);
 prepareContext(2, ledgers[1]);
 prepareContext(3, ledgers[2]);
+prepareContext(4, ledgers[3]);
 
 const app = express();
 app.use(express.json()); // for parsing application/json
