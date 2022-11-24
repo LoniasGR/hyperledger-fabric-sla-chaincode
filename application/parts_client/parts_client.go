@@ -140,7 +140,13 @@ func main() {
 				continue
 			}
 			// Print object as json
-			log.Println(string(msg.Value), '\n')
+			log.Println(string(msg.Value))
+
+			// Write json object to file
+			jsonToFile, _ := json.MarshalIndent(msg.Value, "", " ")
+			if err = lib.WriteJsonObjectToFile(f, jsonToFile); err != nil {
+				log.Printf("%v", err)
+			}
 
 			var part lib.Part
 
@@ -150,13 +156,7 @@ func main() {
 				log.Printf("failed to unmarshal: %v", err)
 				continue
 			}
-			log.Println(part, '\n')
-
-			// Write json object to file
-			jsonToFile, _ := json.MarshalIndent(part, "", " ")
-			if err = lib.WriteJsonObjectToFile(f, jsonToFile); err != nil {
-				log.Printf("%v", err)
-			}
+			log.Println(part)
 
 			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
 				CreateContract, creates new parts entry with ID, Timestamp

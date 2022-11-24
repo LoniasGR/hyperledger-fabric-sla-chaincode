@@ -207,8 +207,8 @@ function deploy_api() {
 
 function explorer_config() {
   push_fn "Create Config Maps and secrets"
-  export orgNr=2
-  export EXPLORER_CHANNEL_NAME=vru
+  export orgNr=4
+  export EXPLORER_CHANNEL_NAME=sla2.0
   export EXPLORER_ORG_MSP=Org${orgNr}MSP
   export EXPLORER_ORG_PEER_GATEWAY=org${orgNr}-peer-gateway-svc
   export EXPLORER_CA_CERT_PATH=/fabric/tlscacerts/tlsca-signcert.pem
