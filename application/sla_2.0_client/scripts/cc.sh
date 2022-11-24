@@ -1,8 +1,6 @@
 #!/bin/sh
 
 package_cc() {
-  set -x
-
   _cc_name=$1
   _cc_label=$2
   _cc_archive=$3

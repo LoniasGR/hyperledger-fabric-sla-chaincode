@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
@@ -26,17 +25,28 @@ type UserRequest struct {
 }
 
 func UserExistsOrCreate(contract *client.Contract, name string, balance, org int, conf lib.Config) (bool, string, error) {
-	result, err := contract.EvaluateTransaction("UserExists", name)
+	exists, cert, err := userExists(contract, name, org, conf)
 	if err != nil {
 		return false, "", err
 	}
-	result_bool, err := strconv.ParseBool(string(result))
-	if err != nil {
-		return false, "", err
-	}
-	if result_bool {
+
+	// The user exists both on cc and wallet
+	if exists && cert == "" {
 		return true, "", nil
 	}
+
+	// The user exists and cert is not empty, so we add the user on the cc
+	if exists {
+		publicKeyStripped := splitCertificate(cert)
+		publicKeyOneLine := strings.ReplaceAll(publicKeyStripped, "\n", "")
+		err = CreateUser(contract, name, publicKeyOneLine, balance)
+		if err != nil {
+			return false, "", err
+		}
+		return false, publicKeyOneLine, nil
+	}
+
+	// Now we know that the user does not exist
 
 	postBody, err := json.Marshal(UserRequest{
 		Username:     name,
@@ -45,35 +55,12 @@ func UserExistsOrCreate(contract *client.Contract, name string, balance, org int
 	if err != nil {
 		return false, "", fmt.Errorf("%w", err)
 	}
-	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post((conf.IdentityEndpoint + "/create"), "application/json", responseBody)
-	if err != nil {
-		return false, "", err
-	}
-	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	data, err := processRequest(conf.IdentityEndpoint+"/create", postBody)
 	if err != nil {
 		return false, "", err
 	}
 
-	// We use interface{} since we don't know the contents of the JSON beforehand
-	var responseBodyJSON map[string]interface{}
-	err = json.Unmarshal(body, &responseBodyJSON)
-	if err != nil {
-		return false, "", err
-	}
-	if responseBodyJSON["success"] == false {
-		if responseBodyJSON["error"] == "User already exists" {
-			return false, "", fmt.Errorf("user does not exist on ledger, but exists on user service")
-		}
-		return false, "", fmt.Errorf("response failure: %v", responseBodyJSON["error"])
-	}
-	// get the data of the internal JSON
-	data, ok := responseBodyJSON["data"].(map[string]interface{})
-	if !ok {
-		return false, "", fmt.Errorf("failed to convert interface to struct")
-	}
 	// convert interface{} to string
 	privateKey := fmt.Sprintf("%v", data["privateKey"])
 	publicKey := fmt.Sprintf("%v", data["publicKey"])
@@ -111,4 +98,76 @@ func saveCertificates(name, privateKey, publicKey string, conf lib.Config) error
 		return fmt.Errorf("failed to write keys: %w", err)
 	}
 	return nil
+}
+
+func userExists(contract *client.Contract, name string, org int, conf lib.Config) (bool, string, error) {
+	exists, err := UserExists(contract, name)
+	if err != nil {
+		return false, "", err
+	}
+	if exists {
+		return true, "", nil
+	}
+
+	// Here we know that the user does not exists on chaincode.
+	// We need to check if it exists on the wallet.
+
+	postBody, err := json.Marshal(UserRequest{
+		Username:     name,
+		Organization: org,
+	})
+	if err != nil {
+		return false, "", err
+	}
+
+	data, err := processRequest(conf.IdentityEndpoint+"/exists", postBody)
+	if err != nil {
+		return false, "", err
+	}
+	found := data["exists"].(bool)
+	if !found {
+		return false, "", nil
+	}
+
+	// The user is found on wallet, but not on chaincode, so they need to be added.
+	cert := data["cert"].(string)
+	return true, cert, nil
+
+}
+
+func processRequest(endpoint string, postBody []byte) (map[string]interface{}, error) {
+	responseBody := bytes.NewBuffer(postBody)
+	resp, err := http.Post(endpoint, "application/json", responseBody)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// We use interface{} since we don't know the contents of the JSON beforehand
+	var responseBodyJSON map[string]interface{}
+	err = json.Unmarshal(body, &responseBodyJSON)
+	if err != nil {
+		return nil, err
+	}
+	if responseBodyJSON["success"] == false {
+		switch responseBodyJSON["error"] {
+		case "User already exists":
+			return nil, fmt.Errorf("user does not exist on ledger, but exists on user service")
+		case "Malformed request":
+			return nil, fmt.Errorf("the request sent to identity service was malformed")
+		default:
+			return nil, fmt.Errorf("response failure: %v", responseBodyJSON["error"])
+		}
+	}
+	// get the data of the internal JSON
+	data, ok := responseBodyJSON["data"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("failed to convert interface to struct")
+	}
+	return data, nil
 }

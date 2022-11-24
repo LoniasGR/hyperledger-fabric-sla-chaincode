@@ -45,3 +45,16 @@ func CreateUser(contract *client.Contract, name, publicKey string, balance int) 
 	}
 	return nil
 }
+
+func UserExists(contract *client.Contract, name string) (bool, error) {
+	log.Println(green("--> Evaluate Transaction: UserExists, checks if a user exists on chaincode"))
+	result, err := contract.EvaluateTransaction("UserExists", name)
+	if err != nil {
+		return false, err
+	}
+	result_bool, err := strconv.ParseBool(string(result))
+	if err != nil {
+		return false, err
+	}
+	return result_bool, nil
+}

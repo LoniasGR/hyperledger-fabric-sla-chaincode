@@ -12,7 +12,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	appsv1 "k8s.io/api/apps/v1"
@@ -107,9 +106,6 @@ func DeployCC(ccName string, orgNr int, conf lib.Config) error {
 	if err != nil {
 		return err
 	}
-
-	time.Sleep(5 * time.Second)
-
 	return nil
 }
 

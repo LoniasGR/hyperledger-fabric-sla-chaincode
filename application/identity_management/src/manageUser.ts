@@ -114,7 +114,7 @@ export async function createUser(
   }
 }
 
-export async function userExists(cert: string):
+export async function userExistsByKey(cert: string):
   Promise<{found: boolean, org: number, username:string}> {
   let found = false;
   let org = 0;
@@ -152,4 +152,15 @@ export async function userExists(cert: string):
     }
   }
   return { found, org, username };
+}
+
+export async function userExistsByName(name: string, org: number) {
+  const userIdentity = await wallet[org - 1].get(name);
+  if (!userIdentity) {
+    console.info(`An identity for the user ${name} does not exist in org ${org}`);
+    return { found: false, cert: '' };
+  }
+  const userJSON = JSON.stringify(userIdentity);
+  const actualUser : x509Identity = JSON.parse(userJSON);
+  return { found: true, cert: actualUser.credentials.certificate };
 }
