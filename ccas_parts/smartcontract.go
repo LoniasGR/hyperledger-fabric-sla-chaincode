@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
 
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -13,14 +11,6 @@ import (
 // SmartContract provides functions for managing a Contract
 type SmartContract struct {
 	contractapi.Contract
-}
-
-type Chaincode_Part struct {
-	MA           string                 `json:"MA"`
-	Timestamp    string                 `json:"TimeStamp"`
-	Version      int                    `json:"Version"`
-	DocumentType string                 `json:"DocumentType"`
-	DocumentBody lib.Part_document_body `json:"DocumentBody"`
 }
 
 // InitLedger is just a template for now.
@@ -37,28 +27,15 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 		return fmt.Errorf("failed to unmarshal json: %w", err)
 	}
 
-	exists, err := s.ContractExists(ctx, fmt.Sprintf("%v_%v", part.Timestamp, part.Id.Oid))
+	exists, err := s.ContractExists(ctx, part.Timestamp)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf("the Contract %v already exists", fmt.Sprintf("%v_%v", part.Timestamp, part.Id.Oid))
+		return fmt.Errorf("the Contract %v already exists", part.Timestamp)
 	}
 
-	cc_part := Chaincode_Part{
-		MA:           part.MA,
-		Timestamp:    part.Timestamp,
-		Version:      part.Version,
-		DocumentType: part.DocumentType,
-		DocumentBody: part.DocumentBody,
-	}
-
-	cc_json, err := json.Marshal(cc_part)
-	if err != nil {
-		return err
-	}
-
-	return ctx.GetStub().PutState(fmt.Sprintf("%v_%v", part.Timestamp, part.Id.Oid), cc_json)
+	return ctx.GetStub().PutState(part.Timestamp, []byte(contractJSON))
 }
 
 // ContractExists returns true when Contract with given ID exists in world state
@@ -89,10 +66,6 @@ func (s *SmartContract) GetAssetByRange(ctx contractapi.TransactionContextInterf
 		if err != nil {
 			return nil, err
 		}
-
-		id := lib.Part_id{Oid: getId(queryResult.Key)}
-		log.Println(id)
-		asset.Id = id
 		assets = append(assets, asset)
 	}
 
@@ -116,10 +89,4 @@ func (s *SmartContract) GetAssetQualityByRange(ctx contractapi.TransactionContex
 	}
 	qualities[0].Total = len(assets)
 	return qualities, nil
-}
-
-// Splits the parts of the key back to our needs
-func getId(key string) string {
-	return strings.Split(key, "_")[1]
-
 }

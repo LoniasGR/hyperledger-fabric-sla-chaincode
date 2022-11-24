@@ -1,14 +1,15 @@
 module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/ccas_parts
 
-go 1.17
+go 1.18
 
 require (
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221121113142-123ecf7601da
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221124105555-1b5c112bacf0
 	github.com/hyperledger/fabric-chaincode-go v0.0.0-20220920210243-7bc6fa0dd58b
 	github.com/hyperledger/fabric-contract-api-go v1.2.0
 )
 
 require (
+	github.com/confluentinc/confluent-kafka-go v1.9.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/spec v0.20.6 // indirect
