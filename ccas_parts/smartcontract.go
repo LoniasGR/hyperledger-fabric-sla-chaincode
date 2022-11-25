@@ -40,7 +40,7 @@ func (s *SmartContract) CreateContract(ctx contractapi.TransactionContextInterfa
 
 // ContractExists returns true when Contract with given ID exists in world state
 func (s *SmartContract) ContractExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	ContractJSON, err := ctx.GetStub().GetState(fmt.Sprintf("contract_%v", id))
+	ContractJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %w", err)
 	}
