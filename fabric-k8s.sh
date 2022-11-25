@@ -99,14 +99,14 @@ function explorer() {
 }
 
 function applications() {
-    # init_application_config
-    # sla_client
-    # vru_client
+    init_application_config
+    sla_client
+    vru_client
     parts_client
-    # sla2_client
-    # identity_management
-    # api
-    # explorer
+    sla2_client
+    identity_management
+    api
+    explorer
 }
 
 function print_help() {
