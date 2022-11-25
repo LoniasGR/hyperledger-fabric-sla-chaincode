@@ -102,7 +102,7 @@ func main() {
 		}
 		length = len(options.vrus)
 	case "parts":
-		topic[0] = "uc3=dlt"
+		topic[0] = "uc3-dlt"
 		json.Unmarshal(byteValue, &options.parts)
 		if err != nil {
 			var p lib.Part
