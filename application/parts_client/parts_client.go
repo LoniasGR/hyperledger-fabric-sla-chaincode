@@ -53,10 +53,6 @@ func main() {
 	topics[0] = "uc3-dlt"
 
 	log.Println("============ application-golang starts ============")
-	err := lib.SetDiscoveryAsLocalhost(true)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
 
 	configFile := lib.ParseArgs()
 
@@ -111,10 +107,10 @@ func main() {
 	network := gw.GetNetwork(conf.ChannelName)
 	contract := network.GetContract(conf.ChaincodeName)
 
-	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
-	_, err = contract.SubmitTransaction("InitLedger")
+	err = initLedger(contract)
 	if err != nil {
-		log.Fatalf("failed to submit transaction: %v", err)
+		handleError(err)
+		os.Exit(1)
 	}
 
 	// Open file for logging incoming json objects
@@ -142,12 +138,6 @@ func main() {
 			// Print object as json
 			log.Println(string(msg.Value))
 
-			// Write json object to file
-			jsonToFile, _ := json.MarshalIndent(msg.Value, "", " ")
-			if err = lib.WriteJsonObjectToFile(f, jsonToFile); err != nil {
-				log.Printf("%v", err)
-			}
-
 			var part lib.Part
 
 			// Unmarshal object and print it to stdout
@@ -158,17 +148,17 @@ func main() {
 			}
 			log.Println(part)
 
-			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-				CreateContract, creates new parts entry with ID, Timestamp
-				and all Document details`, string(lib.ColorReset))
-			result, err := contract.SubmitTransaction("CreateContract",
-				string(msg.Value),
-			)
+			// Write json object to file
+			jsonToFile, _ := json.MarshalIndent(part, "", " ")
+			if err = lib.WriteJsonObjectToFile(f, jsonToFile); err != nil {
+				log.Printf("%v", err)
+			}
+
+			createContract(contract, string(msg.Value))
 			if err != nil {
-				log.Printf(string(lib.ColorRed)+"failed to submit transaction: %v\n"+string(lib.ColorReset), err)
+				handleError(err)
 				continue
 			}
-			log.Println(string(result))
 		}
 	}
 }
