@@ -35,28 +35,23 @@ function init_storage_volumes() {
   if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
     export STORAGE_CLASS="standard"
 
-  elif [ "${CLUSTER_RUNTIME}" == "k3s" ] || [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-    export STORAGE_CLASS="local-path"
-
   else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
+    export STORAGE_CLASS="local-path"
   fi
 
   # TODO: Add org here
-   envsubst < kube/pv-fabric-org0.yaml | kubectl -n "$ORG0_NS" create -f - || true
-   envsubst < kube/pv-fabric-org1.yaml | kubectl -n "$ORG1_NS" create -f - || true
-   envsubst < kube/pv-fabric-org2.yaml | kubectl -n "$ORG2_NS" create -f - || true
-   envsubst < kube/pv-fabric-org3.yaml | kubectl -n "$ORG3_NS" create -f - || true
-   envsubst < kube/pv-fabric-org4.yaml | kubectl -n "$ORG4_NS" create -f - || true
+  envsubst <kube/pv-fabric-org0.yaml | kubectl -n "$ORG0_NS" create -f - || true
+  envsubst <kube/pv-fabric-org1.yaml | kubectl -n "$ORG1_NS" create -f - || true
+  envsubst <kube/pv-fabric-org2.yaml | kubectl -n "$ORG2_NS" create -f - || true
+  envsubst <kube/pv-fabric-org3.yaml | kubectl -n "$ORG3_NS" create -f - || true
+  envsubst <kube/pv-fabric-org4.yaml | kubectl -n "$ORG4_NS" create -f - || true
 
   # TODO: Add org here
-   envsubst < kube/pvc-fabric-org0.yaml | kubectl -n "$ORG0_NS" create -f - || true
-   envsubst < kube/pvc-fabric-org1.yaml | kubectl -n "$ORG1_NS" create -f - || true
-   envsubst < kube/pvc-fabric-org2.yaml | kubectl -n "$ORG2_NS" create -f - || true
-   envsubst < kube/pvc-fabric-org3.yaml | kubectl -n "$ORG3_NS" create -f - || true
-   envsubst < kube/pvc-fabric-org4.yaml | kubectl -n "$ORG4_NS" create -f - || true
-
+  envsubst <kube/pvc-fabric-org0.yaml | kubectl -n "$ORG0_NS" create -f - || true
+  envsubst <kube/pvc-fabric-org1.yaml | kubectl -n "$ORG1_NS" create -f - || true
+  envsubst <kube/pvc-fabric-org2.yaml | kubectl -n "$ORG2_NS" create -f - || true
+  envsubst <kube/pvc-fabric-org3.yaml | kubectl -n "$ORG3_NS" create -f - || true
+  envsubst <kube/pvc-fabric-org4.yaml | kubectl -n "$ORG4_NS" create -f - || true
 
   pop_fn
 }

@@ -74,8 +74,7 @@ spec:
             periodSeconds: 5
       volumes:
         - name: fabric-volume
-          persistentVolumeClaim:
-            claimName: fabric-org4
+          ${VOLUME_CLAIM}
         - name: fabric-config
           configMap:
             name: org4-config

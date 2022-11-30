@@ -91,6 +91,32 @@ function apply_template() {
   cat $1 | envsubst | kubectl -n $2 apply -f -
 }
 
+function get_namespace() {
+  org=$1
+
+  case $org in
+  org0)
+    export CURR_NS=$ORG0_NS
+    ;;
+  org1)
+    export CURR_NS=$ORG1_NS
+    ;;
+  org2)
+    export CURR_NS=$ORG2_NS
+    ;;
+  org3)
+    export CURR_NS=$ORG3_NS
+    ;;
+  org4)
+    export CURR_NS=$ORG4_NS
+    ;;
+  *)
+    log "Could not find specified organisation"
+    exit 1
+    ;;
+  esac
+}
+
 # Set the calling context to refer the peer binary to the correct org / peer instance
 #
 # todo: Expose the output of this function to a target that prints the context to STDOUT.
@@ -117,13 +143,4 @@ function absolute_path() {
   abspath="$(cd "${relative_path}" && pwd)"
 
   echo "$abspath"
-}
-
-function docker_login() {
-  local cred_file=${PWD}/config/docker/.docker_credentials.json
-  # We use xargs to remove quotations from the stirngs
-  jq .password <"${cred_file}" | xargs | docker login --username "$(jq .username <"${cred_file}" | xargs)" --password-stdin "${CONTAINER_REGISTRY_HOSTNAME}"
-  kubectl create secret generic docker-secret -n ${NS} \
-    --from-file=.dockerconfigjson=${HOME}/.docker/config.json \
-    --type=kubernetes.io/dockerconfigjson
 }

@@ -35,15 +35,37 @@ function cluster_command_group() {
 
 function cluster_init() {
 
+  # apply_dns
   apply_nginx_ingress
   apply_cert_manager
-  apply_storage
+  apply_metrics_server
+  if [ "$NO_VOLUMES" -eq 0 ]; then
+    apply_storage
+  fi
 
   sleep 2
 
+  wait_for_dns
   wait_for_cert_manager
   wait_for_nginx_ingress
+  wait_for_metrics_server
 
+}
+
+function apply_dns() {
+  if [ "${CLUSTER_RUNTIME}" != "kind" ]; then
+    push_fn "Launching DNS"
+    kubectl apply -f kube/coredns-deployment.yaml
+    pop_fn
+  fi
+}
+
+function delete_dns() {
+  push_fn "Deleting DNS"
+  if [ "${CLUSTER_RUNTIME}" != "kind" ]; then
+    kubectl delete -f kube/coredns-deployment.yaml || :
+  fi
+  pop_fn
 }
 
 function apply_nginx() {
@@ -58,16 +80,11 @@ function apply_nginx_ingress() {
   # k3s : 'cloud'
   # kind : 'kind'
   # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.2/deploy/static/provider/cloud/deploy.yaml
-  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    kubectl apply -f kube/ingress-nginx-"${CLUSTER_RUNTIME}".yaml
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-    microk8s enable ingress
-
-    kubectl -n ingress patch daemonset.apps/nginx-ingress-microk8s-controller --patch\
-  "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"nginx-ingress-microk8s\",\"ports\":[{\"name\":\"http\",\"hostPort\":${NGINX_HTTP_PORT},\"containerPort\":80},{\"name\":\"https\",\"hostPort\":${NGINX_HTTPS_PORT},\"containerPort\":443}]}]}}}}"
+  if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
   else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/baremetal/deploy.yaml
+    kubectl -n ingress-nginx patch deployments/ingress-nginx-controller -p "$(envsubst <kube/ingress-patch.yaml)"
   fi
 
   pop_fn
@@ -76,31 +93,29 @@ function apply_nginx_ingress() {
 function delete_nginx_ingress() {
   push_fn "Deleting ${CLUSTER_RUNTIME} ingress controller"
 
-  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    kubectl delete -f kube/ingress-nginx-"${CLUSTER_RUNTIME}".yaml
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-    microk8s disable ingress
+  if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
+    kubectl delete -f kube/ingress-nginx-kind.yaml || :
   else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
+    kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/baremetal/deploy.yaml || :
   fi
+  pop_fn
+}
+
+function wait_for_dns() {
+  push_fn "Waiting for dns"
+
+  kubectl -n kube-system rollout status deploy/coredns
+
   pop_fn
 }
 
 function wait_for_nginx_ingress() {
   push_fn "Waiting for ingress controller"
 
-  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    kubectl wait --namespace ingress-nginx \
-      --for=condition=ready pod \
-      --selector=app.kubernetes.io/component=controller \
-      --timeout=2m
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-    :
-  else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
-  fi
+  kubectl wait --namespace ingress-nginx \
+    --for=condition=ready pod \
+    --selector=app.kubernetes.io/component=controller \
+    --timeout=2m
 
   pop_fn
 }
@@ -109,14 +124,7 @@ function apply_cert_manager() {
   push_fn "Launching cert-manager"
 
   # Install cert-manager to manage TLS certificates
-  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-    microk8s enable cert-manager
-  else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
-  fi
+  kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml
   pop_fn
 }
 
@@ -124,40 +132,23 @@ function delete_cert_manager() {
   push_fn "Deleting cert-manager"
 
   # Remove cert-manager
-  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-    microk8s disable cert-manager
-  else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
-  fi
-
+  kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml || true
   pop_fn
 }
 
 function wait_for_cert_manager() {
   push_fn "Waiting for cert-manager"
 
-  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    kubectl -n cert-manager rollout status deploy/cert-manager
-    kubectl -n cert-manager rollout status deploy/cert-manager-cainjector
-    kubectl -n cert-manager rollout status deploy/cert-manager-webhook
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-    :
-  else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
-  fi
+  kubectl -n cert-manager rollout status deploy/cert-manager
+  kubectl -n cert-manager rollout status deploy/cert-manager-cainjector
+  kubectl -n cert-manager rollout status deploy/cert-manager-webhook
   pop_fn
 }
 
 function apply_storage() {
   push_fn "Launching storage"
 
-  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    :
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
+  if [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
     cat <<EOF | kubectl apply -f -
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -166,21 +157,15 @@ metadata:
 provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: WaitForFirstConsumer
 EOF
-  else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
   fi
-
   pop_fn
 }
 
 function delete_storage() {
-  push_fn "Launching storage"
+  push_fn "Deleting storage"
 
-  if [ "${CLUSTER_RUNTIME}" == "kind" ] || [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    :
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-    cat <<EOF | kubectl delete -f -
+  if [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
+    cat <<EOF | kubectl delete -f - || true
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -188,16 +173,35 @@ metadata:
 provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: WaitForFirstConsumer
 EOF
-  else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
   fi
 
   pop_fn
 }
 
+function apply_metrics_server() {
+  push_fn "Launching Metrics Server"
+  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.2/components.yaml
+  kubectl patch deployment metrics-server -n kube-system --patch "$(cat kube/metric-server-patch.yaml)"
+  pop_fn
+}
+
+function delete_metrics_server() {
+  push_fn "Deleting Metrics Server"
+  kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.2/components.yaml || true
+  pop_fn
+
+}
+
+function wait_for_metrics_server() {
+   kubectl -n kube-system rollout status deploy/metrics-server
+}
+
 function cluster_clean() {
+  # delete_dns
   delete_nginx_ingress
   delete_cert_manager
-  delete_storage
+  if [ "$NO_VOLUMES" -eq 0 ]; then
+    delete_storage
+  fi
+  delete_metrics_server
 }

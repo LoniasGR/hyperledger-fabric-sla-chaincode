@@ -8,6 +8,18 @@
 function launch_orderers() {
   push_fn "Launching orderers"
 
+  if [ "$NO_VOLUMES" -eq 1 ]; then
+    export VOLUME_CLAIM="emptyDir: {}"
+  else
+    VOLUME_CLAIM=$(
+      cat <<EOF
+persistentVolumeClaim:
+            claimName: fabric-org0
+EOF
+    )
+    export VOLUME_CLAIM
+  fi
+
   apply_template kube/org0/org0-orderer1.yaml "$ORG0_NS"
   apply_template kube/org0/org0-orderer2.yaml "$ORG0_NS"
   apply_template kube/org0/org0-orderer3.yaml "$ORG0_NS"
@@ -21,22 +33,32 @@ function launch_orderers() {
 
 function launch_peers() {
   push_fn "Launching peers"
-
   # TODO: Add org here
-  apply_template kube/org1/org1-peer1.yaml "$ORG1_NS"
-  apply_template kube/org1/org1-peer2.yaml "$ORG1_NS"
-  apply_template kube/org2/org2-peer1.yaml "$ORG2_NS"
-  apply_template kube/org2/org2-peer2.yaml "$ORG2_NS"
-  apply_template kube/org3/org3-peer1.yaml "$ORG3_NS"
-  apply_template kube/org3/org3-peer2.yaml "$ORG3_NS"
-  apply_template kube/org4/org4-peer1.yaml "$ORG4_NS"
-  apply_template kube/org4/org4-peer2.yaml "$ORG4_NS"
+  for org in org1 org2 org3 org4; do
+    get_namespace $org
+    if [ "$NO_VOLUMES" -eq 1 ]; then
+      export VOLUME_CLAIM="emptyDir: {}"
+    else
+      VOLUME_CLAIM=$(
+        cat <<EOF
+persistentVolumeClaim:
+            claimName: fabric-$org
+EOF
+      )
+      export VOLUME_CLAIM
+    fi
+    apply_template kube/$org/$org-peer1.yaml "$ORG1_NS"
+    apply_template kube/$org/$org-peer2.yaml "$ORG1_NS"
+
+  done
 
   # TODO: Add org here
   kubectl -n "$ORG1_NS" rollout status deploy/org1-peer1
   kubectl -n "$ORG1_NS" rollout status deploy/org1-peer2
   kubectl -n "$ORG2_NS" rollout status deploy/org2-peer1
   kubectl -n "$ORG2_NS" rollout status deploy/org2-peer2
+  kubectl -n "$ORG3_NS" rollout status deploy/org3-peer1
+  kubectl -n "$ORG3_NS" rollout status deploy/org3-peer2
   kubectl -n "$ORG4_NS" rollout status deploy/org4-peer1
   kubectl -n "$ORG4_NS" rollout status deploy/org4-peer2
 
@@ -146,7 +168,9 @@ function network_up() {
 
   # Kube config
   init_namespace
-  init_storage_volumes
+  if [ "$NO_VOLUMES" -eq 0 ]; then
+    init_storage_volumes
+  fi
   load_org_config
 
   # Service account permissions for the k8s builder
@@ -200,9 +224,15 @@ function scrub_org_volumes() {
       kubectl -n ${!namespace_variable} wait --for=condition=complete --timeout=60s job/job-scrub-fabric-volumes
       kubectl -n ${!namespace_variable} delete jobs --all
     done
-  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
+  else
     # TODO: Add org here
     export STORAGE_CLASS="local-path"
+    envsubst <kube/pvc-fabric-org0.yaml | kubectl -n "$ORG0_NS" delete -f - || true
+    envsubst <kube/pvc-fabric-org1.yaml | kubectl -n "$ORG1_NS" delete -f - || true
+    envsubst <kube/pvc-fabric-org2.yaml | kubectl -n "$ORG2_NS" delete -f - || true
+    envsubst <kube/pvc-fabric-org3.yaml | kubectl -n "$ORG3_NS" delete -f - || true
+    envsubst <kube/pvc-fabric-org4.yaml | kubectl -n "$ORG4_NS" delete -f - || true
+
     envsubst <kube/pv-fabric-org0.yaml | kubectl -n "$ORG0_NS" delete -f - || true
     envsubst <kube/pv-fabric-org1.yaml | kubectl -n "$ORG1_NS" delete -f - || true
     envsubst <kube/pv-fabric-org2.yaml | kubectl -n "$ORG2_NS" delete -f - || true

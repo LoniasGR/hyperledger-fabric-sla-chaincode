@@ -16,10 +16,20 @@ function kind_create() {
 
   local ingress_http_port=${NGINX_HTTP_PORT}
   local ingress_https_port=${NGINX_HTTPS_PORT}
+  local extra_mounts=""
+
+  if [ "$NO_VOLUMES" -ne 1 ]; then
+    extra_mounts="$(
+      cat <<EOF
+extraMounts:
+    - hostPath: ${HOME}/hyperledger
+      containerPath: /var/hyperledger
+EOF
+    )"
+  fi
 
   # the 'ipvs'proxy mode permits better HA abilities
-
-  cat <<EOF | kind create cluster --name "$CLUSTER_NAME" --config=-
+  cat <<EOF
 ---
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -38,9 +48,7 @@ nodes:
       - containerPort: 443
         hostPort: ${ingress_https_port}
         protocol: TCP
-    extraMounts:
-    - hostPath: ${HOME}/hyperledger
-      containerPath: /var/hyperledger
+    ${extra_mounts}
 
 #networking:
 #  kubeProxyMode: "ipvs"
@@ -52,9 +60,9 @@ containerdConfigPatches:
 EOF
 
   # workaround for https://github.com/hyperledger/fabric-samples/issues/550 - pods can not resolve external DNS
-  for node in $(kind get nodes); do
-    docker exec "$node" sysctl net.ipv4.conf.all.route_localnet=1
-  done
+  # for node in $(kind get nodes); do
+  #   docker exec "$node" sysctl net.ipv4.conf.all.route_localnet=1
+  # done
 
   pop_fn
 }
@@ -68,6 +76,9 @@ function kind_delete() {
 }
 
 function kind_init() {
+  if [ "$(docker ps | grep -c kind)" == 0 ]; then
+    kind create cluster
+  fi
   kind_create
 }
 

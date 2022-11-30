@@ -9,11 +9,22 @@ function launch_ECert_CAs() {
   push_fn "Launching Fabric CAs"
 
   # TODO: Add org here
-  apply_template kube/org0/org0-ca.yaml "$ORG0_NS"
-  apply_template kube/org1/org1-ca.yaml "$ORG1_NS"
-  apply_template kube/org2/org2-ca.yaml "$ORG2_NS"
-  apply_template kube/org3/org3-ca.yaml "$ORG3_NS"
-  apply_template kube/org4/org4-ca.yaml "$ORG4_NS"
+  for org in org0 org1 org2 org3 org4; do
+    get_namespace $org
+    if [ "$NO_VOLUMES" -eq 1 ]; then
+      export VOLUME_CLAIM="emptyDir: {}"
+    else
+      VOLUME_CLAIM=$(
+        cat <<EOF
+persistentVolumeClaim:
+            claimName: fabric-$org
+EOF
+      )
+      export VOLUME_CLAIM
+    fi
+    apply_template kube/$org/$org-ca.yaml "$CURR_NS"
+
+  done
 
   kubectl -n "$ORG0_NS" rollout status deploy/org0-ca
   kubectl -n "$ORG1_NS" rollout status deploy/org1-ca
@@ -52,13 +63,11 @@ function init_tls_cert_issuers() {
   kubectl -n "$ORG3_NS" apply -f kube/org3/org3-tls-cert-issuer.yaml
   kubectl -n "$ORG4_NS" apply -f kube/org4/org4-tls-cert-issuer.yaml
 
-
   kubectl -n "$ORG0_NS" wait --timeout=30s --for=condition=Ready issuer/org0-tls-cert-issuer
   kubectl -n "$ORG1_NS" wait --timeout=30s --for=condition=Ready issuer/org1-tls-cert-issuer
   kubectl -n "$ORG2_NS" wait --timeout=30s --for=condition=Ready issuer/org2-tls-cert-issuer
   kubectl -n "$ORG3_NS" wait --timeout=30s --for=condition=Ready issuer/org3-tls-cert-issuer
   kubectl -n "$ORG4_NS" wait --timeout=30s --for=condition=Ready issuer/org4-tls-cert-issuer
-
 
   pop_fn
 }
@@ -74,10 +83,10 @@ function enroll_bootstrap_ECert_CA_user() {
 
   # Read the CA's TLS certificate from the cert-manager CA secret
   echo "retrieving ${CA_NAME} TLS root cert"
-  kubectl -n "$ns" get secret "${CA_NAME}"-tls-cert -o json \
-    | jq -r .data.\"ca.crt\" \
-    | base64 -d \
-    > "${CA_DIR}"/tlsca-cert.pem
+  kubectl -n "$ns" get secret "${CA_NAME}"-tls-cert -o json |
+    jq -r .data.\"ca.crt\" |
+    base64 -d \
+      >"${CA_DIR}"/tlsca-cert.pem
 
   # Enroll the root CA user
   # TODO: Added port here
@@ -96,7 +105,6 @@ function enroll_bootstrap_ECert_CA_users() {
   enroll_bootstrap_ECert_CA_user org2 "$ORG2_NS"
   enroll_bootstrap_ECert_CA_user org3 "$ORG3_NS"
   enroll_bootstrap_ECert_CA_user org4 "$ORG4_NS"
-
 
   pop_fn
 }

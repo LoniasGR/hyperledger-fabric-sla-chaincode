@@ -10,9 +10,9 @@ function check_prereqs() {
 
   set +e
 
-  ${CONTAINER_CLI} version > /dev/null
+  docker version > /dev/null
   if [[ $? -ne 0 ]]; then
-    echo "No '${CONTAINER_CLI}' binary available?"
+    echo "No 'docker' binary available?"
     exit 1
   fi
 
