@@ -13,16 +13,32 @@ export SLA_CC_SRC_PATH="${PWD}/ccas_sla"
 export VRU_CC_SRC_PATH="${PWD}/ccas_vru"
 export PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
 
-export TEST_NETWORK_LOCAL_REGISTRY_HOSTNAME=147.102.19.6
-export TEST_NETWORK_LOCAL_REGISTRY_PORT=443
+export PLEDGER_NETWORK_CONTAINER_REGISTRY_PORT=443
+export PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME=116.203.2.204
+
+export PLEDGER_NETWORK_NO_VOLUMES=0
+export SKIP_SLA1=0
+export SKIP_SLA2=0
+export TAG=$PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME/pledger
+export PUSH=1
 
 function login() {
-    ./network-k8s.sh docker
+    ./network-k8s.sh docker login
+}
+
+function build() {
+    ./network-k8s.sh docker build "$TAG" "$PUSH"
 }
 
 function init() {
     if [ "${RUNTIME}" == "kind" ]; then
         ./network-k8s.sh kind
+    fi
+
+    if [ "${RUNTIME}" == "minikube" ]; then
+        if [ "$(docker ps | grep -c minikube)" == 0 ]; then
+            minikube start
+        fi
     fi
     ./network-k8s.sh cluster init
 }
@@ -45,19 +61,24 @@ function down() {
 function set_channels() {
     ./network-k8s.sh channel init
 
-    ./network-k8s.sh channel create "$SLA_CHANNEL_NAME" 1
-
+    if [ $SKIP_SLA1 -eq 1 ]; then
+        ./network-k8s.sh channel create "$SLA_CHANNEL_NAME" 1
+    fi
     ./network-k8s.sh channel create "$VRU_CHANNEL_NAME" 2
 
     ./network-k8s.sh channel create "$PARTS_CHANNEL_NAME" 3
 
-    ./network-k8s.sh channel create "$SLA2_CHANNEL_NAME" 4
+    if [ $SKIP_SLA2 -eq 1 ]; then
+        ./network-k8s.sh channel create "$SLA2_CHANNEL_NAME" 4
+    fi
 }
 
 function deploy_chaincodes() {
 
-    export CHANNEL_NAME=${SLA_CHANNEL_NAME}
-    ./network-k8s.sh chaincode deploy 1 $SLA_CHAINCODE_NAME "$SLA_CC_SRC_PATH"
+    if [ $SKIP_SLA1 -eq 1 ]; then
+        export CHANNEL_NAME=${SLA_CHANNEL_NAME}
+        ./network-k8s.sh chaincode deploy 1 $SLA_CHAINCODE_NAME "$SLA_CC_SRC_PATH"
+    fi
 
     export CHANNEL_NAME=${VRU_CHANNEL_NAME}
     ./network-k8s.sh chaincode deploy 2 $VRU_CHAINCODE_NAME "$VRU_CC_SRC_PATH"
@@ -100,10 +121,14 @@ function explorer() {
 
 function applications() {
     init_application_config
-    sla_client
+    if [ $SKIP_SLA1 -eq 1 ]; then
+        sla_client
+    fi
     vru_client
     parts_client
-    sla2_client
+    if [ $SKIP_SLA2 -eq 1 ]; then
+        sla2_client
+    fi
     identity_management
     api
     explorer
@@ -111,17 +136,28 @@ function applications() {
 
 function print_help() {
     echo "USAGE:"
-    echo "$0 RUNTIME COMMAND"
+    echo "$0 RUNTIME COMMAND [ARGUMENTS]"
     echo ""
-    echo "RUNTIME:"
+    echo "TESTED RUNTIMES (mileage may vary):"
     echo "    kind: Kubernetes-in-Docker cluster"
     echo "    microk8s: Microk8s cluster"
+    echo "    minikube"
     echo ""
     echo "COMMAND:"
-    echo "    init: Set up the the cluster, the ingress and cert-manager"
+    echo "    build: Build all docker images"
+    echo "    deploy: Bring up the chaincodes and the clients"
     echo "    destroy: Bring down the cluster"
+    echo "    down: Bring down all the peers, CAs and all the other members of the channels"
+    echo "    init: Set up the the cluster, the ingress and cert-manager"
+    echo "    login: Login to the container registry. See README for more info"
     echo "    up: Bring up all the peers, CAs and orderers of the network, as well as the channels"
-    echo "    deploy: Bring up the chaincodes and the clients."
+    echo ""
+    echo "ARGUMENTS:"
+    echo "    --skip-sla-1: Skip the deployment of the SLAv1 channel, chaincode and client"
+    echo "    --skip-sla-2: Skip the deployment of the SLAv2 channel and client"
+    echo "    --no-volumes: Do not create volumes for storage"
+    echo "    --no-push: Used only with *build*. Do not push images to registry."
+    echo "    --tag"
 }
 
 ## Parse mode
@@ -134,18 +170,57 @@ else
     shift 2
 fi
 
+if [[ $# -ge 1 ]]; then
+    while [ $# -gt 0 ]; do
+        FLAG=$1
+        case $FLAG in
+        --no-volumes)
+            export PLEDGER_NETWORK_NO_VOLUMES=1
+            shift
+            ;;
+        --skip-sla-1)
+            export SKIP_SLA1=1
+            shift
+            ;;
+        --skip-sla-2)
+            export SKIP_SLA2=1
+            shift
+            ;;
+        --tag)
+            export TAG=$2
+            shift 2
+            ;;
+        --no-push)
+            export PUSH=0
+            shift
+            ;;
+        *)
+            print_help
+            exit 0
+            ;;
+        esac
+
+    done
+fi
+
 if [ "${RUNTIME}" == "kind" ]; then
     kubectl config use-context kind-kind
-    export TEST_NETWORK_CLUSTER_RUNTIME=kind
-    export TEST_NETWORK_CLUSTER_NAME=kind
-    export TEST_NETWORK_NGINX_HTTP_PORT=8080
-    export TEST_NETWORK_NGINX_HTTPS_PORT=8443
+    export PLEDGER_NETWORK_CLUSTER_RUNTIME=kind
+    export PLEDGER_NETWORK_CLUSTER_NAME=kind
+    export PLEDGER_NETWORK_NGINX_HTTP_PORT=8080
+    export PLEDGER_NETWORK_NGINX_HTTPS_PORT=8443
 elif [ "${RUNTIME}" == "microk8s" ]; then
     kubectl config use-context microk8s
-    export TEST_NETWORK_CLUSTER_RUNTIME=microk8s
-    export TEST_NETWORK_CLUSTER_NAME=microk8s
-    export TEST_NETWORK_NGINX_HTTP_PORT=9080
-    export TEST_NETWORK_NGINX_HTTPS_PORT=9443
+    export PLEDGER_NETWORK_CLUSTER_RUNTIME=microk8s
+    export PLEDGER_NETWORK_CLUSTER_NAME=microk8s
+    export PLEDGER_NETWORK_NGINX_HTTP_PORT=8080
+    export PLEDGER_NETWORK_NGINX_HTTPS_PORT=8443
+elif [ "${RUNTIME}" == "minikube" ]; then
+    kubectl config use-context minikube
+    export PLEDGER_NETWORK_CLUSTER_RUNTIME=minikube
+    export PLEDGER_NETWORK_CLUSTER_NAME=minikube
+    export PLEDGER_NETWORK_NGINX_HTTP_PORT=8080
+    export PLEDGER_NETWORK_NGINX_HTTPS_PORT=8443
 else
     print_help
     exit 1
@@ -161,6 +236,8 @@ elif [ "${MODE}" == "channels" ]; then
     set_channels
 elif [ "${MODE}" == "login" ]; then
     login
+elif [ "${MODE}" == "build" ]; then
+    build
 elif [ "${MODE}" == "chaincodes" ]; then
     deploy_chaincodes
 elif [ "${MODE}" == "applications" ]; then

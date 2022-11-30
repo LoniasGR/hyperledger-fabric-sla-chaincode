@@ -200,15 +200,15 @@ EOF
 
 function deploy_api() {
   construct_api_configmap
-  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/api" application/api
-  docker push "${CONTAINER_REGISTRY_ADDRESS}/api"
+  # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/api:latest" application/api
+  # docker push "${CONTAINER_REGISTRY_ADDRESS}/api:latest"
   envsubst <kube/api-deployment.yaml | kubectl -n "$NS" apply -f -
 }
 
 function explorer_config() {
   push_fn "Create Config Maps and secrets"
-  export orgNr=4
-  export EXPLORER_CHANNEL_NAME=sla2.0
+  export orgNr=3
+  export EXPLORER_CHANNEL_NAME=parts
   export EXPLORER_ORG_MSP=Org${orgNr}MSP
   export EXPLORER_ORG_PEER_GATEWAY=org${orgNr}-peer-gateway-svc
   export EXPLORER_CA_CERT_PATH=/fabric/tlscacerts/tlsca-signcert.pem
@@ -286,8 +286,8 @@ function deploy_sla_client() {
   construct_application_configmap 1
   push_fn "Creating and deploying container"
 
-  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla-client" application/sla_client
-  docker push "${CONTAINER_REGISTRY_ADDRESS}/sla-client"
+#   docker push "${CONTAI  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla-client:latest" application/sla_client
+# NER_REGISTRY_ADDRESS}/sla-client:latest"
 
   envsubst <kube/sla-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
   envsubst <kube/sla-client-deployment.yaml | kubectl -n "${NS}" apply -f -
@@ -314,8 +314,8 @@ function deploy_vru_client() {
 
   push_fn "Creating and deploying container"
 
-  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/vru-client" application/vru_client
-  docker push "${CONTAINER_REGISTRY_ADDRESS}/vru-client"
+  # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/vru-client:latest" application/vru_client
+  # docker push "${CONTAINER_REGISTRY_ADDRESS}/vru-client:latest"
 
   envsubst <kube/vru-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
   envsubst <kube/vru-client-deployment.yaml | kubectl -n "${NS}" apply -f -
@@ -343,8 +343,8 @@ function deploy_parts_client() {
 
   push_fn "Creating and deploying container"
 
-  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/parts-client" application/parts_client
-  docker push "${CONTAINER_REGISTRY_ADDRESS}/parts-client"
+  # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/parts-client:latest" application/parts_client
+  # docker push "${CONTAINER_REGISTRY_ADDRESS}/parts-client:latest"
 
   envsubst <kube/parts-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
   envsubst <kube/parts-client-deployment.yaml | kubectl -n "${NS}" apply -f -
@@ -378,8 +378,8 @@ function deploy_sla_2_client() {
   construct_application_configmap 4
   push_fn "Creating and deploying container"
 
-  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla2-client" application/sla_2.0_client
-  docker push "${CONTAINER_REGISTRY_ADDRESS}/sla2-client"
+  # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla2-client:latest" application/sla_2.0_client
+  # docker push "${CONTAINER_REGISTRY_ADDRESS}/sla2-client:latest"
 
   envsubst <kube/deploy-permissions-rbac.yaml | kubectl -n "${NS}" delete -f - || true
   envsubst <kube/deploy-permissions-rbac.yaml | kubectl -n "${NS}" apply -f -
@@ -405,8 +405,8 @@ function deploy_sla_2_client() {
 
 function identity_management() {
     push_fn "Building identity management pod"
-    docker build -t ${CONTAINER_REGISTRY_ADDRESS}/identity-management application/identity_management
-    docker push ${CONTAINER_REGISTRY_ADDRESS}/identity-management
+    # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/identity-management:latest" application/identity_management
+    # docker push "${CONTAINER_REGISTRY_ADDRESS}/identity-management:latest"
     # Maybe todo: change the namespace here
     envsubst <kube/identity-management-client.yaml | kubectl -n "${NS}" delete -f - || true
     envsubst <kube/identity-management-client.yaml | kubectl -n "${NS}" apply -f -

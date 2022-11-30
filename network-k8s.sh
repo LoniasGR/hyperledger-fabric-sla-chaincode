@@ -17,52 +17,52 @@ set -o errexit
 # todo: allow relative paths for input arguments.
 cd "$(dirname "$0")"
 
-# Set an environment variable based on an optional override (TEST_NETWORK_${name})
+# Set an environment variable based on an optional override (PLEDGER_NETWORK_${name})
 # from the calling shell.  If the override is not available, assign the parameter
 # to a default value.
 function context() {
   local name=$1
   local default_value=$2
-  local override_name=TEST_NETWORK_${name}
+  local override_name=PLEDGER_NETWORK_${name}
 
   export "${name}"="${!override_name:-${default_value}}"
 }
 
-context FABRIC_VERSION                2.4
-context FABRIC_CA_VERSION             1.5
+context FABRIC_VERSION           2.4
+context FABRIC_CA_VERSION        1.5
 
-context CLUSTER_RUNTIME               kind                  # or k3s for Rancher
-context CONTAINER_CLI                 docker                # or nerdctl for containerd
-context CONTAINER_NAMESPACE           ""                    # or "--namespace k8s.io" for containerd / nerdctl
+context CLUSTER_RUNTIME           kind   # or k3s for Rancher
+context CONTAINER_NAMESPACE       "" # or "--namespace k8s.io" for containerd / nerdctl
 
-context FABRIC_CONTAINER_REGISTRY     hyperledger
-context FABRIC_PEER_IMAGE             "${FABRIC_CONTAINER_REGISTRY}"/fabric-peer:"${FABRIC_VERSION}"
-context NETWORK_NAME                  pledger-dlt
-context CLUSTER_NAME                  kind
-context KUBE_NAMESPACE                "${NETWORK_NAME}"
-context NS                            "${KUBE_NAMESPACE}"
-context ORG0_NS                       "${NS}"
-context ORG1_NS                       "${NS}"
-context ORG2_NS                       "${NS}"
-context ORG3_NS                       "${NS}"
-context ORG4_NS                       "${NS}"
-context DOMAIN                        localho.st
-context ORDERER_TIMEOUT               10s                   # see https://github.com/hyperledger/fabric/issues/3372
-context TEMP_DIR                      "${PWD}"/build
-context CHAINCODE_BUILDER             ccaas                 # see https://github.com/hyperledgendary/fabric-builder-k8s/blob/main/docs/TEST_NETWORK_K8S.md
-context K8S_CHAINCODE_BUILDER_IMAGE   ghcr.io/hyperledger-labs/k8s-fabric-peer
+context FABRIC_CONTAINER_REGISTRY   hyperledger
+context FABRIC_PEER_IMAGE           "${FABRIC_CONTAINER_REGISTRY}"/fabric-peer:"${FABRIC_VERSION}"
+context NETWORK_NAME                pledger-dlt
+context CLUSTER_NAME                kind
+context KUBE_NAMESPACE              "${NETWORK_NAME}"
+context NS                          "${KUBE_NAMESPACE}"
+context ORG0_NS                     "${NS}"
+context ORG1_NS                     "${NS}"
+context ORG2_NS                     "${NS}"
+context ORG3_NS                     "${NS}"
+context ORG4_NS                     "${NS}"
+context DOMAIN                      localho.st
+context ORDERER_TIMEOUT             10s # see https://github.com/hyperledger/fabric/issues/3372
+context TEMP_DIR                    "${PWD}"/build
+context CHAINCODE_BUILDER           ccaas # see https://github.com/hyperledgendary/fabric-builder-k8s/blob/main/docs/TES_NETWORK_K8S.md
+context K8S_CHAINCODE_BUILDER_IMAGE ghcr.io/hyperledger-labs/k8s-fabric-peer
 context K8S_CHAINCODE_BUILDER_VERSION v0.7.2
 
-context LOG_FILE                      network.log
-context DEBUG_FILE                    network-debug.log
-context LOG_ERROR_LINES               2
-context CONTAINER_REGISTRY_HOSTNAME   147.102.19.6
-context CONTAINER_REGISTRY_ADDRESS    147.102.19.6/pledger
-context NGINX_HTTP_PORT               8080
-context NGINX_HTTPS_PORT              8443
+context LOG_FILE network.log
+context DEBUG_FILE network-debug.log
+context LOG_ERROR_LINES 2
+context CONTAINER_REGISTRY_HOSTNAME 147.102.19.6
+context CONTAINER_REGISTRY_ADDRESS "${CONTAINER_REGISTRY_HOSTNAME}/plgregistry"
+context NGINX_HTTP_PORT 8080
+context NGINX_HTTPS_PORT 8443
 
-context RCAADMIN_USER                 rcaadmin
-context RCAADMIN_PASS                 rcaadminpw
+context RCAADMIN_USER rcaadmin
+context RCAADMIN_PASS rcaadminpw
+context NO_VOLUMES 0
 
 function print_help() {
   set +x
@@ -101,6 +101,7 @@ function print_help() {
 . scripts/channel.sh
 . scripts/chaincode.sh
 . scripts/application_connection.sh
+. scripts/containers.sh
 
 # check for kind, kubectl, etc.
 check_prereqs
@@ -109,7 +110,7 @@ check_prereqs
 logging_init
 
 ## Parse mode
-if [[ $# -lt 1 ]] ; then
+if [[ $# -lt 1 ]]; then
   print_help
   exit 0
 else
@@ -118,9 +119,9 @@ else
 fi
 
 if [ "${MODE}" == "docker" ]; then
-    log "Logging in to container registry ${CONTAINER_REGISTRY_HOSTNAME}"
-    docker_login
-    log "🏁 - Logged in"
+  log "Running docker command"
+  docker_command_group "$@"
+  log "🏁 - All images are built."
 elif [ "${MODE}" == "kind" ]; then
   log "Creating KIND cluster \"${CLUSTER_NAME}\":"
   print_help

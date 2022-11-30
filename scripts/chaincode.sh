@@ -79,7 +79,7 @@ function deploy_chaincode() {
   temp_folder=$(mktemp -d)
   cc_package=${temp_folder}/${cc_name}.tgz
 
-  prepare_chaincode_image "${cc_folder}" "${cc_name}"
+  # prepare_chaincode_image "${cc_folder}" "${cc_name}"
   package_chaincode       "${cc_name}" "${cc_label}" "${cc_package}"
 
   if [ "${CHAINCODE_BUILDER}" == "ccaas" ]; then
@@ -113,7 +113,7 @@ function build_chaincode_image() {
   local cc_name=$2
 
   push_fn "Building chaincode image ${cc_name}"
-  eval "$CONTAINER_CLI build ${CONTAINER_NAMESPACE} -t ${cc_name} ${cc_folder}"
+  eval "docker build ${CONTAINER_NAMESPACE} -t ${cc_name} ${cc_folder}"
 
   pop_fn
 }
@@ -124,8 +124,8 @@ function publish_chaincode_image() {
   local cc_url=$2
   push_fn "Publishing chaincode image ${cc_url}"
 
-  ${CONTAINER_CLI} tag  "${cc_name}" "${cc_url}"
-  ${CONTAINER_CLI} push "${cc_url}"
+  docker tag  "${cc_name}" "${cc_url}"
+  docker push "${cc_url}"
 
   pop_fn
 }
@@ -224,7 +224,7 @@ function package_k8s_chaincode() {
   mkdir -p ${cc_folder}
 
   # Find the docker image digest associated with the image at the container registry
-  local cc_digest=$(${CONTAINER_CLI} inspect --format='{{index .RepoDigests 0}}' ${CHAINCODE_IMAGE} | cut -d'@' -f2)
+  local cc_digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${CHAINCODE_IMAGE} | cut -d'@' -f2)
 
   cat << IMAGEJSON-EOF > ${cc_folder}/image.json
 {
@@ -266,7 +266,7 @@ function package_ccaas_chaincode() {
   # Allow the user to override the service URL for the endpoint.  This allows, for instance,
   # local debugging at the 'host.docker.internal' DNS alias.
   local cc_default_address="{{.peername}}-ccaas-${cc_name}:8999"
-  local cc_address=${TEST_NETWORK_CHAINCODE_ADDRESS:-$cc_default_address}
+  local cc_address=${PLEDGER_NETWORK_CHAINCODE_ADDRESS:-$cc_default_address}
 
   cat << EOF > "${cc_folder}"/connection.json
 {
