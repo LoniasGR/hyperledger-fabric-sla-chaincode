@@ -19,8 +19,11 @@ export PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME=116.203.2.204
 export PLEDGER_NETWORK_NO_VOLUMES=0
 export SKIP_SLA1=0
 export SKIP_SLA2=0
+
 export TAG=$PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME/pledger
 export PUSH=1
+
+export HOST_PATH=${HOME}
 
 function login() {
     ./network-k8s.sh docker login

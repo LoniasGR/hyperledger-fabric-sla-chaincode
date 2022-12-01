@@ -15,4 +15,4 @@ spec:
   capacity:
     storage: 2Gi
   hostPath:
-    path: /var/hyperledger/org2
+    path: ${HOST_PATH}/hyperledger/org2
