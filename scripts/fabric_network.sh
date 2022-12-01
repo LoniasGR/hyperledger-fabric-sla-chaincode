@@ -167,7 +167,7 @@ function create_local_MSP() {
 function network_up() {
 
   # Kube config
-  init_namespace
+  # init_namespace
   if [ "$NO_VOLUMES" -eq 0 ]; then
     init_storage_volumes
   fi
@@ -259,7 +259,7 @@ function network_down() {
   stop_services
   scrub_org_volumes
 
-  delete_namespace
+  # delete_namespace
 
   rm -rf "$PWD"/build
 }

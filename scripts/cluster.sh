@@ -35,7 +35,15 @@ function cluster_command_group() {
 
 function cluster_init() {
 
-  # apply_dns
+  init_namespace
+  apply_dns
+  wait_for_dns
+
+  sleep 2
+
+  get_dns_ip
+  echo $DNS_IP
+
   apply_nginx_ingress
   apply_cert_manager
   apply_metrics_server
@@ -45,7 +53,6 @@ function cluster_init() {
 
   sleep 2
 
-  wait_for_dns
   wait_for_cert_manager
   wait_for_nginx_ingress
   wait_for_metrics_server
@@ -53,19 +60,28 @@ function cluster_init() {
 }
 
 function apply_dns() {
+  # if [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
+  #   microk8s enable dns
   if [ "${CLUSTER_RUNTIME}" != "kind" ]; then
     push_fn "Launching DNS"
-    kubectl apply -f kube/coredns-deployment.yaml
+    envsubst <kube/coredns-deployment.yaml | kubectl apply -f -
     pop_fn
   fi
 }
 
 function delete_dns() {
   push_fn "Deleting DNS"
-  if [ "${CLUSTER_RUNTIME}" != "kind" ]; then
-    kubectl delete -f kube/coredns-deployment.yaml || :
+  if [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
+    microk8s disable dns
+  elif [ "${CLUSTER_RUNTIME}" != "kind" ]; then
+    envsubst <kube/coredns-deployment.yaml | kubectl delete -f - || :
   fi
   pop_fn
+}
+
+function get_dns_ip() {
+  DNS_IP=$(kubectl get pods -n ${NS} -o wide --no-headers | awk '{print $6, "\t", $1}' | grep "coredns" | cut -d' ' -f1)
+  export DNS_IP
 }
 
 function apply_nginx() {
@@ -83,8 +99,7 @@ function apply_nginx_ingress() {
   if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
   else
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/baremetal/deploy.yaml
-    kubectl -n ingress-nginx patch deployments/ingress-nginx-controller -p "$(envsubst <kube/ingress-patch.yaml)"
+    envsubst <kube/ingress-deployment.yaml | kubectl apply -f -
   fi
 
   pop_fn
@@ -96,7 +111,7 @@ function delete_nginx_ingress() {
   if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
     kubectl delete -f kube/ingress-nginx-kind.yaml || :
   else
-    kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/baremetal/deploy.yaml || :
+    envsubst <kube/ingress-deployment.yaml | kubectl delete -f - || :
   fi
   pop_fn
 }
@@ -104,7 +119,7 @@ function delete_nginx_ingress() {
 function wait_for_dns() {
   push_fn "Waiting for dns"
 
-  kubectl -n kube-system rollout status deploy/coredns
+  kubectl -n ${NS} rollout status deploy/coredns
 
   pop_fn
 }
@@ -112,7 +127,7 @@ function wait_for_dns() {
 function wait_for_nginx_ingress() {
   push_fn "Waiting for ingress controller"
 
-  kubectl wait --namespace ingress-nginx \
+  kubectl wait --namespace ${NS} \
     --for=condition=ready pod \
     --selector=app.kubernetes.io/component=controller \
     --timeout=2m
@@ -124,7 +139,7 @@ function apply_cert_manager() {
   push_fn "Launching cert-manager"
 
   # Install cert-manager to manage TLS certificates
-  kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml
+  envsubst <kube/cert-manager-deployment.yaml | kubectl apply -f -
   pop_fn
 }
 
@@ -132,16 +147,16 @@ function delete_cert_manager() {
   push_fn "Deleting cert-manager"
 
   # Remove cert-manager
-  kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml || true
+  envsubst <kube/cert-manager-deployment.yaml | kubectl delete -f - || :
   pop_fn
 }
 
 function wait_for_cert_manager() {
   push_fn "Waiting for cert-manager"
 
-  kubectl -n cert-manager rollout status deploy/cert-manager
-  kubectl -n cert-manager rollout status deploy/cert-manager-cainjector
-  kubectl -n cert-manager rollout status deploy/cert-manager-webhook
+  kubectl -n ${NS} rollout status deploy/cert-manager
+  kubectl -n ${NS} rollout status deploy/cert-manager-cainjector
+  kubectl -n ${NS} rollout status deploy/cert-manager-webhook
   pop_fn
 }
 
@@ -180,20 +195,19 @@ EOF
 
 function apply_metrics_server() {
   push_fn "Launching Metrics Server"
-  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.2/components.yaml
-  kubectl patch deployment metrics-server -n kube-system --patch "$(cat kube/metric-server-patch.yaml)"
+  envsubst <kube/metrics-server-deployment.yaml | kubectl apply -f -
   pop_fn
 }
 
 function delete_metrics_server() {
   push_fn "Deleting Metrics Server"
-  kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.2/components.yaml || true
+  envsubst <kube/metrics-server-deployment.yaml | kubectl delete -f - || :
   pop_fn
 
 }
 
 function wait_for_metrics_server() {
-   kubectl -n kube-system rollout status deploy/metrics-server
+  kubectl -n ${NS} rollout status deploy/metrics-server
 }
 
 function cluster_clean() {
@@ -204,4 +218,5 @@ function cluster_clean() {
     delete_storage
   fi
   delete_metrics_server
+  delete_namespace
 }
