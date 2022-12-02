@@ -5253,10 +5253,6 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-      dnsPolicy: Default
-      dnsConfig:
-        nameservers:
-          - ${DNS_IP}
       containers:
         - name: cert-manager-cainjector
           image: "quay.io/jetstack/cert-manager-cainjector:v1.10.1"
