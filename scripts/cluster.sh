@@ -34,16 +34,12 @@ function cluster_command_group() {
 }
 
 function cluster_init() {
-
   init_namespace
+
+  if [ "$SELF_SIGNED_REGISTRY" == 1 ]; then
+    add_registry_key
+  fi
   apply_dns
-  wait_for_dns
-
-  sleep 2
-
-  get_dns_ip
-  echo $DNS_IP
-
   apply_nginx_ingress
   apply_cert_manager
   apply_metrics_server
@@ -53,35 +49,59 @@ function cluster_init() {
 
   sleep 2
 
+  # wait_for_dns
   wait_for_cert_manager
   wait_for_nginx_ingress
   wait_for_metrics_server
+}
 
+function cluster_clean() {
+  delete_dns
+  delete_nginx_ingress
+  delete_cert_manager
+  if [ "$NO_VOLUMES" -eq 0 ]; then
+    delete_storage
+  fi
+  delete_metrics_server
+  delete_namespace
+}
+
+function add_registry_key() {
+  kubectl -n "$NS" create configmap trusted-ca --from-file=config/docker/ca.crt || true
+  envsubst <kube/add-private-registry-tls-cert-on-nodes.yaml | kubectl -n ${NS} apply -f -
 }
 
 function apply_dns() {
-  # if [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
-  #   microk8s enable dns
-  if [ "${CLUSTER_RUNTIME}" != "kind" ]; then
-    push_fn "Launching DNS"
+  echo ${CLUSTER_RUNTIME}
+  push_fn "Launching DNS"
+  if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
+    :
+  elif [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
+    microk8s enable dns
+  else
     envsubst <kube/coredns-deployment.yaml | kubectl apply -f -
-    pop_fn
   fi
+  pop_fn
 }
 
 function delete_dns() {
   push_fn "Deleting DNS"
   if [ "${CLUSTER_RUNTIME}" == "microk8s" ]; then
     microk8s disable dns
-  elif [ "${CLUSTER_RUNTIME}" != "kind" ]; then
+  elif [ "${CLUSTER_RUNTIME}" == "kind" ]; then
+    :
+  else
     envsubst <kube/coredns-deployment.yaml | kubectl delete -f - || :
   fi
   pop_fn
 }
 
-function get_dns_ip() {
-  DNS_IP=$(kubectl get pods -n ${NS} -o wide --no-headers | awk '{print $6, "\t", $1}' | grep "coredns" | cut -d' ' -f1)
-  export DNS_IP
+function wait_for_dns() {
+  push_fn "Waiting for dns"
+
+  kubectl -n ${NS} rollout status deploy/coredns
+
+  pop_fn
 }
 
 function apply_nginx() {
@@ -113,14 +133,6 @@ function delete_nginx_ingress() {
   else
     envsubst <kube/ingress-deployment.yaml | kubectl delete -f - || :
   fi
-  pop_fn
-}
-
-function wait_for_dns() {
-  push_fn "Waiting for dns"
-
-  kubectl -n ${NS} rollout status deploy/coredns
-
   pop_fn
 }
 
@@ -208,15 +220,4 @@ function delete_metrics_server() {
 
 function wait_for_metrics_server() {
   kubectl -n ${NS} rollout status deploy/metrics-server
-}
-
-function cluster_clean() {
-  # delete_dns
-  delete_nginx_ingress
-  delete_cert_manager
-  if [ "$NO_VOLUMES" -eq 0 ]; then
-    delete_storage
-  fi
-  delete_metrics_server
-  delete_namespace
 }

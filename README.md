@@ -26,6 +26,7 @@ To deploy the network, the kafka configuration is needed for the consumers. To c
 3. Copy all kafka configuration files to `config/kafka`.
 4. Copy `docker_credentials.json.example` to `docker_credentials.json` and change the credentials so that you can
    push on the registry of your choice.
+5. If using a private registry with a self-signed certificate, you will need to add the certificate to the authorized certificates of the node. This can be done when running the `cluster` command with `--self-signed-registry`. You will have to put your certificate in `config/docker` with name `ca.crt`.
 
 ## Deploy on Kubernetes
 

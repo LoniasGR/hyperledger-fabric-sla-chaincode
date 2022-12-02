@@ -14,13 +14,15 @@ export VRU_CC_SRC_PATH="${PWD}/ccas_vru"
 export PARTS_CC_SRC_PATH="${PWD}/ccas_parts"
 
 export PLEDGER_NETWORK_CONTAINER_REGISTRY_PORT=443
-export PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME=116.203.2.204
+export PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME=147.102.19.6
+export PLEDGER_NETWORK_CONTAINER_REGISTRY_ADDRESS=$PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME/pledger
 
 export PLEDGER_NETWORK_NO_VOLUMES=0
 export SKIP_SLA1=0
 export SKIP_SLA2=0
+export SELF_SIGNED_REGISTRY=0
 
-export TAG=$PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME/pledger
+export TAG=${PLEDGER_NETWORK_CONTAINER_REGISTRY_ADDRESS}
 export PUSH=1
 
 export HOST_PATH=${HOME}
@@ -179,6 +181,10 @@ if [[ $# -ge 1 ]]; then
         case $FLAG in
         --no-volumes)
             export PLEDGER_NETWORK_NO_VOLUMES=1
+            shift
+            ;;
+        --self-signed-registry)
+            export SELF_SIGNED_REGISTRY=1
             shift
             ;;
         --skip-sla-1)
