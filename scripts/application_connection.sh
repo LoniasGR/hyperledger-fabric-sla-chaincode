@@ -276,10 +276,10 @@ function deploy_sla_client() {
   export CHANNEL_NAME=${SLA_CHANNEL_NAME}
   export CHAINCODE_NAME=${SLA_CHAINCODE_NAME}
 
-  cp config/kafka/consumer.properties application/sla_client/
-  cp config/kafka/kafka.client.keystore.jks application/sla_client/
-  cp config/kafka/kafka.client.truststore.jks application/sla_client/
-  cp config/kafka/server.cer.pem application/sla_client/
+  # cp config/kafka/consumer.properties application/sla_client/
+  # cp config/kafka/kafka.client.keystore.jks application/sla_client/
+  # cp config/kafka/kafka.client.truststore.jks application/sla_client/
+  # cp config/kafka/server.cer.pem application/sla_client/
 
   pop_fn
 
@@ -293,10 +293,10 @@ function deploy_sla_client() {
   envsubst <kube/sla-client-deployment.yaml | kubectl -n "${NS}" apply -f -
   pop_fn
 
-  rm application/sla_client/consumer.properties
-  rm application/sla_client/kafka.client.keystore.jks
-  rm application/sla_client/kafka.client.truststore.jks
-  rm application/sla_client/server.cer.pem
+  # rm application/sla_client/consumer.properties
+  # rm application/sla_client/kafka.client.keystore.jks
+  # rm application/sla_client/kafka.client.truststore.jks
+  # rm application/sla_client/server.cer.pem
 }
 
 function deploy_vru_client() {
@@ -304,10 +304,10 @@ function deploy_vru_client() {
   export CHANNEL_NAME=${VRU_CHANNEL_NAME}
   export CHAINCODE_NAME=${VRU_CHAINCODE_NAME}
 
-  cp config/kafka/consumer.properties application/vru_client/
-  cp config/kafka/kafka.client.keystore.jks application/vru_client/
-  cp config/kafka/kafka.client.truststore.jks application/vru_client/
-  cp config/kafka/server.cer.pem application/vru_client/
+  # cp config/kafka/consumer.properties application/vru_client/
+  # cp config/kafka/kafka.client.keystore.jks application/vru_client/
+  # cp config/kafka/kafka.client.truststore.jks application/vru_client/
+  # cp config/kafka/server.cer.pem application/vru_client/
 
   pop_fn
   construct_application_configmap 2
@@ -321,10 +321,10 @@ function deploy_vru_client() {
   envsubst <kube/vru-client-deployment.yaml | kubectl -n "${NS}" apply -f -
   pop_fn
 
-  rm application/vru_client/consumer.properties
-  rm application/vru_client/kafka.client.keystore.jks
-  rm application/vru_client/kafka.client.truststore.jks
-  rm application/vru_client/server.cer.pem
+  # rm application/vru_client/consumer.properties
+  # rm application/vru_client/kafka.client.keystore.jks
+  # rm application/vru_client/kafka.client.truststore.jks
+  # rm application/vru_client/server.cer.pem
 }
 
 function deploy_parts_client() {
@@ -332,10 +332,10 @@ function deploy_parts_client() {
   export CHANNEL_NAME=${PARTS_CHANNEL_NAME}
   export CHAINCODE_NAME=${PARTS_CHAINCODE_NAME}
 
-  cp config/kafka/consumer.properties application/parts_client/
-  cp config/kafka/kafka.client.keystore.jks application/parts_client/
-  cp config/kafka/kafka.client.truststore.jks application/parts_client/
-  cp config/kafka/server.cer.pem application/parts_client/
+  # cp config/kafka/consumer.properties application/parts_client/
+  # cp config/kafka/kafka.client.keystore.jks application/parts_client/
+  # cp config/kafka/kafka.client.truststore.jks application/parts_client/
+  # cp config/kafka/server.cer.pem application/parts_client/
 
   pop_fn
 
@@ -350,10 +350,10 @@ function deploy_parts_client() {
   envsubst <kube/parts-client-deployment.yaml | kubectl -n "${NS}" apply -f -
   pop_fn
 
-  rm application/parts_client/consumer.properties
-  rm application/parts_client/kafka.client.keystore.jks
-  rm application/parts_client/kafka.client.truststore.jks
-  rm application/parts_client/server.cer.pem
+  # rm application/parts_client/consumer.properties
+  # rm application/parts_client/kafka.client.keystore.jks
+  # rm application/parts_client/kafka.client.truststore.jks
+  # rm application/parts_client/server.cer.pem
 
 }
 
@@ -378,8 +378,8 @@ function deploy_sla_2_client() {
   construct_application_configmap 4
   push_fn "Creating and deploying container"
 
-  # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla2-client:latest" application/sla_2.0_client
-  # docker push "${CONTAINER_REGISTRY_ADDRESS}/sla2-client:latest"
+  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla2-client:latest" application/sla_2.0_client
+  docker push "${CONTAINER_REGISTRY_ADDRESS}/sla2-client:latest"
 
   envsubst <kube/deploy-permissions-rbac.yaml | kubectl -n "${NS}" delete -f - || true
   envsubst <kube/deploy-permissions-rbac.yaml | kubectl -n "${NS}" apply -f -

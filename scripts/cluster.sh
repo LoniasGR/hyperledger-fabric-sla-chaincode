@@ -64,6 +64,10 @@ function cluster_clean() {
   fi
   delete_metrics_server
   delete_namespace
+
+  if [ "$SELF_SIGNED_REGISTRY" == 1 ]; then
+    delete_registry_key_pod
+  fi
 }
 
 function add_registry_key() {
@@ -71,8 +75,17 @@ function add_registry_key() {
   # http://hypernephelist.com/2021/03/23/kubernetes-containerd-certificate.html
   # https://github.com/containerd/containerd/issues/6485
   #
+  push_fn "Adding registry key"
   kubectl -n "$NS" create configmap trusted-ca --from-file=config/docker/ca.crt || true
   envsubst <kube/add-private-registry-tls-cert-on-nodes.yaml | kubectl -n ${NS} apply -f -
+  pop_fn
+}
+
+function delete_registry_key_pod() {
+  push_fn "Deleting registry key pod"
+  kubectl -n "$NS" delete configmap trusted-ca || true
+  envsubst <kube/add-private-registry-tls-cert-on-nodes.yaml | kubectl -n ${NS} delete -f - || true
+  pop_fn
 }
 
 function apply_dns() {

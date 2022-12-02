@@ -65,22 +65,21 @@ function down() {
 
 function set_channels() {
     ./network-k8s.sh channel init
-
-    if [ $SKIP_SLA1 -eq 1 ]; then
+    if [ $SKIP_SLA1 -eq 0 ]; then
         ./network-k8s.sh channel create "$SLA_CHANNEL_NAME" 1
     fi
     ./network-k8s.sh channel create "$VRU_CHANNEL_NAME" 2
 
     ./network-k8s.sh channel create "$PARTS_CHANNEL_NAME" 3
 
-    if [ $SKIP_SLA2 -eq 1 ]; then
+    if [ $SKIP_SLA2 -eq 0 ]; then
         ./network-k8s.sh channel create "$SLA2_CHANNEL_NAME" 4
     fi
 }
 
 function deploy_chaincodes() {
 
-    if [ $SKIP_SLA1 -eq 1 ]; then
+    if [ $SKIP_SLA1 -eq 0 ]; then
         export CHANNEL_NAME=${SLA_CHANNEL_NAME}
         ./network-k8s.sh chaincode deploy 1 $SLA_CHAINCODE_NAME "$SLA_CC_SRC_PATH"
     fi
@@ -126,12 +125,12 @@ function explorer() {
 
 function applications() {
     init_application_config
-    if [ $SKIP_SLA1 -eq 1 ]; then
+    if [ $SKIP_SLA1 -eq 0 ]; then
         sla_client
     fi
     vru_client
     parts_client
-    if [ $SKIP_SLA2 -eq 1 ]; then
+    if [ $SKIP_SLA2 -eq 0 ]; then
         sla2_client
     fi
     identity_management
