@@ -3,7 +3,7 @@
 *.pem
 *.p12
 *.properties
-
+*.crt
 # Binaries for programs and plugins
 *.exe
 *.exe~
