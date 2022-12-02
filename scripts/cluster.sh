@@ -67,6 +67,10 @@ function cluster_clean() {
 }
 
 function add_registry_key() {
+  # More info:
+  # http://hypernephelist.com/2021/03/23/kubernetes-containerd-certificate.html
+  # https://github.com/containerd/containerd/issues/6485
+  #
   kubectl -n "$NS" create configmap trusted-ca --from-file=config/docker/ca.crt || true
   envsubst <kube/add-private-registry-tls-cert-on-nodes.yaml | kubectl -n ${NS} apply -f -
 }
