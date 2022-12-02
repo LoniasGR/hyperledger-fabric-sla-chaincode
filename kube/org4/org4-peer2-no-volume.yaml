@@ -88,7 +88,7 @@ spec:
             - containerPort: 8543
           volumeMounts:
             - name: fabric-volume
-              mountPath: /var/hyperledger
+              mountPath: /var/hyperledger/data
             - name: fabric-config
               mountPath: /var/hyperledger/fabric/config
             - name: tls-cert-volume

@@ -9,20 +9,32 @@ function launch_orderers() {
   push_fn "Launching orderers"
 
   if [ "$NO_VOLUMES" -eq 1 ]; then
-    export VOLUME_CLAIM="emptyDir: {}"
+    # Find the org-ca pod.
+    local org0_ca_pod
+    org0_ca_pod=$(pod_from_name org0-ca "$NS")
+
+    # Get the hyperledger (MSP) data from the pod
+    kubectl -n "${NS}" cp "$org0_ca_pod":/var/hyperledger ./tmp
+
+    # Build the order container with that information
+    mkdir -p "${TEMP_DIR}/docker"
+    envsubst <docker/Dockerfile.orderer >"${TEMP_DIR}/docker/Dockerfile.orderer"
+    docker build -f "${TEMP_DIR}/docker/Dockerfile.orderer" -t "${CONTAINER_REGISTRY_ADDRESS}/orderer:latest" ./tmp
+    docker push "${CONTAINER_REGISTRY_ADDRESS}/orderer:latest"
+    export FABRIC_ORDERER_IMAGE="${CONTAINER_REGISTRY_ADDRESS}/orderer:latest"
+
+    apply_template kube/org0/org0-orderer1-no-volume.yaml "$ORG0_NS"
+    apply_template kube/org0/org0-orderer2-no-volume.yaml "$ORG0_NS"
+    apply_template kube/org0/org0-orderer3-no-volume.yaml "$ORG0_NS"
+
+    rm -rf ./tmp
   else
-    VOLUME_CLAIM=$(
-      cat <<EOF
-persistentVolumeClaim:
-            claimName: fabric-org0
-EOF
-    )
-    export VOLUME_CLAIM
+    apply_template kube/org0/org0-orderer1.yaml "$ORG0_NS"
+    apply_template kube/org0/org0-orderer2.yaml "$ORG0_NS"
+    apply_template kube/org0/org0-orderer3.yaml "$ORG0_NS"
   fi
 
-  apply_template kube/org0/org0-orderer1.yaml "$ORG0_NS"
-  apply_template kube/org0/org0-orderer2.yaml "$ORG0_NS"
-  apply_template kube/org0/org0-orderer3.yaml "$ORG0_NS"
+  sleep 2
 
   kubectl -n "$ORG0_NS" rollout status deploy/org0-orderer1
   kubectl -n "$ORG0_NS" rollout status deploy/org0-orderer2
@@ -35,21 +47,32 @@ function launch_peers() {
   push_fn "Launching peers"
   # TODO: Add org here
   for org in org1 org2 org3 org4; do
-    get_namespace $org
-    if [ "$NO_VOLUMES" -eq 1 ]; then
-      export VOLUME_CLAIM="emptyDir: {}"
-    else
-      VOLUME_CLAIM=$(
-        cat <<EOF
-persistentVolumeClaim:
-            claimName: fabric-$org
-EOF
-      )
-      export VOLUME_CLAIM
-    fi
-    apply_template kube/$org/$org-peer1.yaml "$ORG1_NS"
-    apply_template kube/$org/$org-peer2.yaml "$ORG1_NS"
+    local namespace
+    namespace=$(get_namespace $org)
 
+    if [ "$NO_VOLUMES" -eq 1 ]; then
+      # Find the org-ca pod.
+      local org_ca_pod
+      org_ca_pod=$(pod_from_name $org-ca "$NS")
+
+      # Get the hyperledger (MSP) data from the pod
+      kubectl -n "${NS}" cp "$org_ca_pod":/var/hyperledger ./tmp
+
+      # Build the order container with that information
+      mkdir -p "${TEMP_DIR}/docker"
+      envsubst <docker/Dockerfile.peer >"${TEMP_DIR}/docker/Dockerfile.peer"
+      docker build -f "${TEMP_DIR}/docker/Dockerfile.peer" -t "${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:latest" ./tmp
+      docker push "${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:latest"
+      export FABRIC_PEER_IMAGE="${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:latest"
+
+      apply_template kube/$org/$org-peer1-no-volume.yaml "$namespace"
+      apply_template kube/$org/$org-peer2-no-volume.yaml "$namespace"
+
+      rm -rf ./tmp
+    else
+      apply_template kube/$org/$org-peer1.yaml "$namespace"
+      apply_template kube/$org/$org-peer2.yaml "$namespace"
+    fi
   done
 
   # TODO: Add org here

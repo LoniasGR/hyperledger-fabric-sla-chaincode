@@ -10,7 +10,8 @@ function launch_ECert_CAs() {
 
   # TODO: Add org here
   for org in org0 org1 org2 org3 org4; do
-    get_namespace $org
+    local namespace
+    namespace=$(get_namespace $org)
     if [ "$NO_VOLUMES" -eq 1 ]; then
       export VOLUME_CLAIM="emptyDir: {}"
     else
@@ -22,7 +23,7 @@ EOF
       )
       export VOLUME_CLAIM
     fi
-    apply_template kube/$org/$org-ca.yaml "$CURR_NS"
+    apply_template kube/$org/$org-ca.yaml "$namespace"
 
   done
 

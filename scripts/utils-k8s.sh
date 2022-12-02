@@ -92,23 +92,21 @@ function apply_template() {
 }
 
 function get_namespace() {
-  org=$1
-
-  case $org in
+  case $1 in
   org0)
-    export CURR_NS=$ORG0_NS
+    echo "$ORG0_NS"
     ;;
   org1)
-    export CURR_NS=$ORG1_NS
+    echo "$ORG1_NS"
     ;;
   org2)
-    export CURR_NS=$ORG2_NS
+    echo "$ORG2_NS"
     ;;
   org3)
-    export CURR_NS=$ORG3_NS
+    echo "$ORG3_NS"
     ;;
   org4)
-    export CURR_NS=$ORG4_NS
+    echo "$ORG4_NS"
     ;;
   *)
     log "Could not find specified organisation"
@@ -143,4 +141,13 @@ function absolute_path() {
   abspath="$(cd "${relative_path}" && pwd)"
 
   echo "$abspath"
+}
+
+function pod_from_name() {
+  PODNAME=$1
+  NAMESPACE=$2
+
+  local pod
+  pod=$(kubectl -n "$NAMESPACE" get pods | grep "$PODNAME" | cut -d' ' -f1)
+  echo "$pod"
 }

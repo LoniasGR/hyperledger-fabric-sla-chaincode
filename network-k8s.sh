@@ -36,6 +36,7 @@ context CONTAINER_NAMESPACE       "" # or "--namespace k8s.io" for containerd / 
 
 context FABRIC_CONTAINER_REGISTRY   hyperledger
 context FABRIC_PEER_IMAGE           "${FABRIC_CONTAINER_REGISTRY}"/fabric-peer:"${FABRIC_VERSION}"
+context FABRIC_ORDERER_IMAGE        "${FABRIC_CONTAINER_REGISTRY}"/fabric-orderer:"${FABRIC_VERSION}"
 context NETWORK_NAME                pledger-dlt
 context CLUSTER_NAME                kind
 context KUBE_NAMESPACE              "${NETWORK_NAME}"

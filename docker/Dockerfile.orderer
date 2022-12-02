@@ -1,0 +1,3 @@
+FROM ${FABRIC_CONTAINER_REGISTRY}/fabric-orderer:${FABRIC_VERSION}
+
+COPY . /var/hyperledger
