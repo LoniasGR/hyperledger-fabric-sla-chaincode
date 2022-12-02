@@ -73,7 +73,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: ${FABRIC_CONTAINER_REGISTRY}/fabric-orderer:${FABRIC_VERSION}
+          image: ${ORDERER_IMAGE}
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
@@ -83,17 +83,12 @@ spec:
             - containerPort: 8443
             - containerPort: 8543
           volumeMounts:
-            - name: fabric-volume
-              mountPath: /var/hyperledger
             - name: fabric-config
               mountPath: /var/hyperledger/fabric/config
             - name: tls-cert-volume
               mountPath: /var/hyperledger/fabric/config/tls
               readOnly: true
       volumes:
-        - name: fabric-volume
-          persistentVolumeClaim:
-            claimName: fabric-org0
         - name: fabric-config
           configMap:
             name: org0-config

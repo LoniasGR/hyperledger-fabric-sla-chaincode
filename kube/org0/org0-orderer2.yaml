@@ -92,7 +92,8 @@ spec:
               readOnly: true
       volumes:
         - name: fabric-volume
-          ${VOLUME_CLAIM}
+          persistentVolumeClaim:
+            claimName: fabric-org0
         - name: fabric-config
           configMap:
             name: org0-config
