@@ -77,7 +77,7 @@ spec:
           ${VOLUME_CLAIM}
         - name: fabric-config
           configMap:
-            name: org4-config
+            name: org4-ca-config
         - name: tls-cert-volume
           secret:
             secretName: org4-ca-tls-cert
