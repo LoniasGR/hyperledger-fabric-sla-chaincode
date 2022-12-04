@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function build_containers() {
-    TAG="${1:-pledger}"
-    PUSH="${2:-0}"
+    TAG="${1}"
+    PUSH="${2}"
 
     log "Building chaincode images"
     build_chaincode_image "$SLA_CC_SRC_PATH" "$TAG/$SLA_CHAINCODE_NAME:latest"
@@ -13,39 +13,24 @@ function build_containers() {
 
     log "Building client images"
     push_fn "Building $TAG/sla-client image"
-    cp config/kafka/consumer.properties application/sla_client/
-    cp config/kafka/kafka.client.keystore.jks application/sla_client/
-    cp config/kafka/kafka.client.truststore.jks application/sla_client/
-    cp config/kafka/server.cer.pem application/sla_client/
+    mkdir -p application/sla_client/kafka
+    cp config/kafka/* application/sla_client/kafka
     docker build -t "$TAG/sla-client:latest" application/sla_client
-    rm application/sla_client/consumer.properties
-    rm application/sla_client/kafka.client.keystore.jks
-    rm application/sla_client/kafka.client.truststore.jks
-    rm application/sla_client/server.cer.pem
+    rm -rf application/sla_client/kafka
     pop_fn
 
     push_fn "Building $TAG/vru-client image"
-    cp config/kafka/consumer.properties application/vru_client/
-    cp config/kafka/kafka.client.keystore.jks application/vru_client/
-    cp config/kafka/kafka.client.truststore.jks application/vru_client/
-    cp config/kafka/server.cer.pem application/vru_client/
+    mkdir -p application/vru_client/kafka
+    cp config/kafka/* application/vru_client/kafka
     docker build -t "$TAG/vru-client:latest" application/vru_client
-    rm application/vru_client/consumer.properties
-    rm application/vru_client/kafka.client.keystore.jks
-    rm application/vru_client/kafka.client.truststore.jks
-    rm application/vru_client/server.cer.pem
+    rm -rf application/vru_client/kafka
     pop_fn
 
     push_fn "Building$TAG/parts-client image"
-    cp config/kafka/consumer.properties application/parts_client/
-    cp config/kafka/kafka.client.keystore.jks application/parts_client/
-    cp config/kafka/kafka.client.truststore.jks application/parts_client/
-    cp config/kafka/server.cer.pem application/parts_client/
+    mkdir -p application/parts_client/kafka
+    cp config/kafka/* application/parts_client/kafka
     docker build -t "$TAG/parts-client:latest" application/parts_client
-    rm application/parts_client/consumer.properties
-    rm application/parts_client/kafka.client.keystore.jks
-    rm application/parts_client/kafka.client.truststore.jks
-    rm application/parts_client/server.cer.pem
+    rm -rf application/parts_client/kafka
     pop_fn
 
     # push_fn "Building ${TAG}/sla2-client image"
@@ -67,14 +52,17 @@ function build_containers() {
     pop_fn
 
     if [ $PUSH -ne 0 ]; then
+        push_fn "Pushing images"
         docker push "$TAG/$SLA_CHAINCODE_NAME:latest"
         docker push "$TAG/$VRU_CHAINCODE_NAME:latest"
+        docker push "$TAG/$PARTS_CHAINCODE_NAME:latest"
         docker push "$TAG/sla-client:latest"
         docker push "$TAG/vru-client:latest"
         docker push "$TAG/parts-client:latest"
         # docker push "$TAG/sla2-client:latest"
         docker push "$TAG/api:latest"
         docker push "$TAG/identity-management:latest"
+        pop_fn
 
     fi
 
