@@ -80,6 +80,7 @@ function deploy_chaincode() {
   cc_package=${temp_folder}/${cc_name}.tgz
 
   # prepare_chaincode_image "${cc_folder}" "${cc_name}"
+  export CHAINCODE_IMAGE=${CONTAINER_REGISTRY_ADDRESS}/${cc_name}
   package_chaincode       "${cc_name}" "${cc_label}" "${cc_package}"
 
   if [ "${CHAINCODE_BUILDER}" == "ccaas" ]; then

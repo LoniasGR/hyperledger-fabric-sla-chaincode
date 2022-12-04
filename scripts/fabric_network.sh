@@ -7,21 +7,26 @@
 
 function launch_orderers() {
   push_fn "Launching orderers"
+  local org0_ca_pod
+  # Had some issues when developing with pushing an image, but getting a previous version
+  # so changing tags to avoid that
+  local TAG="1.0"
 
   if [ "$NO_VOLUMES" -eq 1 ]; then
     # Find the org-ca pod.
-    local org0_ca_pod
     org0_ca_pod=$(pod_from_name org0-ca "$NS")
 
     # Get the hyperledger (MSP) data from the pod
     kubectl -n "${NS}" cp "$org0_ca_pod":/var/hyperledger ./tmp
+    rm -rf ./tmp/fabric/config
+    rm -rf ./tmp/organizations
 
     # Build the order container with that information
     mkdir -p "${TEMP_DIR}/docker"
     envsubst <docker/Dockerfile.orderer >"${TEMP_DIR}/docker/Dockerfile.orderer"
-    docker build -f "${TEMP_DIR}/docker/Dockerfile.orderer" -t "${CONTAINER_REGISTRY_ADDRESS}/orderer:latest" ./tmp
-    docker push "${CONTAINER_REGISTRY_ADDRESS}/orderer:latest"
-    export FABRIC_ORDERER_IMAGE="${CONTAINER_REGISTRY_ADDRESS}/orderer:latest"
+    docker build -f "${TEMP_DIR}/docker/Dockerfile.orderer" -t "${CONTAINER_REGISTRY_ADDRESS}/orderer:${TAG}" ./tmp
+    docker push "${CONTAINER_REGISTRY_ADDRESS}/orderer:${TAG}"
+    export FABRIC_ORDERER_IMAGE="${CONTAINER_REGISTRY_ADDRESS}/orderer:${TAG}"
 
     apply_template kube/org0/org0-orderer1-no-volume.yaml "$ORG0_NS"
     apply_template kube/org0/org0-orderer2-no-volume.yaml "$ORG0_NS"
@@ -45,6 +50,10 @@ function launch_orderers() {
 
 function launch_peers() {
   push_fn "Launching peers"
+  # Had some issues when developing with pushing an image, but getting a previous version
+  # so changing tags to avoid that
+  local TAG="1.0"
+
   # TODO: Add org here
   for org in org1 org2 org3 org4; do
     local namespace
@@ -57,13 +66,15 @@ function launch_peers() {
 
       # Get the hyperledger (MSP) data from the pod
       kubectl -n "${NS}" cp "$org_ca_pod":/var/hyperledger ./tmp
+      rm -rf ./tmp/fabric/config
+      rm -rf ./tmp/organizations
 
       # Build the order container with that information
       mkdir -p "${TEMP_DIR}/docker"
       envsubst <docker/Dockerfile.peer >"${TEMP_DIR}/docker/Dockerfile.peer"
-      docker build -f "${TEMP_DIR}/docker/Dockerfile.peer" -t "${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:latest" ./tmp
-      docker push "${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:latest"
-      export FABRIC_PEER_IMAGE="${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:latest"
+      docker build -f "${TEMP_DIR}/docker/Dockerfile.peer" -t "${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:${TAG}" ./tmp
+      docker push "${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:${TAG}"
+      export FABRIC_PEER_IMAGE="${CONTAINER_REGISTRY_ADDRESS}/peer-${org}:${TAG}"
 
       apply_template kube/$org/$org-peer1-no-volume.yaml "$namespace"
       apply_template kube/$org/$org-peer2-no-volume.yaml "$namespace"
@@ -187,10 +198,9 @@ function create_local_MSP() {
   pop_fn
 }
 
-function network_up() {
+function cas_up() {
 
   # Kube config
-  # init_namespace
   if [ "$NO_VOLUMES" -eq 0 ]; then
     init_storage_volumes
   fi
@@ -211,7 +221,9 @@ function network_up() {
 
   # Test Network
   create_local_MSP
+}
 
+function orderers_and_peers_up() {
   launch_orderers
   launch_peers
 }

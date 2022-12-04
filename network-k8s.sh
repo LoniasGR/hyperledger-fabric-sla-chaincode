@@ -137,10 +137,14 @@ elif [ "${MODE}" == "unkind" ]; then
 elif [[ "${MODE}" == "cluster" || "${MODE}" == "k8s" || "${MODE}" == "kube" ]]; then
   cluster_command_group "$@"
 
+elif [ "${MODE}" == "cas" ]; then
+  log "Launching CAs in \"${NETWORK_NAME}\":"
+  cas_up
+  log "🏁 - CAs are ready."
 elif [ "${MODE}" == "up" ]; then
-  log "Launching network \"${NETWORK_NAME}\":"
-  network_up
-  log "🏁 - Network is ready."
+  log "Launching orderers and peers in \"${NETWORK_NAME}\":"
+  orderers_and_peers_up
+  log "🏁 - Orderers and peers are ready."
 
 elif [ "${MODE}" == "down" ]; then
   log "Shutting down test network  \"${NETWORK_NAME}\":"

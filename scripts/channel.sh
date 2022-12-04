@@ -79,8 +79,8 @@ function register_org_admin() {
     --id.attrs "hf.Registrar.Roles=client,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert"
 }
 
-  push_fn "Enrolling org Admin users"
 function enroll_org_admins() {
+  push_fn "Enrolling org Admin users"
 
   # TODO: Add org here.
   enroll_org_admin orderer org0 org0admin org0adminpw
