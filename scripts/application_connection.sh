@@ -33,24 +33,23 @@ function app_id {
 }
 
 function construct_global_configmap() {
-  push_fn "Creating persistent volumes and mounts for applications"
+  if [ $NO_VOLUMES == 0 ]; then
+    push_fn "Creating persistent volumes and mounts for applications"
 
-  # Both KIND and k3s use the Rancher local-path provider.  In KIND, this is installed
-  # as the 'standard' storage class, and in Rancher as the 'local-path' storage class.
-  if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
-    export STORAGE_CLASS="standard"
+    # Both KIND and k3s use the Rancher local-path provider.  In KIND, this is installed
+    # as the 'standard' storage class, and in Rancher as the 'local-path' storage class.
+    if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
+      export STORAGE_CLASS="standard"
 
-  elif [ "${CLUSTER_RUNTIME}" == "k3s" ]; then
-    export STORAGE_CLASS="local-path"
-  else
-    echo "Unknown CLUSTER_RUNTIME ${CLUSTER_RUNTIME}"
-    exit 1
+    else [ "${CLUSTER_RUNTIME}" == "k3s" ]
+      export STORAGE_CLASS="local-path"
+    fi
+
+    envsubst <kube/pv-fabric-applications.yaml | kubectl -n "$NS" create -f - || true
+    envsubst <kube/pvc-fabric-applications.yaml | kubectl -n "$NS" create -f - || true
+
+    pop_fn
   fi
-
-  envsubst <kube/pv-fabric-applications.yaml | kubectl -n "$NS" create -f - || true
-  envsubst <kube/pvc-fabric-applications.yaml | kubectl -n "$NS" create -f - || true
-
-  pop_fn
 
   push_fn "Constructing application connection profiles"
 
@@ -202,6 +201,7 @@ function deploy_api() {
   construct_api_configmap
   # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/api:latest" application/api
   # docker push "${CONTAINER_REGISTRY_ADDRESS}/api:latest"
+
   envsubst <kube/api-deployment.yaml | kubectl -n "$NS" apply -f -
 }
 
@@ -272,6 +272,17 @@ EOF
 }
 
 function deploy_sla_client() {
+  if [ "$NO_VOLUMES" -eq 1 ]; then
+      export VOLUME_CLAIM="emptyDir: {}"
+    else
+      VOLUME_CLAIM=$(
+        cat <<EOF
+persistentVolumeClaim:
+            claimName: fabric-sla
+EOF
+      )
+  fi
+
   push_fn "Setting up files"
   export CHANNEL_NAME=${SLA_CHANNEL_NAME}
   export CHAINCODE_NAME=${SLA_CHAINCODE_NAME}
@@ -300,6 +311,17 @@ function deploy_sla_client() {
 }
 
 function deploy_vru_client() {
+    if [ "$NO_VOLUMES" -eq 1 ]; then
+      export VOLUME_CLAIM="emptyDir: {}"
+    else
+      VOLUME_CLAIM=$(
+        cat <<EOF
+persistentVolumeClaim:
+            claimName: fabric-vru
+EOF
+      )
+  fi
+
   push_fn "Setting up files"
   export CHANNEL_NAME=${VRU_CHANNEL_NAME}
   export CHAINCODE_NAME=${VRU_CHAINCODE_NAME}
@@ -328,6 +350,17 @@ function deploy_vru_client() {
 }
 
 function deploy_parts_client() {
+      if [ "$NO_VOLUMES" -eq 1 ]; then
+      export VOLUME_CLAIM="emptyDir: {}"
+    else
+      VOLUME_CLAIM=$(
+        cat <<EOF
+persistentVolumeClaim:
+            claimName: fabric-parts
+EOF
+      )
+  fi
+
   push_fn "Setting up files"
   export CHANNEL_NAME=${PARTS_CHANNEL_NAME}
   export CHAINCODE_NAME=${PARTS_CHAINCODE_NAME}
@@ -358,6 +391,17 @@ function deploy_parts_client() {
 }
 
 function deploy_sla_2_client() {
+      if [ "$NO_VOLUMES" -eq 1 ]; then
+      export VOLUME_CLAIM="emptyDir: {}"
+    else
+      VOLUME_CLAIM=$(
+        cat <<EOF
+persistentVolumeClaim:
+            claimName: fabric-sla-2
+EOF
+      )
+  fi
+
   push_fn "Setting up files"
   export CHANNEL_NAME=${SLA2_CHANNEL_NAME}
   export CHAINCODE_NAME=sla-version-2
@@ -404,6 +448,17 @@ function deploy_sla_2_client() {
 
 
 function identity_management() {
+    if [ "$NO_VOLUMES" -eq 1 ]; then
+      export VOLUME_CLAIM="emptyDir: {}"
+    else
+      VOLUME_CLAIM=$(
+        cat <<EOF
+persistentVolumeClaim:
+            claimName: fabric-identity-management
+EOF
+      )
+  fi
+
     push_fn "Building identity management pod"
     # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/identity-management:latest" application/identity_management
     # docker push "${CONTAINER_REGISTRY_ADDRESS}/identity-management:latest"

@@ -9,9 +9,12 @@ function launch_orderers() {
   push_fn "Launching orderers"
   local org0_ca_pod
   # Had some issues when developing with pushing an image, but getting a previous version
-  # so changing tags to avoid that
-  local TAG="1.0"
-
+  # so creating random tags to avoid that
+  if [ $RANDOM_TAG == 1 ]; then
+    local TAG=$(random_chars)
+  else
+    local TAG="latest"
+  fi
   if [ "$NO_VOLUMES" -eq 1 ]; then
     # Find the org-ca pod.
     org0_ca_pod=$(pod_from_name org0-ca "$NS")
@@ -51,8 +54,12 @@ function launch_orderers() {
 function launch_peers() {
   push_fn "Launching peers"
   # Had some issues when developing with pushing an image, but getting a previous version
-  # so changing tags to avoid that
-  local TAG="1.0"
+  # so creating random tags to avoid that
+  if [ $RANDOM_TAG == 1 ]; then
+    local TAG=$(random_chars)
+  else
+    local TAG="latest"
+  fi
 
   # TODO: Add org here
   for org in org1 org2 org3 org4; do
@@ -224,7 +231,7 @@ function cas_up() {
 }
 
 function orderers_and_peers_up() {
-  launch_orderers
+  # launch_orderers
   launch_peers
 }
 

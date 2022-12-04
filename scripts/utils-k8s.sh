@@ -151,3 +151,33 @@ function pod_from_name() {
   pod=$(kubectl -n "$NAMESPACE" get pods | grep "$PODNAME" | cut -d' ' -f1)
   echo "$pod"
 }
+
+function random_chars() {
+  local count=${1:-5}
+
+  echo $RANDOM | md5sum | head -c "$count"
+}
+
+# When called for a new pod, updates all existing hostfiles of other pods
+# with the new pods IP and name, and adds to the new pod the other hostnames.
+function update_pod_dns() {
+  local podname=$1
+  local poddata
+  local allPodsFile="${TEMP_DIR}/dns/pods"
+
+  mkdir -p "${TEMP_DIR}/dns"
+
+  poddata=$(kubectl get pods -n ${NS} -o wide --no-headers | awk '{print $6, "\t", $1}' | grep $podname)
+  podip=$(echo poddata | awk '{print $1}')
+  fullpodname=$(echo poddata | awk '{print $2}')
+  echo -e "$podip $podname" >>allPodsFile
+
+  pods=$(kubectl get pods -n ${NS} -o wide --no-headers | awk '{$1}')
+  for pod in "${pods[@]}"; do
+    if [ "$pod" == "$fullpodname" ]; then
+      kubectl -n ${NS} cp $allPodsFile "$pod":/
+      kubectl -n ${NS} exec $pod -- sh -c "cat $allPodsFile >> /etc/hosts"
+    fi
+    kubectl -n ${NS} exec $pod -- sh -c echo "$podip $podname" >>/etc/hosts
+  done
+}

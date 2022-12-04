@@ -39,7 +39,9 @@ function cluster_init() {
   if [ "$SELF_SIGNED_REGISTRY" == 1 ]; then
     add_registry_key
   fi
-  apply_dns
+  if [ "$SKIP_DNS" == 0 ]; then
+    apply_dns
+  fi
   apply_nginx_ingress
   apply_cert_manager
   apply_metrics_server

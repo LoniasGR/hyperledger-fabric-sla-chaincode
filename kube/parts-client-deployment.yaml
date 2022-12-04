@@ -49,5 +49,4 @@ spec:
           configMap:
             name: app-fabric-org3-tls-v1-map
         - name: data
-          persistentVolumeClaim:
-            claimName: fabric-parts
+          ${VOLUME_CLAIM}

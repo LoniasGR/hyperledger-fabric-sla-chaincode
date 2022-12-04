@@ -21,8 +21,10 @@ export PLEDGER_NETWORK_NO_VOLUMES=0
 export SKIP_SLA1=0
 export SKIP_SLA2=0
 export SELF_SIGNED_REGISTRY=0
+export SKIP_DNS=0
+export RANDOM_TAG=0
 
-export TAG=${PLEDGER_NETWORK_CONTAINER_REGISTRY_ADDRESS}
+export REGISTRY=${PLEDGER_NETWORK_CONTAINER_REGISTRY_ADDRESS}
 export PUSH=1
 
 export HOST_PATH=${HOME}
@@ -56,6 +58,8 @@ function destroy() {
 }
 
 function up() {
+    ./network-k8s.sh cas
+    ./network-k8s.sh channel init
     ./network-k8s.sh up
 }
 
@@ -64,7 +68,6 @@ function down() {
 }
 
 function set_channels() {
-    ./network-k8s.sh channel init
     if [ $SKIP_SLA1 -eq 0 ]; then
         ./network-k8s.sh channel create "$SLA_CHANNEL_NAME" 1
     fi
@@ -194,12 +197,20 @@ if [[ $# -ge 1 ]]; then
             export SKIP_SLA2=1
             shift
             ;;
-        --tag)
-            export TAG=$2
+        --registry)
+            export REGISTRY=$2
             shift 2
             ;;
         --no-push)
             export PUSH=0
+            shift
+            ;;
+        --skip-dns)
+            export SKIP_DNS=1
+            shift
+            ;;
+        --random-tag)
+            export RANDOM_TAG=1
             shift
             ;;
         *)

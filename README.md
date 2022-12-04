@@ -51,12 +51,15 @@ PLEDGER_NETWORK_CONTAINER_REGISTRY_PORT: Container registry port
 ```
 
 `fabric-k8s.sh` arguments:
-* `--no-volumes`: Disable volume mounting and uses emptyDirs. (EXPERIMENTAL: DOES NOT WORK)
-* `--skip-sla1`: Disable the creation of SLAv1 channel, chaincode and client. (EXPERIMENTAL: MIGHT BE BUGGY)
-* `--skip-sla2`: Disable the creation of SLAv2 channel and client. (EXPERIMENTAL: MIGHT BE BUGGY)
+* `--no-volumes` : Disable volume mounting and uses emptyDirs. (EXPERIMENTAL: DOES NOT WORK)
+* `--skip-sla1`  : Disable the creation of SLAv1 channel, chaincode and client. (EXPERIMENTAL: MIGHT BE BUGGY)
+* `--skip-sla2`  : Disable the creation of SLAv2 channel and client. (EXPERIMENTAL: MIGHT BE BUGGY)
+* `--registry`   : Explained below.
+* `--no-push`    : Explained below.
+* `--random-tag` : Use random tags when pushing images. (Avoid some weird issue with image versions on microk8s)
 
-1. Run `./fabric-k8s.sh RUNTIME build [--tag TAG] [--no-push]`
-   This will build with a specific optional tag and push all the container images.
+1. Run `./fabric-k8s.sh RUNTIME build [--registry REGISTRY] [--no-push]`
+   This will build with a specific optional registry and push all the container images.
 2. Run `./fabric-k8s.sh RUNTIME init`.
    Creates the KIND cluster, sets up ingress and cert-manager
 3. Run `./fabric-k8s.sh RUNTIME up`.

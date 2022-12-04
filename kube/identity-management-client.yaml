@@ -47,8 +47,7 @@ spec:
           configMap:
             name: app-fabric-ids-v1-map
         - name: wallets
-          persistentVolumeClaim:
-            claimName: fabric-identity-management
+          ${VOLUME_CLAIM}
 ---
 apiVersion: v1
 kind: Service
