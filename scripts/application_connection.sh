@@ -41,7 +41,7 @@ function construct_global_configmap() {
     if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
       export STORAGE_CLASS="standard"
 
-    else [ "${CLUSTER_RUNTIME}" == "k3s" ]
+    else
       export STORAGE_CLASS="local-path"
     fi
 
