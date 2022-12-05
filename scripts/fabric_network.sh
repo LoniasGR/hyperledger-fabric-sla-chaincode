@@ -231,7 +231,7 @@ function cas_up() {
 }
 
 function orderers_and_peers_up() {
-  # launch_orderers
+  launch_orderers
   launch_peers
 }
 
