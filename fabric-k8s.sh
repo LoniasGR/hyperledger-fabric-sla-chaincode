@@ -34,7 +34,7 @@ function login() {
 }
 
 function build() {
-    ./network-k8s.sh docker build "$TAG" "$PUSH"
+    ./network-k8s.sh docker build "$REGISTRY" "$PUSH"
 }
 
 function init() {
