@@ -160,12 +160,14 @@ function print_help() {
     echo "    up: Bring up all the peers, CAs and orderers of the network, as well as the channels"
     echo ""
     echo "ARGUMENTS:"
+    echo "    --self-signed-registry: Upload self-signed registry credentials to cluster"
     echo "    --skip-sla-1: Skip the deployment of the SLAv1 channel, chaincode and client"
     echo "    --skip-sla-2: Skip the deployment of the SLAv2 channel and client"
     echo "    --no-volumes: Do not create volumes for storage"
     echo "    --no-push: Used only with *build*. Do not push images to registry."
     echo "    --registry: Set a registry/path for the images (useful also when pushing)"
     echo "    --random-tag: Set a random tag for images - to avoid a bug where microk8s pulls an earlier image with the same tag"
+    echo "    --add-metrics-server: Skips installing the metrics server"
 }
 
 ## Parse mode
@@ -212,6 +214,10 @@ if [[ $# -ge 1 ]]; then
             ;;
         --random-tag)
             export RANDOM_TAG=1
+            shift
+            ;;
+        --with-metrics-server)
+            export WITH_METRICS_SERVER=1
             shift
             ;;
         *)
