@@ -42,6 +42,7 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - configmaps
   - pods
   - nodes
   verbs:
@@ -78,7 +79,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: metrics-server
-  namespace: ${NS}
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

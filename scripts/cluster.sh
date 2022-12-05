@@ -44,7 +44,9 @@ function cluster_init() {
   fi
   apply_nginx_ingress
   apply_cert_manager
-  apply_metrics_server
+  if [ "$WITH_METRICS_SERVER" == 1 ]; then
+    apply_metrics_server
+  fi
   if [ "$NO_VOLUMES" -eq 0 ]; then
     apply_storage
   fi
@@ -54,7 +56,9 @@ function cluster_init() {
   # wait_for_dns
   wait_for_cert_manager
   wait_for_nginx_ingress
-  wait_for_metrics_server
+  if [ "$WITH_METRICS_SERVER" == 1 ]; then
+    wait_for_metrics_server
+  fi
 }
 
 function cluster_clean() {
@@ -64,7 +68,9 @@ function cluster_clean() {
   if [ "$NO_VOLUMES" -eq 0 ]; then
     delete_storage
   fi
-  delete_metrics_server
+  if [ "$WITH_METRICS_SERVER" == 1 ]; then
+    delete_metrics_server
+  fi
   delete_namespace
 
   if [ "$SELF_SIGNED_REGISTRY" == 1 ]; then
@@ -91,7 +97,6 @@ function delete_registry_key_pod() {
 }
 
 function apply_dns() {
-  echo ${CLUSTER_RUNTIME}
   push_fn "Launching DNS"
   if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
     :
@@ -136,7 +141,7 @@ function apply_nginx_ingress() {
   # kind : 'kind'
   # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.2/deploy/static/provider/cloud/deploy.yaml
   if [ "${CLUSTER_RUNTIME}" == "kind" ]; then
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+    envsubst <kube/ingress-deployment-kind.yaml | kubectl apply -f -
   else
     envsubst <kube/ingress-deployment.yaml | kubectl apply -f -
   fi
@@ -158,7 +163,7 @@ function delete_nginx_ingress() {
 function wait_for_nginx_ingress() {
   push_fn "Waiting for ingress controller"
 
-  kubectl wait --namespace ${NS} \
+  kubectl wait --namespace "${NS}" \
     --for=condition=ready pod \
     --selector=app.kubernetes.io/component=controller \
     --timeout=2m
@@ -185,9 +190,9 @@ function delete_cert_manager() {
 function wait_for_cert_manager() {
   push_fn "Waiting for cert-manager"
 
-  kubectl -n ${NS} rollout status deploy/cert-manager
-  kubectl -n ${NS} rollout status deploy/cert-manager-cainjector
-  kubectl -n ${NS} rollout status deploy/cert-manager-webhook
+  kubectl -n "${NS}" rollout status deploy/cert-manager
+  kubectl -n "${NS}" rollout status deploy/cert-manager-cainjector
+  kubectl -n "${NS}" rollout status deploy/cert-manager-webhook
   pop_fn
 }
 
