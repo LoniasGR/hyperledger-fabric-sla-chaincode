@@ -164,7 +164,8 @@ function print_help() {
     echo "    --skip-sla-2: Skip the deployment of the SLAv2 channel and client"
     echo "    --no-volumes: Do not create volumes for storage"
     echo "    --no-push: Used only with *build*. Do not push images to registry."
-    echo "    --tag"
+    echo "    --registry: Set a registry/path for the images (useful also when pushing)"
+    echo "    --random-tag: Set a random tag for images - to avoid a bug where microk8s pulls an earlier image with the same tag"
 }
 
 ## Parse mode
