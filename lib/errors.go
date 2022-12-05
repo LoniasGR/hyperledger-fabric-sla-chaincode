@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func handleError(err error) {
+func HandleError(err error) {
 	if err != nil {
 		switch err := err.(type) {
 		case *client.EndorseError:
