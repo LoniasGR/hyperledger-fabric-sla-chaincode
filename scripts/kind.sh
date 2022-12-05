@@ -29,7 +29,7 @@ EOF
   fi
 
   # the 'ipvs'proxy mode permits better HA abilities
-  cat <<EOF
+  cat <<EOF | kind create cluster --name "$CLUSTER_NAME" --config=-
 ---
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -60,9 +60,9 @@ containerdConfigPatches:
 EOF
 
   # workaround for https://github.com/hyperledger/fabric-samples/issues/550 - pods can not resolve external DNS
-  # for node in $(kind get nodes); do
-  #   docker exec "$node" sysctl net.ipv4.conf.all.route_localnet=1
-  # done
+  for node in $(kind get nodes); do
+    docker exec "$node" sysctl net.ipv4.conf.all.route_localnet=1
+  done
 
   pop_fn
 }
