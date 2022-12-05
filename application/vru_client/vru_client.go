@@ -114,7 +114,7 @@ func main() {
 	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
 	_, err = contract.SubmitTransaction("InitLedger")
 	if err != nil {
-		log.Fatalf("failed to submit transaction: %v", err)
+		lib.HandleError(err)
 	}
 
 	// Open file for logging incoming json objects
@@ -123,16 +123,6 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 	defer lib.CloseJsonFile(f)
-
-	// err = c_vru.Assign([]kafka.TopicPartition{{
-	// 	Topic:     &topics[0],
-	// 	Partition: 0,
-	// 	Offset:    37000, // TODO
-	// }})
-	// if err != nil {
-	// 	fmt.Fprintf(os.Stderr, "Failed to assign offset: %s\n", err)
-	// 	os.Exit(1)
-	// }
 
 	var run bool = true
 	for run {
@@ -184,7 +174,7 @@ func main() {
 					string(vru_json),
 				)
 				if err != nil {
-					log.Println(string(lib.ColorRed), "failed to submit transaction:", string(lib.ColorReset), err)
+					lib.HandleError(err)
 					continue
 				}
 				log.Println(string(result))

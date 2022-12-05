@@ -3,12 +3,10 @@ module github.com/LoniasGR/hyperledger-fabric-sla-chaincode/application/sla_2.0_
 go 1.18
 
 require (
-	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221122192438-218b88c8760f
+	github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221205145047-1c074ec7f06b
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/hyperledger/fabric-gateway v1.1.1
-	github.com/hyperledger/fabric-protos-go-apiv2 v0.0.0-20220615102044-467be1c7b2e7
 	github.com/robfig/cron v1.2.0
-	google.golang.org/grpc v1.50.1
 	k8s.io/api v0.25.4
 	k8s.io/apimachinery v0.25.4
 	k8s.io/client-go v0.25.4
@@ -27,6 +25,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
+	github.com/hyperledger/fabric-protos-go-apiv2 v0.0.0-20220615102044-467be1c7b2e7 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
@@ -42,6 +41,7 @@ require (
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20221018160656-63c7b68cfc55 // indirect
+	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

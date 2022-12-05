@@ -112,7 +112,7 @@ func main() {
 	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
 	_, err = contract.SubmitTransaction("InitLedger")
 	if err != nil {
-		log.Fatalf("failed to submit transaction: %v", err)
+		lib.HandleError(err)
 	}
 
 	// Initialize the daily refunding process
@@ -168,13 +168,13 @@ func main() {
 
 				_, _, err := UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 1, *conf)
 				if err != nil {
-					log.Printf("%v", err)
+					lib.HandleError(err)
 					continue
 				}
 
 				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 1, *conf)
 				if err != nil {
-					log.Printf("%v", err)
+					lib.HandleError(err)
 					continue
 				}
 
@@ -185,7 +185,7 @@ func main() {
 					string(msg.Value),
 				)
 				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %v\n"+string(lib.ColorReset), err)
+					lib.HandleError(err)
 					continue
 				}
 				log.Println("submitted")
@@ -209,7 +209,7 @@ func main() {
 				log.Println(string(lib.ColorGreen), "--> Submit Transaction: SLAViolated, updates contracts details with ID, newStatus", string(lib.ColorReset))
 				result, err := contract.SubmitTransaction("SLAViolated", string(msg.Value))
 				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %v\n"+string(lib.ColorReset), err)
+					lib.HandleError(err)
 					continue
 				}
 				log.Println(string(result))

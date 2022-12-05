@@ -166,7 +166,7 @@ func main() {
 					// Init ledger
 					err = InitLedger(contract)
 					if err != nil {
-						handleError(err)
+						lib.HandleError(err)
 						continue
 					}
 					// Initialize the daily refunding process
@@ -179,25 +179,25 @@ func main() {
 
 				jsonToFile, _ := json.MarshalIndent(sla, "", " ")
 				if err = lib.WriteJsonObjectToFile(f_sla, jsonToFile); err != nil {
-					handleError(err)
+					lib.HandleError(err)
 				}
 				log.Println("Creating users and contract")
 
 				_, _, err = UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 4, *conf)
 				if err != nil {
-					handleError(err)
+					lib.HandleError(err)
 					continue
 				}
 
 				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 4, *conf)
 				if err != nil {
-					handleError(err)
+					lib.HandleError(err)
 					continue
 				}
 
 				err = CreateOrUpdateContract(contract, string(msg.Value))
 				if err != nil {
-					handleError(err)
+					lib.HandleError(err)
 					continue
 				}
 				log.Println("submitted")
@@ -226,7 +226,7 @@ func main() {
 
 				result, err := SLAViolated(contract, string(msg.Value))
 				if err != nil {
-					handleError(err)
+					lib.HandleError(err)
 					continue
 				}
 				log.Println(string(result))

@@ -109,7 +109,7 @@ func main() {
 
 	err = initLedger(contract)
 	if err != nil {
-		handleError(err)
+		lib.HandleError(err)
 		os.Exit(1)
 	}
 
@@ -156,7 +156,7 @@ func main() {
 
 			createContract(contract, string(msg.Value))
 			if err != nil {
-				handleError(err)
+				lib.HandleError(err)
 				continue
 			}
 		}

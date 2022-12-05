@@ -1,8 +1,8 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221121125000-14b3f8dd8d54 h1:Rx7fZex+BfYdiCxTtZfo2xKV1hcTZDsB6cH+ZLoBcQo=
-github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221121125000-14b3f8dd8d54/go.mod h1:Xx5UqvCb5R8xuzjIAmZYucFjhAPmfrNr5SAmxGVSmts=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221205145047-1c074ec7f06b h1:cX97LndGPqYTbJPAppGbKCC3opVYaMMkoRamSYepYHc=
+github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib v0.0.0-20221205145047-1c074ec7f06b/go.mod h1:DFfZiQ3YZOxEXIJZLhKBk1YWiSZskreuOgcPNP6/40M=
 github.com/actgardner/gogen-avro/v10 v10.1.0/go.mod h1:o+ybmVjEa27AAr35FRqU98DJu1fXES56uXniYFv4yDA=
 github.com/actgardner/gogen-avro/v10 v10.2.1/go.mod h1:QUhjeHPchheYmMDni/Nx7VB0RsT/ee8YIgGY/xpEQgQ=
 github.com/actgardner/gogen-avro/v9 v9.1.0/go.mod h1:nyTj6wPqDJoxM3qdnjcLv+EnMDSDFqE0qDpva2QRmKc=
