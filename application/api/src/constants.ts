@@ -16,19 +16,20 @@ export const VRUChaincodeName = envOrDefault('fabric_vru_contract', 'vru_positio
 export const PartsChannelName = envOrDefault('fabric_parts_channel', 'parts');
 export const PartsChaincodeName = envOrDefault('fabric_parts_contract', 'parts');
 
-export const SLA2ChannelName = envOrDefault('fabric_sla_channel', 'parts');
+export const SLA2ChannelName = envOrDefault('fabric_sla2_channel', 'sla2.0');
 
+export const SLA2Peer = envOrDefault('sla2_peer', 'grpc://org4-peer1:8051');
 
 export const org1MSPId = envOrDefault('ORG1_MSP_ID', 'Org1MSP');
 export const org2MSPId = envOrDefault('ORG2_MSP_ID', 'Org2MSP');
 export const org3MSPId = envOrDefault('ORG3_MSP_ID', 'Org3MSP');
-export const org4MSPId = envOrDefault('ORG3_MSP_ID', 'Org4MSP');
+export const org4MSPId = envOrDefault('ORG4_MSP_ID', 'Org4MSP');
 
 // Path to peer tls certificate.
 export const org1TlsCertPath = envOrDefault('ORG1_TLS_CERT_PATH', '/fabric/tlscacerts/org1/tlsca-signcert.pem');
 export const org2TlsCertPath = envOrDefault('ORG2_TLS_CERT_PATH', '/fabric/tlscacerts/org2/tlsca-signcert.pem');
 export const org3TlsCertPath = envOrDefault('ORG3_TLS_CERT_PATH', '/fabric/tlscacerts/org3/tlsca-signcert.pem');
-export const org4TlsCertPath = envOrDefault('ORG3_TLS_CERT_PATH', '/fabric/tlscacerts/org4/tlsca-signcert.pem');
+export const org4TlsCertPath = envOrDefault('ORG4_TLS_CERT_PATH', '/fabric/tlscacerts/org4/tlsca-signcert.pem');
 
 // Gateway peer endpoint.
 export const org1PeerEndpoint = envOrDefault('fabric_org1_gateway_hostport', 'localhost:7051');

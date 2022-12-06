@@ -1,13 +1,16 @@
 import * as grpc from '@grpc/grpc-js';
-import { connect, Gateway } from '@hyperledger/fabric-gateway';
+import { connect, Gateway, Contract } from '@hyperledger/fabric-gateway';
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 
 import axios from 'axios';
+import { normalize } from 'path';
 import * as utils from './utils';
 import * as constants from './constants';
-import { queryUsersByPublicKey, queryVRUTimeRange, queryPartsTimeRange } from './ledger';
+import {
+  queryUsersByPublicKey, queryVRUTimeRange, queryPartsTimeRange, UserData,
+} from './ledger';
 
 const app = express();
 app.use(express.json()); // for parsing application/json
@@ -92,7 +95,7 @@ async function checkAndInitializeKeys(key: string, cert: string): Promise<Gatewa
       gateway, grpcClient, keyPEM, certPEM,
     },
     org: organisation,
-    username: username,
+    username,
   };
 }
 
@@ -105,9 +108,12 @@ app.post('/init', async (req, res) => {
     return res.send({ success, error });
   }
 
-  return res.send({success: true, organisation: gatewayOrError.org, username: gatewayOrError.username});
+  return res.send({
+    success: true,
+    organisation: gatewayOrError.org,
+    username: gatewayOrError.username,
+  });
 });
-
 
 app.post('/balance', async (req, res) => {
   const { key, cert } = req.body;
@@ -212,6 +218,80 @@ app.post('/parts', async (req, res) => {
     // Get the asset details by assetID.
     const assets = await queryPartsTimeRange(contract, startDate, endDate);
     return res.send({ success: true, assets });
+  } finally {
+    gateway.close();
+    grpcClient.close();
+  }
+});
+
+app.post('/balance-sla2', async (req, res) => {
+  const { key, cert } = req.body;
+  const gatewayOrError = await checkAndInitializeKeys(key, cert);
+  if (gatewayOrError.error !== undefined) {
+    const { success, error } = gatewayOrError.error;
+    return res.send({ success, error });
+  }
+
+  if (gatewayOrError.org !== 4) {
+    return res.send({ success: false, error: 'User does not exist in this ledger' });
+  }
+
+  let ccs: Array<string> = [];
+  try {
+    ccs = await utils.connectWithPeer();
+    console.log(`Chaincodes: ${ccs}`);
+  } catch (e: any) {
+    console.error(e);
+    res.status(e).send({ success: false, error: 'Could not connect with peer' });
+  }
+
+  const gt: GatewayAndKeys = gatewayOrError.gateway!;
+  const {
+    gateway, grpcClient, certPEM,
+  } = gt;
+
+  try {
+    const errors: Array<string> = [];
+
+    // Get a network instance representing the channel where the smart contract is deployed.
+    const network = gateway.getNetwork(constants.SLA2ChannelName);
+
+    const contracts: Array<Contract | null> = ccs.map((cc) => {
+      try {
+        // Get the smart contract from the network.
+        return network.getContract(cc);
+      } catch {
+        console.error(`Contract ${cc} not found`);
+        return null;
+      }
+    });
+    const actualContracts: Array<Contract> = contracts.filter(
+      (contract): contract is Contract => contract !== null,
+    );
+    if (actualContracts.length === 0) {
+      return res.send({ success: false, error: 'No contracts found in channel' });
+    }
+
+    const user = await Promise.all(
+      actualContracts.map(async (contract) => {
+        const userOrError = await queryUsersByPublicKey(contract, utils.oneLiner(certPEM));
+        if (typeof userOrError === 'string') {
+          console.error(userOrError);
+          errors.push(userOrError);
+          return null;
+        }
+        return userOrError as UserData;
+      }),
+    );
+
+    const actualUser = user.filter((u): u is UserData => u !== null)
+      .reduce((prevUser, u) => ({
+        id: prevUser.id,
+        name: prevUser.name,
+        balance: prevUser.balance + u.balance,
+      }));
+
+    return res.send({ success: true, user: actualUser });
   } finally {
     gateway.close();
     grpcClient.close();
