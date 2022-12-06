@@ -268,6 +268,12 @@ elif [ "${MODE}" == "chaincodes" ]; then
     deploy_chaincodes
 elif [ "${MODE}" == "applications" ]; then
     applications
+elif [ "${MODE}" == "explorer" ]; then
+    explorer
+elif [ "${MODE}" == "api" ]; then
+    api
+elif [ "${MODE}" == "sla2" ]; then
+    sla2_client
 elif [ "${MODE}" == "down" ]; then
     down
 elif [ "${MODE}" == "full" ]; then
