@@ -47,9 +47,9 @@ function build_containers() {
     docker build -t "${TAG}/identity-management:latest" application/identity_management
     pop_fn
 
-    push_fn "Building ${TAG}/api client image"
-    docker build -t "${TAG}/api:latest" application/api
-    pop_fn
+    # push_fn "Building ${TAG}/api client image"
+    # docker build -t "${TAG}/api:latest" application/api
+    # pop_fn
 
     if [ $PUSH -ne 0 ]; then
         push_fn "Pushing images"
@@ -60,7 +60,7 @@ function build_containers() {
         docker push "$TAG/vru-client:latest"
         docker push "$TAG/parts-client:latest"
         # docker push "$TAG/sla2-client:latest"
-        docker push "$TAG/api:latest"
+        # docker push "$TAG/api:latest"
         docker push "$TAG/identity-management:latest"
         pop_fn
 

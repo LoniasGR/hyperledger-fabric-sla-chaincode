@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: ${CONTAINER_REGISTRY_ADDRESS}/api
+          image: ${CONTAINER_REGISTRY_ADDRESS}/api:${TAG}
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
@@ -42,6 +42,8 @@ spec:
               mountPath: /fabric/tlscacerts/org2
             - name: tlscerts-org3
               mountPath: /fabric/tlscacerts/org3
+            - name: tlscerts-org4
+              mountPath: /fabric/tlscacerts/org4
       volumes:
         - name: fabric-ccp
           configMap:
@@ -58,6 +60,9 @@ spec:
         - name: tlscerts-org3
           configMap:
             name: app-fabric-org3-tls-v1-map
+        - name: tlscerts-org4
+          configMap:
+            name: app-fabric-org4-tls-v1-map
 ---
 apiVersion: v1
 kind: Service

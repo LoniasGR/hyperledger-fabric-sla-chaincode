@@ -199,16 +199,28 @@ EOF
 
 function deploy_api() {
   construct_api_configmap
-  # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/api:latest" application/api
-  # docker push "${CONTAINER_REGISTRY_ADDRESS}/api:latest"
+  export TAG=latest
+  if [ "$RANDOM_TAG" = 1 ]; then
+    TAG="$(random_chars 5)"
+  fi
+  push_fn "Building and deploying API"
+  cp -r "${TEMP_DIR}/enrollments/org4/users/org4admin/msp" ./application/api/msp
+  cp config/org4/core.yaml ./application/api/core.yaml
+
+  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/api:$TAG" application/api
+  docker push "${CONTAINER_REGISTRY_ADDRESS}/api:$TAG"
 
   envsubst <kube/api-deployment.yaml | kubectl -n "$NS" apply -f -
+
+  rm -r ./application/api/msp
+  rm ./application/api/core.yaml
+  pop_fn
 }
 
 function explorer_config() {
   push_fn "Create Config Maps and secrets"
-  export orgNr=3
-  export EXPLORER_CHANNEL_NAME=parts
+  export orgNr=4
+  export EXPLORER_CHANNEL_NAME=sla2.0
   export EXPLORER_ORG_MSP=Org${orgNr}MSP
   export EXPLORER_ORG_PEER_GATEWAY=org${orgNr}-peer-gateway-svc
   export EXPLORER_CA_CERT_PATH=/fabric/tlscacerts/tlsca-signcert.pem
@@ -273,14 +285,14 @@ EOF
 
 function deploy_sla_client() {
   if [ "$NO_VOLUMES" -eq 1 ]; then
-      export VOLUME_CLAIM="emptyDir: {}"
-    else
-      VOLUME_CLAIM=$(
-        cat <<EOF
+    export VOLUME_CLAIM="emptyDir: {}"
+  else
+    VOLUME_CLAIM=$(
+      cat <<EOF
 persistentVolumeClaim:
             claimName: fabric-sla
 EOF
-      )
+    )
   fi
 
   push_fn "Setting up files"
@@ -297,8 +309,8 @@ EOF
   construct_application_configmap 1
   push_fn "Creating and deploying container"
 
-#   docker push "${CONTAI  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla-client:latest" application/sla_client
-# NER_REGISTRY_ADDRESS}/sla-client:latest"
+  #   docker push "${CONTAI  docker build -t "${CONTAINER_REGISTRY_ADDRESS}/sla-client:latest" application/sla_client
+  # NER_REGISTRY_ADDRESS}/sla-client:latest"
 
   envsubst <kube/sla-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
   envsubst <kube/sla-client-deployment.yaml | kubectl -n "${NS}" apply -f -
@@ -311,15 +323,15 @@ EOF
 }
 
 function deploy_vru_client() {
-    if [ "$NO_VOLUMES" -eq 1 ]; then
-      export VOLUME_CLAIM="emptyDir: {}"
-    else
-      VOLUME_CLAIM=$(
-        cat <<EOF
+  if [ "$NO_VOLUMES" -eq 1 ]; then
+    export VOLUME_CLAIM="emptyDir: {}"
+  else
+    VOLUME_CLAIM=$(
+      cat <<EOF
 persistentVolumeClaim:
             claimName: fabric-vru
 EOF
-      )
+    )
   fi
 
   push_fn "Setting up files"
@@ -350,15 +362,15 @@ EOF
 }
 
 function deploy_parts_client() {
-      if [ "$NO_VOLUMES" -eq 1 ]; then
-      export VOLUME_CLAIM="emptyDir: {}"
-    else
-      VOLUME_CLAIM=$(
-        cat <<EOF
+  if [ "$NO_VOLUMES" -eq 1 ]; then
+    export VOLUME_CLAIM="emptyDir: {}"
+  else
+    VOLUME_CLAIM=$(
+      cat <<EOF
 persistentVolumeClaim:
             claimName: fabric-parts
 EOF
-      )
+    )
   fi
 
   push_fn "Setting up files"
@@ -391,15 +403,15 @@ EOF
 }
 
 function deploy_sla_2_client() {
-      if [ "$NO_VOLUMES" -eq 1 ]; then
-      export VOLUME_CLAIM="emptyDir: {}"
-    else
-      VOLUME_CLAIM=$(
-        cat <<EOF
+  if [ "$NO_VOLUMES" -eq 1 ]; then
+    export VOLUME_CLAIM="emptyDir: {}"
+  else
+    VOLUME_CLAIM=$(
+      cat <<EOF
 persistentVolumeClaim:
             claimName: fabric-sla-2
 EOF
-      )
+    )
   fi
 
   push_fn "Setting up files"
@@ -431,7 +443,6 @@ EOF
   envsubst <kube/sla2-client-deployment.yaml | kubectl -n "${NS}" delete -f - || true
   envsubst <kube/sla2-client-deployment.yaml | kubectl -n "${NS}" apply -f -
 
-
   pop_fn
 
   # Cleanup
@@ -446,26 +457,25 @@ EOF
   rm application/sla_2.0_client/orderer-cert.pem
 }
 
-
 function identity_management() {
-    if [ "$NO_VOLUMES" -eq 1 ]; then
-      export VOLUME_CLAIM="emptyDir: {}"
-    else
-      VOLUME_CLAIM=$(
-        cat <<EOF
+  if [ "$NO_VOLUMES" -eq 1 ]; then
+    export VOLUME_CLAIM="emptyDir: {}"
+  else
+    VOLUME_CLAIM=$(
+      cat <<EOF
 persistentVolumeClaim:
             claimName: fabric-identity-management
 EOF
-      )
+    )
   fi
 
-    push_fn "Building identity management pod"
-    # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/identity-management:latest" application/identity_management
-    # docker push "${CONTAINER_REGISTRY_ADDRESS}/identity-management:latest"
-    # Maybe todo: change the namespace here
-    envsubst <kube/identity-management-client.yaml | kubectl -n "${NS}" delete -f - || true
-    envsubst <kube/identity-management-client.yaml | kubectl -n "${NS}" apply -f -
-    pop_fn "Identity management pod built"
+  push_fn "Building identity management pod"
+  # docker build -t "${CONTAINER_REGISTRY_ADDRESS}/identity-management:latest" application/identity_management
+  # docker push "${CONTAINER_REGISTRY_ADDRESS}/identity-management:latest"
+  # Maybe todo: change the namespace here
+  envsubst <kube/identity-management-client.yaml | kubectl -n "${NS}" delete -f - || true
+  envsubst <kube/identity-management-client.yaml | kubectl -n "${NS}" apply -f -
+  pop_fn "Identity management pod built"
 
 }
 
@@ -508,7 +518,7 @@ function application_command_group() {
     log "Deploying api: "
     deploy_api
     log "🏁 - API is ready."
-    elif [ "${COMMAND}" == "identity_management" ]; then
+  elif [ "${COMMAND}" == "identity_management" ]; then
     log "Deploying identity management API: "
     identity_management
     log "🏁 - Identity Management is ready."
