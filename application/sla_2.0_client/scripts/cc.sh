@@ -123,6 +123,17 @@ query_cc_installed() {
 
 }
 
+query_cc_installed_one_peer() {
+  orgNr=$1
+  tlsCertPath=$2
+  peerNr=$3
+  export_context "${orgNr}" "${peerNr}" "${tlsCertPath}"
+
+  peer lifecycle chaincode queryinstalled \
+    --peerAddresses ${CORE_PEER_ADDRESS} \
+    --tlsRootCertFiles ${CORE_PEER_TLS_ROOTCERT_FILE}
+}
+
 query_cc_metadata() {
   cc_name=$1
   orgNr=$2
@@ -191,6 +202,8 @@ elif [ "${MODE}" = "query" ]; then
 
   if [ "${SUBMODE}" = "installed" ]; then
     query_cc_installed "$@"
+  elif [ "${SUBMODE}" = "installed_one" ]; then
+    query_cc_installed_one_peer "$@"
   elif [ "${SUBMODE}" = "metadata" ]; then
     query_cc_metadata "$@"
   fi

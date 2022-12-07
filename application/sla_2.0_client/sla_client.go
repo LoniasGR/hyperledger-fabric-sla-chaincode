@@ -121,6 +121,11 @@ func main() {
 	}
 	defer lib.CloseJsonFile(f_vio)
 
+	// Initialize the daily refunding process
+	c := cron.New()
+	c.AddFunc("@midnight", func() { runRefunds(4, network, *conf) })
+	c.Start()
+
 	var run bool = true
 	for run {
 		select {
@@ -169,10 +174,6 @@ func main() {
 						lib.HandleError(err)
 						continue
 					}
-					// Initialize the daily refunding process
-					c := cron.New()
-					c.AddFunc("@midnight", func() { runRefunds(*contract) })
-					c.Start()
 				}
 
 				contract := network.GetContract(contractName)
@@ -185,19 +186,19 @@ func main() {
 
 				_, _, err = UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 4, *conf)
 				if err != nil {
-					lib.HandleError(err)
+					lib.lib.HandleError(err)
 					continue
 				}
 
 				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 4, *conf)
 				if err != nil {
-					lib.HandleError(err)
+					lib.lib.HandleError(err)
 					continue
 				}
 
 				err = CreateOrUpdateContract(contract, string(msg.Value))
 				if err != nil {
-					lib.HandleError(err)
+					lib.lib.HandleError(err)
 					continue
 				}
 				log.Println("submitted")
@@ -239,13 +240,22 @@ func main() {
 	}
 }
 
-func runRefunds(contract client.Contract) error {
-	log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-	RefundAllSLAs, refund all SLAs`, string(lib.ColorReset))
-
-	_, err := contract.SubmitTransaction("RefundAllSLAs")
+func runRefunds(orgNr int, network *client.Network, conf lib.Config) error {
+	ccs, err := GetAllInstalled(orgNr, conf)
 	if err != nil {
-		return fmt.Errorf(string(lib.ColorRed)+"failed to submit transaction: %w\n"+string(lib.ColorReset), err)
+		fmt.Println(err)
+		return err
+	}
+
+	for _, cc := range ccs {
+		log.Println(string(lib.ColorGreen), `--> Submit Transaction:
+	RefundAllSLAs, refund all SLAs`, string(lib.ColorReset))
+		contract := network.GetContract(cc)
+		_, err := contract.SubmitTransaction("RefundAllSLAs")
+		if err != nil {
+			lib.HandleError(err)
+			return err
+		}
 	}
 	return nil
 }

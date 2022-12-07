@@ -372,6 +372,30 @@ func QueryInstalled(orgNr int, ccName string, conf lib.Config) (bool, error) {
 	return match, nil
 }
 
+func GetAllInstalled(orgNr int, conf lib.Config) ([]string, error) {
+	args := []string{
+		"./scripts/cc.sh",
+		"query",
+		"installed_one",
+		strconv.Itoa(orgNr),
+		conf.TlsCertPath,
+		"1", // peer number
+	}
+
+	res, err := runCommand(args, nil, nil)
+	if err != nil {
+		return []string{}, err
+	}
+	r, _ := regexp.Compile("Label: .*\n")
+	ccs_with_label := r.FindAllString(res.String(), -1)
+
+	ccs := make([]string, 0)
+	for _, cc := range ccs_with_label {
+		ccs = append(ccs, strings.TrimSpace(strings.Split(cc, " ")[1]))
+	}
+	return ccs, nil
+}
+
 func checkCommitReadiness(orgNr int, ccName string, conf lib.Config) error {
 	env := []string{
 		"CHANNEL_NAME=" + conf.ChannelName,
