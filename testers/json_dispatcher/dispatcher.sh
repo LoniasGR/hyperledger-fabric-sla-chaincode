@@ -63,15 +63,32 @@ function runDispatcher() {
 function printHelp() {
     println "USAGE:"
     println
-    println "./run_dispatcher.sh {json} {channel} {env}"
+    println "./run_dispatcher.sh {json} {channel} {env} [--count n]"
     println "    json: The path to the json file"
     println "    channel: The channel to which it has to be submitted to"
     println "    env: prod or dev"
 }
 
-if [ $# -ne 3 ]; then
+if [ $# -lt 3 ]; then
     printHelp
-    exit 0
-else
-    runDispatcher "${1}" "${2}" "${3}"
+    exit 1
 fi
+
+COUNT=1
+JSON=${1}
+CHANNEL=${2}
+ENV=${3}
+shift 3
+
+while [ $# -gt 1 ]; do
+  case $1 in
+    --count)
+      COUNT=$2
+      shift 2
+  esac
+done
+
+while [ "$COUNT" -gt 0 ]; do
+  runDispatcher "$JSON" "$CHANNEL" "$ENV"
+  (( COUNT-- ))
+done
