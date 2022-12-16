@@ -33,7 +33,7 @@
   "scripts": {
     "start": "node build/src/index.js",
     "dev": "npm run clean; nodemon src/index.ts",
-    "build-dist": "./node_modules/typescript/bin/tsc",
+    "build": "./node_modules/typescript/bin/tsc",
     "clean": "rm -rf ./wallet_*"
   }
 }

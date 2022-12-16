@@ -1,0 +1,9 @@
+{
+	"network-configs": {
+		"${NS}": {
+			"name": "${NS}",
+			"profile": "/opt/explorer/app/platform/fabric/connection-profile/network.json"
+		}
+	},
+	"license": "Apache-2.0"
+}

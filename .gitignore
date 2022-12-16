@@ -3,7 +3,7 @@
 *.pem
 *.p12
 *.properties
-
+*.crt
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -60,3 +60,6 @@ bin
 # Log files
 network.log
 network-debug.log
+
+# Docker credentials file
+.docker_credentials.json

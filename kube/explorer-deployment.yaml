@@ -1,0 +1,108 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: explorer
+  template:
+    metadata:
+      labels:
+        app: explorer
+    spec:
+      containers:
+        - name: explorer
+          image: hyperledger/explorer:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: app-fabric-explorer-v1-map
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "0.1"
+          volumeMounts:
+            - name: admin-private-key
+              mountPath: /fabric/keys/key.pem
+              subPath: key.pem
+            - name: admin-public-key
+              mountPath: /fabric/keys/cert.pem
+              subPath: cert.pem
+            - name: tlscerts
+              mountPath: /fabric/tlscacerts
+            - name: walletstore
+              mountPath: /opt/explorer/wallet
+            - name: general-config
+              mountPath: /opt/explorer/app/platform/fabric/config.json
+              subPath: config.json
+            - name: network-config
+              mountPath: /opt/explorer/app/platform/fabric/connection-profile
+          ports:
+            - containerPort: 8000
+
+      volumes:
+        - name: admin-private-key
+          configMap:
+            name: app-fabric-explorer-pk-v1
+        - name: admin-public-key
+          configMap:
+            name: app-fabric-explorer-cert-v1
+        - name: tlscerts
+          configMap:
+            name: app-fabric-org${orgNr}-tls-v1-map
+        - name: walletstore
+          emptyDir: {}
+        - name: network-config
+          configMap:
+            name: app-fabric-explorer-network-v1
+        - name: general-config
+          configMap:
+            name: app-fabric-explorer-config-v1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: explorer
+spec:
+  ports:
+    - name: explorer-http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+  selector:
+    app: explorer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: 60s
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+  labels:
+    app: explorer
+  name: explorer
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: explorer.${DOMAIN}
+      http:
+        paths:
+          - backend:
+              service:
+                name: explorer
+                port:
+                  name: explorer-http
+            path: /
+            pathType: ImplementationSpecific
+  # tls:
+  #   - hosts:
+  #       - explorer.${DOMAIN}

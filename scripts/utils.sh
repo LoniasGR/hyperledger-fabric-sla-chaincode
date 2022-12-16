@@ -36,8 +36,3 @@ function fatalln() {
   errorln "$1"
   exit 1
 }
-
-export -f errorln
-export -f successln
-export -f infoln
-export -f warnln

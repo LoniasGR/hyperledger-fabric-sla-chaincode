@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import * as grpc from '@grpc/grpc-js';
 import { Identity, Signer, signers } from '@hyperledger/fabric-gateway';
+import { spawn } from 'node:child_process';
 import { promises as fs } from 'fs';
 
 import * as errors from './errors';
@@ -28,7 +29,6 @@ export async function displayInputParameters(org: number): Promise<void> {
   if (org === 1) {
     console.debug('**          ORG 1              **');
     console.debug(`mspId:             ${constants.org1MSPId}`);
-    console.debug(`cryptoPath:        ${constants.org1CryptoPath}`);
     console.debug(`tlsCertPath:       ${constants.org1TlsCertPath}`);
     console.debug(`peerEndpoint:      ${constants.org1PeerEndpoint}`);
     console.debug(`peerHostAlias:     ${constants.org1PeerHostAlias}`);
@@ -36,7 +36,6 @@ export async function displayInputParameters(org: number): Promise<void> {
   if (org === 2) {
     console.debug('**          ORG 2              **');
     console.debug(`mspId:             ${constants.org2MSPId}`);
-    console.debug(`cryptoPath:        ${constants.org2CryptoPath}`);
     console.debug(`tlsCertPath:       ${constants.org2TlsCertPath}`);
     console.debug(`peerEndpoint:      ${constants.org2PeerEndpoint}`);
     console.debug(`peerHostAlias:     ${constants.org2PeerHostAlias}`);
@@ -44,10 +43,17 @@ export async function displayInputParameters(org: number): Promise<void> {
   if (org === 3) {
     console.debug('**          ORG 3              **');
     console.debug(`mspId:             ${constants.org3MSPId}`);
-    console.debug(`cryptoPath:        ${constants.org3CryptoPath}`);
     console.debug(`tlsCertPath:       ${constants.org3TlsCertPath}`);
     console.debug(`peerEndpoint:      ${constants.org3PeerEndpoint}`);
     console.debug(`peerHostAlias:     ${constants.org3PeerHostAlias}`);
+  }
+
+  if (org === 4) {
+    console.debug('**          ORG 3              **');
+    console.debug(`mspId:             ${constants.org4MSPId}`);
+    console.debug(`tlsCertPath:       ${constants.org4TlsCertPath}`);
+    console.debug(`peerEndpoint:      ${constants.org4PeerEndpoint}`);
+    console.debug(`peerHostAlias:     ${constants.org4PeerHostAlias}`);
   }
   console.debug('*********************************');
 }
@@ -130,4 +136,40 @@ export function verifyKeys(key: string, cert: string): KeysWithStatus {
   return {
     success: true, keyPEM, certPEM, error: '',
   };
+}
+
+export async function connectWithPeer(): Promise<Array<string>> {
+  const env = {
+    ...process.env,
+    FABRIC_CFG_PATH: '/fabric',
+    CORE_PEER_MSPCONFIGPATH: '/msp',
+  };
+
+  return new Promise((resolve, reject) => {
+    const fabricQuery = spawn('peer', [
+      'lifecycle',
+      'chaincode',
+      'queryinstalled',
+      '--peerAddresses', constants.org4PeerEndpoint,
+      '--tlsRootCertFiles', constants.org4TlsCertPath,
+    ], {
+      env,
+    });
+
+    let ccs: Array<string> = [];
+    fabricQuery.stdout.on('data', (data: Buffer) => {
+      const label = data.toString().match(/Label: .*/g);
+      if (label !== null) {
+        ccs = ccs.concat(label.map((val) => val.split(' ')[1]));
+      }
+    });
+
+    fabricQuery.on('close', (code) => {
+      if (code === 0) {
+        resolve(ccs);
+      } else {
+        reject(code);
+      }
+    });
+  });
 }

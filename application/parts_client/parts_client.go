@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -10,62 +9,56 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils"
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
-	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
+	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
 
-var walletLocation = "wallet"
+func loadConfig() *lib.Config {
+	conf := lib.Config{}
+	conf.TlsCertPath = "/fabric/tlscacerts/tlsca-signcert.pem"
+	conf.PeerEndpoint = os.Getenv("fabric_gateway_hostport")
+	conf.GatewayPeer = os.Getenv("fabric_gateway_sslHostOverride")
+	conf.ChannelName = os.Getenv("fabric_channel")
+	conf.ChaincodeName = os.Getenv("fabric_contract")
+	conf.IdentityEndpoint = os.Getenv("identity_endpoint")
+	conf.ConsumerGroup = os.Getenv("consumer_group")
+	conf.DataFolder = os.Getenv("data_folder")
+	conf.JSONFiles = make([]string, 1)
+	conf.JSONFiles[0] = filepath.Join(conf.DataFolder, "parts.json")
 
-var orgID int = 3
-var userID int = 1
+	b, err := os.ReadFile("/fabric/application/wallet/appuser_org3.id")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+	var userConf lib.UserConfig
+	err = json.Unmarshal(b, &userConf)
+	if err != nil {
+		log.Fatalf("failed to unmarsal userConf: %v", err)
+	}
 
-var channelName string = "parts"
-var contractName string = "parts"
+	conf.UserConf = &userConf
+
+	log.Print(conf)
+	log.Print(userConf)
+
+	return &conf
+}
 
 func main() {
+	conf := loadConfig()
 
 	// The topics that will be used
 	topics := make([]string, 1)
 	topics[0] = "uc3-dlt"
 
 	log.Println("============ application-golang starts ============")
-	err := lib.SetDiscoveryAsLocalhost(true)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
 
 	configFile := lib.ParseArgs()
 
-	ccpPath := filepath.Join(
-		"..",
-		"..",
-		"..",
-		"test-network",
-		"organizations",
-		"peerOrganizations",
-		fmt.Sprintf("org%d.example.com", orgID),
-		fmt.Sprintf("connection-org%d.yaml", orgID),
-	)
-
-	credPath := filepath.Join(
-		"..",
-		"..",
-		"..",
-		"test-network",
-		"organizations",
-		"peerOrganizations",
-		fmt.Sprintf("org%d.example.com", orgID),
-		"users",
-		fmt.Sprintf("User%d@org%d.example.com", userID, orgID),
-		"msp",
-	)
-
-	c_parts, err := kafkaUtils.CreateConsumer(*configFile[0], "queen-of-the-year")
+	c_parts, err := lib.CreateConsumer(*configFile[0], conf.ConsumerGroup, "beginning")
 	if err != nil {
-		log.Fatalf("error in parts_go: %v", err)
+		log.Fatalf("failed to create consumer: %v", err)
 	}
 
 	// Subscribe to topic
@@ -78,44 +71,50 @@ func main() {
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
-	wallet, err := gateway.NewFileSystemWallet(walletLocation)
+	clientConnection, err := lib.NewGrpcConnection(*conf)
 	if err != nil {
-		log.Fatalf("Failed to create wallet: %v", err)
+		log.Fatalf("failed to establish GRPC connection: %v", err)
+	}
+	defer clientConnection.Close()
+
+	id, err := lib.NewIdentity(*conf)
+	if err != nil {
+		log.Fatalf("failed to create new identity: %v", err)
 	}
 
-	if !wallet.Exists("appUser") {
-		err = lib.PopulateWallet(wallet, credPath, orgID)
-		if err != nil {
-			log.Fatalf("Failed to populate wallet contents: %v", err)
-		}
+	sign, err := lib.NewSign(*conf)
+	if err != nil {
+		log.Fatalf("failed to create new signature: %v", err)
+
 	}
 
-	gw, err := gateway.Connect(
-		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
-		gateway.WithIdentity(wallet, "appUser"),
+	// Create a Gateway connection for a specific client identity
+	gw, err := client.Connect(
+		id,
+		client.WithSign(sign),
+		client.WithClientConnection(clientConnection),
+		// Default timeouts for different gRPC calls
+		client.WithEvaluateTimeout(5*time.Second),
+		client.WithEndorseTimeout(15*time.Second),
+		client.WithSubmitTimeout(5*time.Second),
+		client.WithCommitStatusTimeout(1*time.Minute),
 	)
 	if err != nil {
 		log.Fatalf("failed to connect to gateway: %v", err)
 	}
 	defer gw.Close()
 
-	network, err := gw.GetNetwork(channelName)
-	if err != nil {
-		log.Fatalf("failed to get network: %v", err)
-	}
-	log.Println("Channel connected")
+	network := gw.GetNetwork(conf.ChannelName)
+	contract := network.GetContract(conf.ChaincodeName)
 
-	contract := network.GetContract(contractName)
-
-	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
-	result, err := contract.SubmitTransaction("InitLedger")
+	err = initLedger(contract)
 	if err != nil {
-		log.Fatalf("failed to submit transaction: %v", err)
+		lib.HandleError(err)
+		os.Exit(1)
 	}
-	log.Println(string(result))
 
 	// Open file for logging incoming json objects
-	f, err := lib.OpenJsonFile("parts.json")
+	f, err := lib.OpenJsonFile(conf.JSONFiles[0])
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -133,19 +132,21 @@ func main() {
 				if err.(kafka.Error).Code() == kafka.ErrTimedOut {
 					continue
 				}
-				log.Fatalf("consumer failed to read: %v", err)
+				log.Printf("consumer failed to read: %v", err)
+				continue
 			}
 			// Print object as json
-			log.Println(string(msg.Value), '\n')
+			log.Println(string(msg.Value))
 
 			var part lib.Part
 
 			// Unmarshal object and print it to stdout
 			err = json.Unmarshal(msg.Value, &part)
 			if err != nil {
-				log.Fatalf("failed to unmarshal: %s", err)
+				log.Printf("failed to unmarshal: %v", err)
+				continue
 			}
-			log.Println(part, '\n')
+			log.Println(part)
 
 			// Write json object to file
 			jsonToFile, _ := json.MarshalIndent(part, "", " ")
@@ -153,17 +154,11 @@ func main() {
 				log.Printf("%v", err)
 			}
 
-			log.Println(string(lib.ColorGreen), `--> Submit Transaction:
-				CreateContract, creates new parts entry with ID, Timestamp
-				and all Document details`, string(lib.ColorReset))
-			result, err = contract.SubmitTransaction("CreateContract",
-				string(msg.Value),
-			)
+			createContract(contract, string(msg.Value))
 			if err != nil {
-				log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+				lib.HandleError(err)
 				continue
 			}
-			fmt.Println(string(result))
 		}
 	}
 }

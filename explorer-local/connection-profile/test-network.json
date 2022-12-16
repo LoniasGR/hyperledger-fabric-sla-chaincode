@@ -1,0 +1,48 @@
+{
+	"name": "${NS}",
+	"version": "1.0.0",
+	"client": {
+		"tlsEnable": true,
+		"adminCredential": {
+			"id": "exploreradmin",
+			"password": "exploreradminpw"
+		},
+		"enableAuthentication": true,
+		"organization": "${EXPLORER_ORG_MSP}",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+	"channels": {
+		"${EXPLORER_CHANNEL_NAME}": {
+			"peers": {
+				"${EXPLORER_ORG_PEER_GATEWAY}": {}
+			}
+		}
+	},
+	"organizations": {
+		"${EXPLORER_ORG_MSP}": {
+			"mspid": "${EXPLORER_ORG_MSP}",
+			"adminPrivateKey": {
+				"path": "${EXPLORER_ADMIN_PK}"
+			},
+			"peers": ["${EXPLORER_ORG_PEER_GATEWAY}"],
+			"signedCert": {
+				"path": "${EXPLORER_ADMIN_CERT}"
+			}
+		}
+	},
+	"peers": {
+		"${EXPLORER_ORG_PEER_GATEWAY}": {
+			"tlsCACerts": {
+				"path": "${EXPLORER_CA_CERT_PATH}"
+			},
+			"url": "grpcs://${EXPLORER_ORG_GATEWAY_PORT}"
+		}
+	}
+}

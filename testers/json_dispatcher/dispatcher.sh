@@ -37,30 +37,58 @@ function runDispatcher() {
     ENV=${3}
 
     if [ "$ENV" = "prod" ]; then
-        FILE="../../kafka-config/producer.properties"
+        cp ../../config/kafka/producer.properties ${PWD}
+        cp ../../config/kafka/server.cer.pem ${PWD}
+        cp ../../config/kafka/kafka.client.keystore.jks ${PWD}
+        cp ../../config/kafka/kafka.client.truststore.jks ${PWD}
+
     elif [ "$ENV" = "dev" ]; then
-            FILE="../../kafka-config/producer.properties.dev"
+            cp ../../config/kafka/producer.properties.dev ${PWD}/producer.properties
     else
         errorln "Unknown environment provided"
         printHelp
         exit 1
     fi
     COMMAND="go run ."
-    eval "$COMMAND -f $FILE -json $JSON -type $CHANNEL"
+    eval "$COMMAND -f producer.properties -json $JSON -type $CHANNEL"
+
+    rm producer.properties
+    rm server.cer.pem || true
+    rm kafka.client.keystore.jks || true
+    rm kafka.client.truststore.jks || true
+
+
 }
 
 function printHelp() {
     println "USAGE:"
     println
-    println "./run_dispatcher.sh {json} {channel} {env}"
+    println "./run_dispatcher.sh {json} {channel} {env} [--count n]"
     println "    json: The path to the json file"
     println "    channel: The channel to which it has to be submitted to"
     println "    env: prod or dev"
 }
 
-if [ $# -ne 3 ]; then
+if [ $# -lt 3 ]; then
     printHelp
-    exit 0
-else
-    runDispatcher "${1}" "${2}" "${3}"
+    exit 1
 fi
+
+COUNT=1
+JSON=${1}
+CHANNEL=${2}
+ENV=${3}
+shift 3
+
+while [ $# -gt 1 ]; do
+  case $1 in
+    --count)
+      COUNT=$2
+      shift 2
+  esac
+done
+
+while [ "$COUNT" -gt 0 ]; do
+  runDispatcher "$JSON" "$CHANNEL" "$ENV"
+  (( COUNT-- ))
+done

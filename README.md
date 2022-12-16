@@ -1,93 +1,87 @@
 # Hyperledger Fabric SLA Chaincode
 
-## Setup
+An as-flexible-as-it can-be deployment system for the DLT infrastructure on Kubernetes.
 
-- Install fabric-samples
+Can probably be used in any kubernetes runtime with minimal configuration. For now, the only expectations
+are:
 
-```bash
-mkdir -p $HOME/go/src/github.com/<your_github_userid>
-cd $HOME/go/src/github.com/<your_github_userid>
-curl -sSL https://bit.ly/2ysbOFE | bash -s
+* A kubernetes cluster running somewhere locally or on the cloud.
+* A Container Networking Interface (CNI), with or without support for NetworkPolicies. (This should be bundled with your
+kubernetes runtime, unless you go for bare metal)
+* A KV database (any will do, most K8s installations come with etcd installed).
+* A DNS and service discovery service (K8s usually comes bundled with CoreDNS out of the box, or easy very easy to enable).
+
+The rest (Ingress, Storage, Certificates management) will be installed in the cluster creation process.
+
+## Preparations
+
+To deploy the network, the kafka configuration is needed for the consumers. To create it:
+
+1. Install `openjdk-8-jre-headless` or similar (`keytool` is needed) and `openssl`.
+2. Run `scripts/JKS2PEM.sh`.
+   For example run:
+   ```bash
+    ./scripts/JKS2PEM.sh ./kafka-config/kafka.client.truststore.jks ./kafka-config/server.cer.pem
+   ```
+3. Copy all kafka configuration files to `config/kafka`.
+4. Copy `docker_credentials.json.example` to `docker_credentials.json` and change the credentials so that you can
+   push on the registry of your choice.
+5. If using a private registry with a self-signed certificate, you will need to add the certificate to the authorized certificates of the node. This can be done when running the `cluster` command with `--self-signed-registry`. You will have to put your certificate in `config/docker` with name `ca.crt`.
+
+## Deploy on Kubernetes
+
+RUNTIME marks your K8s runtime.
+
+Important enviromental variables:
+
+```
+NO_VOLUMES (0 or 1): Controlls wether there are volumes used or emptyDir
+SLA_CHANNEL_NAME: Name of SLA channel
+VRU_CHANNEL_NAME: Name of VRU channel
+PARTS_CHANNEL_NAME: Name of parts channel
+SLA2_CHANNEL_NAME: Name of SLA 2.0 channel
+SLA_CHAINCODE_NAME: SLA chaincode name
+VRU_CHAINCODE_NAME: VRU chaincode name
+PARTS_CHAINCODE_NAME: Parts chaincode name
+SLA_CC_SRC_PATH: SLA chaincode path
+VRU_CC_SRC_PATH: VRU chaincode path
+PARTS_CC_SRC_PATH: Parts chaincode path
+PLEDGER_NETWORK_CONTAINER_REGISTRY_HOSTNAME: Container registry hostname
+PLEDGER_NETWORK_CONTAINER_REGISTRY_PORT: Container registry port
 ```
 
-- Clone project into fabric-samples folder
+`fabric-k8s.sh` arguments:
+* `--no-volumes` : Disable volume mounting and uses emptyDirs. (EXPERIMENTAL: DOES NOT WORK)
+* `--skip-sla1`  : Disable the creation of SLAv1 channel, chaincode and client. (EXPERIMENTAL: MIGHT BE BUGGY)
+* `--skip-sla2`  : Disable the creation of SLAv2 channel and client. (EXPERIMENTAL: MIGHT BE BUGGY)
+* `--registry`   : Explained below.
+* `--no-push`    : Explained below.
+* `--random-tag` : Use random tags when pushing images. (Avoid some weird issue with image versions on microk8s)
 
-```bash
-cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples
-git clone https://github.com/LoniasGR/hyperledger-fabric-sla-chaincode.git
-```
+1. Run `./fabric-k8s.sh RUNTIME build [--registry REGISTRY] [--no-push]`
+   This will build with a specific optional registry and push all the container images.
+2. Run `./fabric-k8s.sh RUNTIME init`.
+   Creates the KIND cluster, sets up ingress and cert-manager
+3. Run `./fabric-k8s.sh RUNTIME up`.
+   Brings up the CAs, orderers and peers.
+4. Run `./fabric-k8s.sh RUNTIME channels`.
+   Brings up the channels.
+5. Login to the container registry by running `./fabric-k8s.sh login`.
+   This needs to happen now, because namespace to have been created.
+6. Run `./fabric-k8s.sh RUNTIME chaincodes`.
+   Brings up the channels.
+7. Run `./fabric-k8s.sh RUNTIME applications`.
+   Deploys chaincodes and clients.
 
-- Spin up the Kafka container
+## Shut down network
 
-```bash
-cd $HOME/go/src/github.com/<your_github_userid>/fabric-samples/hyperledger-fabric-sla-chaincode/docker
-docker-compose up -d
-```
+Run `./fabric-k8s.sh RUNTIME down`
 
-- Start Fabric Network
+## Remove the KIND cluster
 
-```bash
-cd ..
-bash startFabric.sh
-```
+Run `./fabric-k8s.sh unkind`
 
-- Run fabric application
 
-```bash
-cd ../../application
-bash runclient.sh
-```
+## Changes needed to run on cloud
 
-- Run kafka producer on another terminal
-
-```bash
-cd testers/producer
-go run sample-producer.go  -f ../../kafka-config/producer.properties.dev
-```
-
-## CouchDB
-
-Default credentials:
-URL: http://localhost:5984/\_utils/
-Username: admin
-Password: adminpw
-
-## Fabric Explorer
-
-Port: 8080
-Username: exploreradmin
-Password: exploreradminpw
-
-## TODO
-
-- [x] "provider": { "id": "my_id", "name": "Pledger Platform1" }, "client": { "id": "c02", "name": "A client" }.
-- [x] Rename `mychannel` to `SLA`.
-- [x] Rename `sla` chaincode to `sla_contracts` and `sla_violation` to `sla_violation`.
-- [x] When a violation happens there will be a transfer of tokens (ERC-20 style).
-- [x] `smartcontract.go` function SLAViolation Compensation scheme.
-- [x] Slides ~30 Hyperledger - Deadline: Start of January.
-- [x] Slides ~30 Etherium - Deadline: Start of January.
-- [x] `client.go` Wallet management (provider wallet, customer wallet).
-- [x] App that when given a user certificates connects to Hyperledger.
-- [x] Chrome Extension - fix formatting
-- [x] Use case 3 (see JSON) - create. channel name: "parts", topic: "uc3-dtl"
-- [x] Use case 2: Return number of JSONs in time-range.
-- [x] Get number of products based time range based on quality (total, quality 1, quality 0). [10/05]
-- [x] Extension buttons to pick Use Case. []
-- [x] Use case 2: We got the data - think how to do it.
-- [x] Check if UC2 client works w/ Partners. [05/05]
-- [x] Range queries for use case 2/3: new chaincode w/ name: vru/? - store & retrieve for a time range - use fabcar example
-- [x] Running a Status node (whisper protocol): https://status.im/technical/run_status_node.html
-- [ ] Connect wallets, violation function and ERC-20
-
-- [x] UC2: High Risk/Low Risk/No Risk data on wallet []
-
-- [x] Different users/OUs to different channels. [priority 1]
-- [x] Time measurements of how long it takes to deploy SLAs.
-- [ ] SLA 1.1 -> Start chaincodes through the chaincodeapi. [priority 1]
-- [ ] Video wallet demo showing that one user cannot see stuff from other channels. [priority 1]
-- [ ] Trusted Execution Environment module (new git branch - in go from feature preview bracnh) -> https://github.com/hyperledger/fabric-private-chaincode. [priority 2]
-- [ ] Move to Kubernetes (SLASC bridge v.1). [priority 2]
-- [ ] Containerize the client. [priority 2]
-
-- [ ] Clients connect to our own status node. Check out how the client works. [priority 2]
+Override the corresponding variables from `network-k8s.sh` with the proper ones.

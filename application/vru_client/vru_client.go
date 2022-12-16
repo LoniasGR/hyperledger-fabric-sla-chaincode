@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -10,60 +9,58 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/kafkaUtils"
 	"github.com/LoniasGR/hyperledger-fabric-sla-chaincode/lib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
-	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
+	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
 
-var walletLocation = "wallet"
+func loadConfig() *lib.Config {
+	conf := lib.Config{}
+	conf.TlsCertPath = "/fabric/tlscacerts/tlsca-signcert.pem"
+	conf.PeerEndpoint = os.Getenv("fabric_gateway_hostport")
+	conf.GatewayPeer = os.Getenv("fabric_gateway_sslHostOverride")
+	conf.ChannelName = os.Getenv("fabric_channel")
+	conf.ChaincodeName = os.Getenv("fabric_contract")
+	conf.IdentityEndpoint = os.Getenv("identity_endpoint")
+	conf.DataFolder = os.Getenv("data_folder")
+	conf.ConsumerGroup = os.Getenv("consumer_group")
+	conf.JSONFiles = make([]string, 1)
+	conf.JSONFiles[0] = filepath.Join(conf.DataFolder, "vru.json")
 
-var orgID int = 2
-var userID int = 1
+	b, err := os.ReadFile("/fabric/application/wallet/appuser_org2.id")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+	var userConf lib.UserConfig
+	err = json.Unmarshal(b, &userConf)
+	if err != nil {
+		log.Fatalf("failed to unmarshal userConf: %v", err)
+	}
 
-var channelName string = "vru"
-var contractName string = "vru_positions"
+	conf.UserConf = &userConf
+	return &conf
+}
 
 func main() {
+
+	// logf, err := os.OpenFile("logs.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	log.Fatalf("error opening file: %v", err)
+	// }
+	// defer logf.Close()
+	// log.SetOutput(logf)
+
+	conf := loadConfig()
 
 	// The topics that will be used
 	topics := make([]string, 1)
 	topics[0] = "vru_positions"
 
 	log.Println("============ application-golang starts ============")
-	err := lib.SetDiscoveryAsLocalhost(true)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
 
 	configFile := lib.ParseArgs()
 
-	ccpPath := filepath.Join(
-		"..",
-		"..",
-		"..",
-		"test-network",
-		"organizations",
-		"peerOrganizations",
-		fmt.Sprintf("org%d.example.com", orgID),
-		fmt.Sprintf("connection-org%d.yaml", orgID),
-	)
-
-	credPath := filepath.Join(
-		"..",
-		"..",
-		"..",
-		"test-network",
-		"organizations",
-		"peerOrganizations",
-		fmt.Sprintf("org%d.example.com", orgID),
-		"users",
-		fmt.Sprintf("User%d@org%d.example.com", userID, orgID),
-		"msp",
-	)
-
-	c_vru, err := kafkaUtils.CreateConsumer(*configFile[0], "vru-consumer-group")
+	c_vru, err := lib.CreateConsumer(*configFile[0], conf.ConsumerGroup, "beginning")
 	if err != nil {
 		log.Fatalf("failed to create consumer: %v", err)
 	}
@@ -78,44 +75,50 @@ func main() {
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
-	wallet, err := gateway.NewFileSystemWallet(walletLocation)
+	clientConnection, err := lib.NewGrpcConnection(*conf)
 	if err != nil {
-		log.Fatalf("Failed to create wallet: %v", err)
+		log.Fatalf("failed to create GRPC connection: %v", err)
+	}
+	defer clientConnection.Close()
+
+	id, err := lib.NewIdentity(*conf)
+	if err != nil {
+		log.Fatalf("failed to create identity: %v", err)
 	}
 
-	if !wallet.Exists("appUser") {
-		err = lib.PopulateWallet(wallet, credPath, orgID)
-		if err != nil {
-			log.Fatalf("Failed to populate wallet contents: %v", err)
-		}
+	sign, err := lib.NewSign(*conf)
+	if err != nil {
+		log.Fatalf("failed to create signature: %v", err)
 	}
 
-	gw, err := gateway.Connect(
-		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
-		gateway.WithIdentity(wallet, "appUser"),
+	// Create a Gateway connection for a specific client identity
+	gw, err := client.Connect(
+		id,
+		client.WithSign(sign),
+		client.WithClientConnection(clientConnection),
+		// Default timeouts for different gRPC calls
+		client.WithEvaluateTimeout(5*time.Second),
+		client.WithEndorseTimeout(15*time.Second),
+		client.WithSubmitTimeout(5*time.Second),
+		client.WithCommitStatusTimeout(1*time.Minute),
 	)
+
 	if err != nil {
 		log.Fatalf("failed to connect to gateway: %v", err)
 	}
 	defer gw.Close()
 
-	network, err := gw.GetNetwork(channelName)
-	if err != nil {
-		log.Fatalf("failed to get network: %v", err)
-	}
-	log.Println("Channel connected")
-
-	contract := network.GetContract(contractName)
+	network := gw.GetNetwork(conf.ChannelName)
+	contract := network.GetContract(conf.ChaincodeName)
 
 	log.Println(string(lib.ColorGreen), "--> Submit Transaction: InitLedger, function the connection with the ledger", string(lib.ColorReset))
-	result, err := contract.SubmitTransaction("InitLedger")
+	_, err = contract.SubmitTransaction("InitLedger")
 	if err != nil {
-		log.Fatalf("failed to submit transaction: %v", err)
+		lib.HandleError(err)
 	}
-	log.Println(string(result))
 
 	// Open file for logging incoming json objects
-	f, err := lib.OpenJsonFile("vru.json")
+	f, err := lib.OpenJsonFile(conf.JSONFiles[0])
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -133,21 +136,29 @@ func main() {
 				if err.(kafka.Error).Code() == kafka.ErrTimedOut {
 					continue
 				}
-				log.Fatalf("consumer failed to read: %v", err)
+				log.Printf("consumer failed to read: %v", err)
+				continue
 			}
+			log.Printf("New message received on partition: %v", msg.TopicPartition)
 			log.Println(string(msg.Value))
 			var vru_slice []lib.VRU
 
 			err = json.Unmarshal(msg.Value, &vru_slice)
 			if err != nil {
-				log.Fatalf("failed to unmarshal: %s", err)
+				var vru lib.VRU
+				err = json.Unmarshal(msg.Value, &vru)
+				if err != nil {
+					log.Printf("failed to unmarshal: %v", err)
+					continue
+				}
+				vru_slice = append(vru_slice, vru)
 			}
 			log.Println(vru_slice)
 
 			for _, vru := range vru_slice {
 				vru_json, err := json.Marshal(vru)
 				if err != nil {
-					log.Printf("Could not marshall singe vru from slice: %s", err)
+					log.Printf("Could not marshall singe vru from slice: %v", err)
 				}
 
 				jsonToFile, _ := json.MarshalIndent(vru, "", " ")
@@ -159,14 +170,14 @@ func main() {
 				CreateContract, creates new incident with Timestamp,
 				and related tram and OBUs incidents`, string(lib.ColorReset))
 
-				result, err = contract.SubmitTransaction("CreateContract",
+				result, err := contract.SubmitTransaction("CreateContract",
 					string(vru_json),
 				)
 				if err != nil {
-					log.Printf(string(lib.ColorRed)+"failed to submit transaction: %s\n"+string(lib.ColorReset), err)
+					lib.HandleError(err)
 					continue
 				}
-				fmt.Println(string(result))
+				log.Println(string(result))
 			}
 		}
 	}

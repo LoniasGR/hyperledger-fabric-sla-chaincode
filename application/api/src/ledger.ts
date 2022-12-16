@@ -2,7 +2,7 @@ import { Contract } from '@hyperledger/fabric-gateway';
 import { TextDecoder } from 'util';
 import * as errors from './errors';
 
-type UserData = {
+export type UserData = {
   id: string,
   name: string,
   balance: string,
@@ -15,9 +15,11 @@ type PartsData = {
 };
 
 type VRUData = {
-  HighRisk: number,
-  LowRisk: number,
-  NoRisk: number,
+  critical: number,
+  warning: number,
+  highRisk: number,
+  lowRisk: number,
+  noRisk: number,
 }
 
 const utf8Decoder = new TextDecoder();

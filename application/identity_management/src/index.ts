@@ -1,20 +1,24 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import { prepareContext, createUser, userExists } from './manageUser';
+import {
+  prepareContext, createUser, userExistsByKey, userExistsByName,
+} from './manageUser';
 import enrollAdmin from './enrollAdmin';
 
 dotenv.config();
-const port = process.env.EXPRESS_PORT || 3000;
+const port = process.env.EXPRESS_PORT || 8000;
 
-const ledgers: Array<string> = ['sla', 'vru', 'parts'];
+const ledgers: Array<string> = ['sla', 'vru', 'parts', 'sla2.0'];
 
 enrollAdmin(1, ledgers[0]);
 enrollAdmin(2, ledgers[1]);
 enrollAdmin(3, ledgers[2]);
+enrollAdmin(4, ledgers[3]);
 
 prepareContext(1, ledgers[0]);
 prepareContext(2, ledgers[1]);
 prepareContext(3, ledgers[2]);
+prepareContext(4, ledgers[3]);
 
 const app = express();
 app.use(express.json()); // for parsing application/json
@@ -30,16 +34,27 @@ app.post('/create', async (req, res) => {
 });
 
 app.post('/exists', async (req, res) => {
-  const { cert } = req.body;
-  const { found, org, username } = await userExists(cert.replaceAll('\n', ''));
-  if (found) {
-    console.debug(`User ${username} found on organisation ${org}`);
-  } else {
-    console.debug('User not found');
-  }
+  if ('cert' in req.body) {
+    const { cert } = req.body;
+    const { found, org, username } = await userExistsByKey(cert.replaceAll('\n', ''));
+    if (found) {
+      console.debug(`User ${username} found on organisation ${org}`);
+    } else {
+      console.debug('User not found');
+    }
 
-  return res.json({
-    success: true, exists: found, organisation: org, username,
+    return res.json({
+      success: true, exists: found, organisation: org, username,
+    });
+  } if ('username' in req.body && 'org' in req.body) {
+    const { username, org } = req.body;
+    const { found, cert } = await userExistsByName(username, org);
+    return res.json({
+      success: true, data: { exists: found, cert },
+    });
+  }
+  return res.status(400).json({
+    success: false, error: 'Malformed request',
   });
 });
 
