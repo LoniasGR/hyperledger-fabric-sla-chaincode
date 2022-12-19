@@ -186,19 +186,19 @@ func main() {
 
 				_, _, err = UserExistsOrCreate(contract, sla.Details.Provider.Name, 10000, 4, *conf)
 				if err != nil {
-					lib.lib.HandleError(err)
+					lib.HandleError(err)
 					continue
 				}
 
 				_, _, err = UserExistsOrCreate(contract, sla.Details.Client.Name, 10000, 4, *conf)
 				if err != nil {
-					lib.lib.HandleError(err)
+					lib.HandleError(err)
 					continue
 				}
 
 				err = CreateOrUpdateContract(contract, string(msg.Value))
 				if err != nil {
-					lib.lib.HandleError(err)
+					lib.HandleError(err)
 					continue
 				}
 				log.Println("submitted")

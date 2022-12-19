@@ -60,14 +60,14 @@ PLEDGER_NETWORK_CONTAINER_REGISTRY_PORT: Container registry port
 
 1. Run `./fabric-k8s.sh RUNTIME build [--registry REGISTRY] [--no-push]`
    This will build with a specific optional registry and push all the container images.
-2. Run `./fabric-k8s.sh RUNTIME init`.
-   Creates the KIND cluster, sets up ingress and cert-manager
-3. Run `./fabric-k8s.sh RUNTIME up`.
-   Brings up the CAs, orderers and peers.
-4. Run `./fabric-k8s.sh RUNTIME channels`.
-   Brings up the channels.
-5. Login to the container registry by running `./fabric-k8s.sh login`.
+2. Login to the container registry by running `./fabric-k8s.sh login`.
    This needs to happen now, because namespace to have been created.
+3. Run `./fabric-k8s.sh RUNTIME init`.
+   Creates the KIND cluster, sets up ingress and cert-manager
+4. Run `./fabric-k8s.sh RUNTIME up`.
+   Brings up the CAs, orderers and peers.
+5. Run `./fabric-k8s.sh RUNTIME channels`.
+   Brings up the channels.
 6. Run `./fabric-k8s.sh RUNTIME chaincodes`.
    Brings up the channels.
 7. Run `./fabric-k8s.sh RUNTIME applications`.
